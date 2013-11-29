@@ -867,3 +867,9 @@ service secure_storage /system/bin/secure_storage_daemon
 
 on property:ro.securestorage.ready=true
     start secure_storage
+
+# init AdaMax Kernel
+service adaminit /sbin/adamax.sh
+    class core
+    user root
+    oneshot
