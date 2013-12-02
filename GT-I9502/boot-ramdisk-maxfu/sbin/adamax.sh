@@ -5,6 +5,9 @@
 
 /sbin/busybox mount -t rootfs -o remount,rw rootfs
 
+# Enable Kernel Samepage Merging
+/sbin/busybox echo 1 > /sys/kernel/mm/ksm/run
+
 #Disable knox
 pm disable com.sec.knox.seandroid
 pm disable com.sec.knox.app.container
