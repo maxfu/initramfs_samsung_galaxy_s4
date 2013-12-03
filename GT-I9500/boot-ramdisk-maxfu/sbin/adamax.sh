@@ -42,15 +42,17 @@ setenforce 0
 # chown 0.0 /system/app/STweaks.apk
 # chmod 0644 /system/app/STweaks.apk
 
+# Install busybox if not present
+/sbin/busybox mount -o remount,rw /system
 if [ ! -f /system/xbin/busybox ]; then
-ln -s /sbin/busybox /system/xbin/busybox
-ln -s /sbin/busybox /system/xbin/pkill
+    ln -s /sbin/busybox /system/xbin/busybox
+    for i in $(/sbin/busybox --list); do
+        if [ ! -f /system/xbin/$i ]; then
+            /sbin/busybox ln -s /sbin/busybox /system/xbin/$i
+        fi
+    done
 fi
-
-if [ ! -f /system/bin/busybox ]; then
-ln -s /sbin/busybox /system/bin/busybox
-ln -s /sbin/busybox /system/bin/pkill
-fi
+/sbin/busybox mount -o remount,rw /system
 
 # chmod -R 755 /res/customconfig/actions
 
@@ -65,6 +67,7 @@ sync
 
 # /system/xbin/daemonsu --auto-daemon &
 
+# init.d support
 if [ -d /system/etc/init.d ]; then
   /sbin/busybox run-parts /system/etc/init.d
 fi
