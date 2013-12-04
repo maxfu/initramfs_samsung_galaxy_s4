@@ -35,7 +35,6 @@ setenforce 0
 # chown 0.0 /system/xbin/daemonsu
 # chmod 06755 /system/xbin/daemonsu
 
-
 # chown 0.0 /system/app/Superuser.apk
 # chmod 0644 /system/app/Superuser.apk
 
@@ -54,10 +53,13 @@ if [ ! -f /system/xbin/busybox ]; then
 fi
 /sbin/busybox mount -o remount,rw /system
 
-# chmod -R 755 /res/customconfig/actions
+# STweaks support
+chmod -R 755 /res/customconfig/actions
+chmod 755 /res/uci.sh
+/res/uci.sh apply
 
-# rm /data/.adamkernel/customconfig.xml
-# rm /data/.adamkernel/action.cache
+rm /data/.adamkernel/customconfig.xml
+rm /data/.adamkernel/action.cache
 
 /system/bin/setprop pm.sleep_mode 1
 /system/bin/setprop ro.ril.disable.power.collapse 0
@@ -71,8 +73,5 @@ sync
 if [ -d /system/etc/init.d ]; then
   /sbin/busybox run-parts /system/etc/init.d
 fi
-
-# chmod 755 /res/uci.sh
-# /res/uci.sh apply
 
 /sbin/busybox mount -t rootfs -o remount,ro rootfs
