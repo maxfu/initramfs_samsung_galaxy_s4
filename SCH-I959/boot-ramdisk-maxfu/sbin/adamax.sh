@@ -54,36 +54,6 @@ rm /data/.adamkernel/action.cache
 
 sync
 
-# Auto/Force root with koush's superuser
-if [ ! -f /system/etc/.koush ]; then
-    # Wipe other superuser suite
-    /sbin/busybox mount -o remount,rw /system
-    /sbin/busybox mount chattr -i /system/bin/su
-    /sbin/busybox mount chattr -i /system/xbin/su
-    /sbin/busybox mount rm -f /system/bin/su
-    /sbin/busybox mount rm -f /system/xbin/su
-    /sbin/busybox mount rm -f /system/app/Superuser.*
-    /sbin/busybox mount rm -f /system/app/Supersu.*
-    /sbin/busybox mount rm -f /system/app/superuser.*
-    /sbin/busybox mount rm -f /system/app/supersu.*
-    /sbin/busybox mount rm -f /system/app/SuperUser.*
-    /sbin/busybox mount rm -f /system/app/SuperSU.*
-    # Install koush's superuser
-    /sbin/busybox cp /res/superuser/su /system/xbin/
-    /sbin/busybox chown 0:0 /system/xbin/su
-    /sbin/busybox chmod 6755 /system/xbin/su
-    /sbin/busybox ln -s /system/xbin/su /system/bin/su
-    /sbin/busybox cp /res/superuser/Superuser.apk /system/app/
-    /sbin/busybox chmod 644 /system/app/Superuser.apk
-    /sbin/busybox touch /system/etc/.koush
-    /sbin/busybox mount -o remount,ro /system
-fi
-
-# Start superuser daemon
-if [ -f /system/etc/.koush ]; then
-    /system/xbin/su --daemon &
-fi
-
 # init.d support
 if [ -d /system/etc/init.d ]; then
   /sbin/busybox run-parts /system/etc/init.d
