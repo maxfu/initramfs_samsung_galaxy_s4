@@ -5,6 +5,16 @@
 
 /sbin/busybox mount -t rootfs -o remount,rw rootfs
 
+#Disable knox
+setenforce 0
+pm disable com.sec.knox.eventsmanager
+pm disable com.sec.knox.seandroid
+pm disable com.sec.enterprise.knox.attestation
+pm disable com.sec.knox.containeragent
+pm disable com.sec.knox.app.container
+pm disable com.sec.knox.store
+pm disable com.samsung.klmsagent
+
 # Enable Kernel Samepage Merging
 /sbin/busybox echo 1 > /sys/kernel/mm/ksm/run
 
@@ -17,29 +27,6 @@
 /sbin/busybox echo 1000 > /proc/sys/vm/dirty_expire_centisecs
 /sbin/busybox echo 500 > /proc/sys/vm/dirty_writeback_centisecs
 for node in $(/sbin/busybox find /sys -name nr_requests | /sbin/busybox grep mmcblk); do /sbin/busybox echo 1024 > $node; done
-
-#Disable knox
-pm disable com.samsung.klmsagent
-pm disable com.sec.knox.seandroid
-pm disable com.sec.knox.app.container
-pm disable com.sec.knox.store
-pm disable com.sec.knox.containeragent
-pm disable com.sec.enterprise.knox.attestation
-pm disable com.sec.knox.eventsmanager
-setenforce 0
-
-# chown 0.0 /system/xbin/su
-# chmod 06755 /system/xbin/su
-# symlink /system/xbin/su /system/bin/su
-
-# chown 0.0 /system/xbin/daemonsu
-# chmod 06755 /system/xbin/daemonsu
-
-# chown 0.0 /system/app/Superuser.apk
-# chmod 0644 /system/app/Superuser.apk
-
-# chown 0.0 /system/app/STweaks.apk
-# chmod 0644 /system/app/STweaks.apk
 
 # Install busybox if not present
 /sbin/busybox mount -o remount,rw /system
