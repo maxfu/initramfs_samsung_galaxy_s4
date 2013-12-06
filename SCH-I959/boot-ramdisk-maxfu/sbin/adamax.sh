@@ -5,10 +5,12 @@
 
 /sbin/busybox mount -t rootfs -o remount,rw rootfs
 
-#Disable knox
-setenforce 0
-pm disable com.sec.knox.eventsmanager
+#Disable knox seandroid
 pm disable com.sec.knox.seandroid
+setenforce 0
+
+#Disable more knox stuff
+pm disable com.sec.knox.eventsmanager
 pm disable com.sec.enterprise.knox.attestation
 pm disable com.sec.knox.containeragent
 pm disable com.sec.knox.app.container
