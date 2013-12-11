@@ -219,6 +219,7 @@ on post-fs-data
     chmod 0771 /data
     # We restorecon /data in case the userdata partition has been reset.
     restorecon /data
+    restorecon /data/.layout_version
 
     # Create dump dir and collect dumps.
     # Do this before we mount cache so eventually we can use cache for
