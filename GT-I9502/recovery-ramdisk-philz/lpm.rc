@@ -29,6 +29,7 @@ on init
 on early-fs
     mount ext4 /dev/block/mmcblk0p20 /system ro wait noatime
     mount ext4 /dev/block/mmcblk0p3 /efs noatime nosuid nodev journal_async_commit
+    mount ext4 /dev/block/mmcblk0p23 /efs_gsm noatime nosuid nodev journal_async_commit
 
     mkdir /data/log 0777
 
