@@ -20,6 +20,7 @@ on init
     mkdir /data
     mkdir /cache
     mkdir /efs
+    mkdir /efs_gsm
     mkdir /tmp
     mkdir /dbdata
     mkdir /mnt 0775 root root

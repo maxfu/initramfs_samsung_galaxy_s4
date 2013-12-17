@@ -24,6 +24,7 @@ on init
     mkdir /cache
     mkdir /preload
     mkdir /efs
+    mkdir /efs_gsm
     mkdir /tmp
     mount /tmp /tmp tmpfs
 
