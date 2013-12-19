@@ -1,6 +1,8 @@
 #!/sbin/busybox sh
 
 XML=$CONFIG_XML
+MAXFREQ=`sed 's/...$//' /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq`
+MINFREQ=`sed 's/...$//' /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq`
 
 echo "" > $XML
 
@@ -19,19 +21,19 @@ echo '
     </settingsPane>
 
     <settingsPane description="CPU scaling" name="CPU voltage control">
-      <seekbar description="Set the maximum freqency the CPU scales up to. Default: 1600 MHz."
+      <seekbar description="Set the maximum freqency the CPU scales up to. Default: ' >> $XML `sed 's/...$//' /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq` ' MHz." 
                name="CPU max frequency" 
                action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq"
                unit="KHz" reversed="false" step="50000"
-               min="250000" 
-               max="1600000" />
+               min="' >> $XML `cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq` '" 
+               max="' >> $XML `cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq` '" />
 
-      <seekbar description="Set the minimum freqency the CPU scales down to. Default: 250 MHz." 
+      <seekbar description="Set the minimum freqency the CPU scales down to. Default: ' >> $XML `sed 's/...$//' /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq` ' MHz." 
                name="CPU min frequency" 
                action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq"
                unit="KHz" reversed="false" step="50000"
-               min="250000" 
-               max="1600000" />
+               min="' >> $XML `cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq` '" 
+               max="' >> $XML `cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq` '" />
 
     </settingsPane>
 
@@ -42,8 +44,14 @@ echo '
     <settingsPane description="" name="big cores">' >> $XML
 
 while read FREQ UVOLT; do
-  if [ "$FREQ" == "600" ]; then
-    echo '</settingsPane> <settingsPane description="Actual frequencies of LITTLE cores to be multiplied by 2" name="LITTLE cores">' >> $XML
+  if [ "$MAXFREQ" == "2000" ]; then
+    if [ "$FREQ" == "650" ]; then
+      echo '</settingsPane> <settingsPane description="Actual frequencies of LITTLE cores to be multiplied by 2" name="LITTLE cores">' >> $XML
+    fi
+  else
+    if [ "$FREQ" == "600" ]; then
+      echo '</settingsPane> <settingsPane description="Actual frequencies of LITTLE cores to be multiplied by 2" name="LITTLE cores">' >> $XML
+    fi
   fi
 
   echo '<seekBar  description="Default voltage: '$UVOLT' µV"' >> $XML
@@ -55,8 +63,10 @@ done < /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table
 
 echo '
     </settingsPane>
-  </settingsTab>
+  </settingsTab>' >> $XML
 
+if [ -d '/sys/class/misc/wolfson_control/' ]; then
+echo '
   <settingsTab name="Audio">
     <settingsPane description="Headphone amplification increases volume only on headphones and headsets. The controlled input is the digital input volume for the audio DAC." 
 		  name="Headphone Amplification">
@@ -140,8 +150,10 @@ echo '
                 action="generic /sys/class/misc/wolfson_control/eq_hp_gain_5" 
                 unit="dB" min="-12" reversed="false" step="1" max="12"/>
     </settingsPane>
-  </settingsTab>
+  </settingsTab>' >> $XML
+fi
 
+echo '
   <settingsTab name="Screen">
     <settingsPane description="mobile Digital Natural Image engine control. Samsungs hardware image post-processor controls virtually any image manipulation. All control master switches, if left as delta controls, will negate the sequence setting if checked. Master sequence has SCR and CS enabled by default."
 		  name="Global controls">
