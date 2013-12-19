@@ -21,19 +21,19 @@ echo '
     </settingsPane>
 
     <settingsPane description="CPU scaling" name="CPU voltage control">
-      <seekbar description="Set the maximum freqency the CPU scales up to. Default: ' >> $XML `sed 's/...$//' /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq` ' MHz." 
+      <seekbar description="Set the maximum freqency the CPU scales up to. Default: '$MAXFREQ' MHz." 
                name="CPU max frequency" 
                action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq"
                unit="KHz" reversed="false" step="50000"
-               min="' >> $XML `cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq` '" 
-               max="' >> $XML `cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq` '" />
+               min="'`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq`'" 
+               max="'`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq`'" />
 
-      <seekbar description="Set the minimum freqency the CPU scales down to. Default: ' >> $XML `sed 's/...$//' /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq` ' MHz." 
+      <seekbar description="Set the minimum freqency the CPU scales down to. Default: '$MINFREQ' MHz." 
                name="CPU min frequency" 
                action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq"
                unit="KHz" reversed="false" step="50000"
-               min="' >> $XML `cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq` '" 
-               max="' >> $XML `cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq` '" />
+               min="'`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq`'" 
+               max="'`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq`'" />
 
     </settingsPane>
 
