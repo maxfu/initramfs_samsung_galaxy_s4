@@ -316,12 +316,12 @@ echo '
 
 
 
-      <seekBar  description="Dedicated Charging Port input current limit applied when detection of a standalone charger happens, or if a USB connector with shorted D+ and D- pins is attached. Default: ' >> $XML `cat /sys/devices/platform/sec-battery/dcp_ac_input_curr` 'mA" 
+      <seekBar  description="Dedicated Charging Port input current limit applied when detection of a standalone charger happens, or if a USB connector with shorted D+ and D- pins is attached. Default: ' >> $XML `cat /sys/devices/platform/sec-battery/dcp_input_curr` 'mA" 
 		name="DCP Input Current" 
                 action="generic /sys/devices/platform/sec-battery/dcp_input_curr"
                 unit="mA" min="400" reversed="false" step="50" max="2000"/>
 
-      <seekBar  description="Dedicated Charging Port charge current supplied to battery during charging. Default: ' >> $XML `cat /sys/devices/platform/sec-battery/dcp_ac_chrg_curr` 'mA"   
+      <seekBar  description="Dedicated Charging Port charge current supplied to battery during charging. Default: ' >> $XML `cat /sys/devices/platform/sec-battery/dcp_chrg_curr` 'mA"   
 		name="DCP Charge Current."
                 action="generic /sys/devices/platform/sec-battery/dcp_chrg_curr"
                 unit="mA" min="400" reversed="false" step="50" max="2000"/>
@@ -357,7 +357,7 @@ echo '
                 action="generic /sys/devices/platform/sec-battery/misc_input_curr"
                 unit="mA" min="100" reversed="false" step="50" max="2000"/>
 
-      <seekBar  description="Miscaenellous charge current supplied to battery during charging. Default: ' >> $XML `cat /aca/devices/platform/sec-battery/misc_chrg_curr` 'mA"  
+      <seekBar  description="Miscaenellous charge current supplied to battery during charging. Default: ' >> $XML `cat /sys/devices/platform/sec-battery/misc_chrg_curr` 'mA"  
 		name="Misc Charge Current"
                 action="generic /sys/devices/platform/sec-battery/misc_chrg_curr"
                 unit="mA" min="100" reversed="false" step="50" max="2000"/>
@@ -369,7 +369,7 @@ echo '
                 action="generic /sys/devices/platform/sec-battery/wpc_input_curr"
                 unit="mA" min="400" reversed="false" step="25" max="1500"/>
 
-      <seekBar  description="Wireless charge current supplied to battery during charging. Default: ' >> $XML `cat /aca/devices/platform/sec-battery/wpc_chrg_curr` 'mA"  
+      <seekBar  description="Wireless charge current supplied to battery during charging. Default: ' >> $XML `cat /sys/devices/platform/sec-battery/wpc_chrg_curr` 'mA"  
 		name="WPC Charge Current"
                 action="generic /sys/devices/platform/sec-battery/wpc_chrg_curr"
                 unit="mA" min="400" reversed="false" step="25" max="1500"/>
