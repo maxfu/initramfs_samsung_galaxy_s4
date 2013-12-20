@@ -21,19 +21,7 @@ echo '
     </settingsPane>' >> $XML
 
 echo '
-      <spinner name="CPU governor"
-               action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor">' >> $XML
-
-for CPUGOV in `cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors`; do
-  echo '
-        <spinnerItem name="'$CPUGOV'" value="'$CPUGOV'"/>' >> $XML
-done
-
-echo '
-      </spinner>' >> $XML
-
-echo '
-    <settingsPane description="CPU scaling" name="CPU voltage control">
+    <settingsPane description="CPU scaling" name="CPU frequency control">
       <seekbar description="Set the maximum freqency the CPU scales up to. Default: '$MAXFREQ' MHz." 
                name="CPU max frequency" 
                action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq"
@@ -47,6 +35,16 @@ echo '
                unit="KHz" reversed="false" step="50000"
                min="'`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq`'" 
                max="'`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq`'" />
+      <spinner name="Current CPU governor"
+               action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor">' >> $XML
+
+for CPUGOV in `cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors`; do
+  echo '
+        <spinnerItem name="'$CPUGOV'" value="'$CPUGOV'"/>' >> $XML
+done
+
+echo '
+      </spinner>
 
     </settingsPane>
 
@@ -83,7 +81,7 @@ echo '
   <settingsTab name="GPU">
 
     <settingsPane description="Apply the settings on boot only if the desired settings prove to be stable, else the device ends up in a boot-loop. If turned off, the displayed values do not correspond the current live values but the saved profile values, some inconsistencies may occur on applying." 
-                  name="CPU control switch">
+                  name="GPU control switch">
       <checkbox description="If enabled, the below settings will be applied at boot." 
                 name="Set GPU settings on boot" 
                 action="controlswitch GPU"
@@ -91,6 +89,7 @@ echo '
     </settingsPane>' >> $XML
 
 echo '
+    <settingsPane description="GPU scaling" name="GPU frequency control">
       <spinner name="GPU max frequency"
                action="gpugeneric /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_max_lock">' >> $XML
 
@@ -100,9 +99,8 @@ for SGXFREQ in `cat /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_table`; do
 done
 
 echo '
-      </spinner>' >> $XML
+      </spinner>
 
-echo '
       <spinner name="GPU min frequency"
                action="gpugeneric /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_min_lock">' >> $XML
 
@@ -112,14 +110,11 @@ for SGXFREQ in `cat /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_table`; do
 done
 
 echo '
-      </spinner>' >> $XML
-
-echo '
-    <settingsPane description="Decreasing voltage will lower power consumption of the CPU. Increasing it on overclocked frequencies improves stability. Too low voltage may cause instabilities and freezes. The Exynos 5410 undervolts automatically when the thermal sensor detects a cold state: the real voltage applied in that case is 75mV below the configured values." 
-                  name="CPU voltage control">
+      </spinner>
     </settingsPane>
 
-    <settingsPane description="" name="big cores">' >> $XML
+    <settingsPane description="Decreasing voltage will lower power consumption of the GPU. Increasing it on overclocked frequencies improves stability. Too low voltage may cause instabilities and freezes. The Exynos 5410 undervolts automatically when the thermal sensor detects a cold state: the real voltage applied in that case is 75mV below the configured values." 
+                  name="GPU voltage control">' >> $XML
 
 while read FREQ UVOLT; do
   echo '<seekBar  description="Default voltage: '$UVOLT' µV"' >> $XML
@@ -462,7 +457,11 @@ echo '
 
    <settingsTab name="I/O">
     <settingsPane description="Set the active I/O elevator algorithm. The scheduler decides how to handle I/O requests and how to handle them. FIOPS is the everyday recommended default scheduler."  
-                  name="I/O schedulers">' >> $XML
+                  name="I/O schedulers">
+      <checkbox description="If enabled, the below settings will be applied at boot." 
+                name="Set I/O settings on boot" 
+                action="controlswitch IOSCHED"
+                label="Set on boot"/>' >> $XML
 
 echo "
       <spinner name=\"Current internal storage scheduler\"
