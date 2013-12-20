@@ -65,6 +65,62 @@ echo '
     </settingsPane>
   </settingsTab>' >> $XML
 
+if [ -d '/sys/devices/platform/pvrsrvkm.0' ]; then
+echo '
+  <settingsTab name="GPU">
+
+    <settingsPane description="Apply the settings on boot only if the desired settings prove to be stable, else the device ends up in a boot-loop. If turned off, the displayed values do not correspond the current live values but the saved profile values, some inconsistencies may occur on applying." 
+                  name="CPU control switch">
+      <checkbox description="If enabled, the below settings will be applied at boot." 
+                name="Set GPU settings on boot" 
+                action="controlswitch GPU"
+                label="Set on boot"/>
+    </settingsPane>' >> $XML
+
+echo '
+      <spinner name="GPU max frequency"
+               action="gpugeneric /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_max_lock">' >> $XML
+
+for SGXFREQ in `cat /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_table`; do
+  echo '
+        <spinnerItem name="'$SGXFREQ'" value="'$SGXFREQ'"/>' >> $XML
+done
+
+echo '
+      </spinner>' >> $XML
+
+echo '
+      <spinner name="GPU min frequency"
+               action="gpugeneric /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_min_lock">' >> $XML
+
+for SGXFREQ in `cat /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_table`; do
+  echo '
+        <spinnerItem name="'$SGXFREQ'" value="'$SGXFREQ'"/>' >> $XML
+done
+
+echo '
+      </spinner>' >> $XML
+
+echo '
+    <settingsPane description="Decreasing voltage will lower power consumption of the CPU. Increasing it on overclocked frequencies improves stability. Too low voltage may cause instabilities and freezes. The Exynos 5410 undervolts automatically when the thermal sensor detects a cold state: the real voltage applied in that case is 75mV below the configured values." 
+                  name="CPU voltage control">
+    </settingsPane>
+
+    <settingsPane description="" name="big cores">' >> $XML
+
+while read FREQ UVOLT; do
+  echo '<seekBar  description="Default voltage: '$UVOLT' µV"' >> $XML
+
+  echo  'name="'$FREQ' MHz step"' >> $XML
+
+  echo 'action="gpuvolt '${FREQ}'" unit=" µV" min="900000" reversed="false" step="12500" max="1250000"/>' >> $XML
+done < /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_volt_table
+
+echo '
+    </settingsPane>
+  </settingsTab>' >> $XML
+fi
+
 if [ -d '/sys/class/misc/wolfson_control/' ]; then
 echo '
   <settingsTab name="Audio">
