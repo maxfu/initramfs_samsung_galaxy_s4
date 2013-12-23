@@ -638,13 +638,14 @@ service bttestdaemon /system/bin/bttestd
     group bluetooth net_bt_admin
     disabled
     oneshot
-#MHL
-#on property:ro.debuggable=1
-#    chmod 666 /sys/class/mhl/hdcp_support
-#on property:ro.debuggable=1
-#    chmod 666 /sys/class/mhl/timing
-#on property:ro.debuggable=1
-#    chmod 666 /sys/class/mhl/swing
+
+# MHL
+# on property:ro.debuggable=1
+#     chmod 666 /sys/class/mhl/hdcp_support
+# on property:ro.debuggable=1
+#     chmod 666 /sys/class/mhl/timing
+# on property:ro.debuggable=1
+#     chmod 666 /sys/class/mhl/swing
 
 #WFD
     chmod 0666 /dev/graphics/fb1
