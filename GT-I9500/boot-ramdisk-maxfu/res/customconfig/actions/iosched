@@ -12,7 +12,9 @@ if [ -z $4 ]; then
 	fi
 else
 	if [ -f $3 ];then
-		echo $4 > $3
+		if [ "$CONTROLSWITCH_IOSCHED" == "on" -o "$CONFIG_BOOTED" == "true" ]; then
+			echo $4 > $3
+		fi
 		eval $FILEVAR=`cat $3 | sed -n -e '/\[[^]]/s/^[^[]*\[\([^]]*\)].*$/\1/p'`
 	else
 		eval $FILEVAR=$4
