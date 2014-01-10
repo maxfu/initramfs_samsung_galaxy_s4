@@ -111,21 +111,26 @@ done
 
 echo '
       </spinner>
-    </settingsPane>
+    </settingsPane>' >> $XML
 
+if [ -f '/sys/devices/platform/pvrsrvkm.0/sgx_dvfs_volt_table' ]; then
+  echo '
     <settingsPane description="Decreasing voltage will lower power consumption of the GPU. Increasing it on overclocked frequencies improves stability. Too low voltage may cause instabilities and freezes. The Exynos 5410 undervolts automatically when the thermal sensor detects a cold state: the real voltage applied in that case is 75mV below the configured values." 
                   name="GPU voltage control">' >> $XML
 
-while read FREQ UVOLT; do
-  echo '<seekBar  description="Default voltage: '$UVOLT' µV"' >> $XML
+  while read GFREQ GUVOLT; do
+    echo '<seekBar  description="Default voltage: '$GUVOLT' µV"' >> $XML
 
-  echo  'name="'$FREQ' MHz step"' >> $XML
+    echo  'name="'$GFREQ' MHz step"' >> $XML
 
-  echo 'action="gpuvolt '${FREQ}'" unit=" µV" min="900000" reversed="false" step="12500" max="1250000"/>' >> $XML
-done < /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_volt_table
+    echo 'action="gpuvolt '${GFREQ}'" unit=" µV" min="900000" reversed="false" step="12500" max="1250000"/>' >> $XML
+  done < /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_volt_table
+
+  echo '
+      </settingsPane>' >> $XML
+fi
 
 echo '
-    </settingsPane>
   </settingsTab>' >> $XML
 fi
 
