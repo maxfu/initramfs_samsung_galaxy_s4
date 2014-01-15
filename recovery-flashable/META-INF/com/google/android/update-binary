@@ -11,9 +11,6 @@ echo -n -e 'ui_print Preparing files...\n' > /proc/self/fd/$2
 echo -n -e 'ui_print\n' > /proc/self/fd/$2
 
 cd /tmp
-rm -rf adamax
-mkdir adamax
-cd adamax
 unzip -o "$3"
 
 echo -n -e 'ui_print Installing boot image...\n' > /proc/self/fd/$2
@@ -26,52 +23,5 @@ echo -n -e 'ui_print\n' > /proc/self/fd/$2
 
 dd if=recovery.img of=/dev/block/mmcblk0p10
 
-echo -n -e 'ui_print Installing Superuser...\n' > /proc/self/fd/$2
+echo -n -e 'ui_print Finished...\n' > /proc/self/fd/$2
 echo -n -e 'ui_print\n' > /proc/self/fd/$2
-
-mount /system
-chattr -i /system/bin/su
-chattr -i /system/xbin/su
-rm -f /system/bin/su
-rm -f /system/xbin/su
-rm -f /system/app/Superuser.*
-rm -f /system/app/Supersu.*
-rm -f /system/app/superuser.*
-rm -f /system/app/supersu.*
-rm -f /system/app/SuperUser.*
-rm -f /system/app/SuperSU.*
-
-cp su /system/xbin/su
-chown 0:0 /system/xbin/su
-chmod 6755 /system/xbin/su
-ln -s /system/xbin/su /system/bin/su
-
-cp Superuser.apk /system/app
-chmod 644 /system/app/Superuser.apk
-
-# if the system is at least 4.3, and there is no su daemon built in,
-# let's try to install it using install-recovery.sh
-BUILD_RELEASE_VERSION="$(grep 'ro\.build\.version\.release' /system/build.prop)"
-VERSION="${BUILD_RELEASE_VERSION##*=}"
-MAJ=${VERSION%%.*}
-MIN=${VERSION#*.}
-MIN=${MIN//.*}
-
-if [ "${MAJ}${MIN}" -ge 43 ]
-then
-  # check for rom su daemon before clobbering install-recovery.sh
-  if [ ! -f "/system/etc/.has_su_daemon" ]
-  then
-      echo -n -e 'ui_print Installing Superuser daemon...\n' > /proc/self/fd/$2
-      echo -n -e 'ui_print\n' > /proc/self/fd/$2
-      chattr -i /system/etc/install-recovery.sh
-      cp install-recovery.sh /system/etc/install-recovery.sh
-      chmod 755 /system/etc/install-recovery.sh
-      # note that an post install su daemon was installed
-      # so recovery doesn't freak out and recommend you disable
-      # the install-recovery.sh execute bit.
-      touch /system/etc/.installed_su_daemon
-  fi
-fi
-
-umount /system
