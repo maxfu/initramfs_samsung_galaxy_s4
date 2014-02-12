@@ -361,6 +361,8 @@ echo '
 
       <button description="Detect the currently connected charging source." name="" action="charge-source" label="Detect live charging source"/>
 
+      <button description="Detect the current charging current." name="" action="charge-current" label="Detect live charging current"/>
+
       <seekBar  description="AC or mains input current limit applied to designated dedicated chargers and corresponding cables. Default: ' >> $XML `cat /sys/devices/platform/sec-battery/ac_input_curr` 'mA" 
 		name="AC / Mains Input Current" 
                 action="generic /sys/devices/platform/sec-battery/ac_input_curr"
@@ -519,6 +521,23 @@ echo '
                 name="Enable/Disable Android Logger" 
                 action="generic01 /sys/kernel/logger_mode/logger_mode" 
                 label="Enable Android logger"/>
+
+    </settingsPane>
+
+  </settingsTab>
+  
+  <settingsTab name="Tools">
+
+    <settingsPane name="Reboot Options" 
+                  description="Reboot the phone to different modes. Normal mode just reboots the phone. In Recovery mode, user can flash ZIP packages on the sdcard or wipe the data to factory settings. In Download mode, user can flash the phone through Odin or Hamidal.">
+
+      <button description="Reboot the phone." name="" action="reboot-normal" label="Normal"/>
+
+      <button description="Reboot the phone to recovery mode." name="" action="reboot-recovery" label="Recovery"/>
+
+      <button description="Reboot the phone to download mode." name="" action="reboot-download" label="Download"/>
+
+      <button description="Shutdown the phone." name="" action="reboot-halt" label="Shutdown"/>
 
     </settingsPane>
 

@@ -1,0 +1,5 @@
+#!/sbin/busybox sh
+
+echo 'The phone will shutdown in 5 seconds...'
+sleep 5
+halt
