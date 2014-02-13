@@ -470,25 +470,25 @@ echo '
                 action="controlswitch IOSCHED"
                 label="Set on boot"/>' >> $XML
 
-echo "
-      <spinner name=\"Current internal storage scheduler\"
-               action=\"iosched internal /sys/block/mmcblk0/queue/scheduler\">" >> $XML
+echo '
+      <spinner name="Current internal storage scheduler"
+               action="iosched internal /sys/block/mmcblk0/queue/scheduler">' >> $XML
 
 for IOSCHED in `cat /sys/block/mmcblk0/queue/scheduler | sed -e 's/\]//;s/\[//'`; do
-  echo "
-        <spinnerItem name=\"$IOSCHED\" value=\"$IOSCHED\"/>" >> $XML
+  echo '
+        <spinnerItem name="'$IOSCHED'" value="'$IOSCHED'"/>' >> $XML
 done
 
 echo '
       </spinner>' >> $XML
 
-echo "
-      <spinner name=\"Current SD card scheduler\"
-               action=\"iosched sd /sys/block/mmcblk1/queue/scheduler\">" >> $XML
+echo '
+      <spinner name="Current SD card scheduler"
+               action="iosched sd /sys/block/mmcblk1/queue/scheduler">' >> $XML
 
 for IOSCHED in `cat /sys/block/mmcblk1/queue/scheduler | sed -e 's/\]//;s/\[//'`; do
-  echo "
-        <spinnerItem name=\"$IOSCHED\" value=\"$IOSCHED\"/>" >> $XML
+  echo '
+        <spinnerItem name="'$IOSCHED'" value="'$IOSCHED'"/>' >> $XML
 done
 
 echo '
@@ -514,18 +514,29 @@ echo '
 
   <settingsTab name="Logger">
 
-	<settingsPane name="Android Logger" 
+    <settingsPane name="Android Logger" 
                   description="Android Logger is a useful tool for developers to test and debug their Applications, but it can be disabled on normal use, this may give you better performance.">
-
+      <checkbox description="If enabled, the below settings will be applied at boot." 
+                name="Set I/O settings on boot" 
+                action="controlswitch LOGGER"
+                label="Set on boot"/>' >> $XML
+if [ -f '/lib/modules/logger.ko' ]; then
+echo '
       <checkbox description="It is recommended to disable Android Logger if you do not need it" 
                 name="Enable/Disable Android Logger" 
-                action="generic01 /sys/kernel/logger_mode/logger_mode" 
-                label="Enable Android logger"/>
-
+                action="loggergeneric /lib/modules/logger.ko" 
+                label="Enable Android logger"/>' >> $XML
+elif [ -f '/sys/kernel/logger_mode/logger_mode' ]; then
+echo '
+      <checkbox description="It is recommended to disable Android Logger if you do not need it" 
+                name="Enable/Disable Android Logger" 
+                action="loggergeneric /sys/kernel/logger_mode/logger_mode" 
+                label="Enable Android logger"/>' >> $XML
+fi
+echo '
     </settingsPane>
-
   </settingsTab>
-  
+
   <settingsTab name="Tools">
 
     <settingsPane name="Reboot Options" 

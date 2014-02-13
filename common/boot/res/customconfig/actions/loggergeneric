@@ -1,0 +1,57 @@
+#!/sbin/busybox sh
+
+FILEVAR=$(basename $2)
+
+if [ "$FILEVAR"=='logger.ko' ];then
+	if [ -z $3 ]; then
+		evalcmd='eval echo \$$FILEVAR'
+		if [ "a`eval $evalcmd`" == "a" ]; then
+			lsmod | grep ${FILEVAR%.ko}
+			ON=`echo $?`
+			if [ $ON -eq 1 ]; then
+				VAL="off"
+			else
+				VAL="on"
+			fi
+
+			eval $FILEVAR=$VAL
+			echo $FILEVAR=$VAL >> $DEFAULT_PROFILE
+		fi
+	else
+		if [ "$CONTROLSWITCH_LOGGER" == "on" -o "$CONFIG_BOOTED" == "true" ]; then
+			case "$3" in
+				off)	rmmod $2	;;
+				on)	insmod $2	;;
+			esac
+		fi
+		eval $FILEVAR=$3
+	fi
+
+	eval echo \$$FILEVAR
+
+elif [ "$FILEVAR"=='logger_mode' ];then
+	if [ -z $3 ]; then
+		evalcmd='eval echo \$$FILEVAR'
+		if [ "a`eval $evalcmd`" == "a" ]; then
+			ON=`cat $2`
+			if [ $ON -eq 0 ]; then
+				VAL="off"
+			else
+				VAL="on"
+			fi
+
+			eval $FILEVAR=$VAL
+			echo $FILEVAR=$VAL >> $DEFAULT_PROFILE
+		fi
+	else
+		if [ "$CONTROLSWITCH_LOGGER" == "on" -o "$CONFIG_BOOTED" == "true" ]; then
+			case "$3" in
+				off)	echo 0 > $2	;;
+				on)	echo 1 > $2	;;
+			esac
+		fi
+		eval $FILEVAR=$3
+	fi
+
+	eval echo \$$FILEVAR
+fi
