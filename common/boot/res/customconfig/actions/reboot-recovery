@@ -1,5 +1,0 @@
-#!/sbin/busybox sh
-
-echo 'The phone will reboot to Recovery in 5 seconds...'
-sleep 5
-reboot recovery

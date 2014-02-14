@@ -524,13 +524,13 @@ if [ -f '/lib/modules/logger.ko' ]; then
 echo '
       <checkbox description="It is recommended to disable Android Logger if you do not need it" 
                 name="Enable/Disable Android Logger" 
-                action="loggergeneric /lib/modules/logger.ko" 
+                action="logger module" 
                 label="Enable Android logger"/>' >> $XML
 elif [ -f '/sys/kernel/logger_mode/logger_mode' ]; then
 echo '
       <checkbox description="It is recommended to disable Android Logger if you do not need it" 
                 name="Enable/Disable Android Logger" 
-                action="loggergeneric /sys/kernel/logger_mode/logger_mode" 
+                action="logger switch" 
                 label="Enable Android logger"/>' >> $XML
 fi
 echo '
@@ -542,13 +542,13 @@ echo '
     <settingsPane name="Reboot Options" 
                   description="Reboot the phone to different modes. Normal mode just reboots the phone. In Recovery mode, user can flash ZIP packages on the sdcard or wipe the data to factory settings. In Download mode, user can flash the phone through Odin or Hamidal.">
 
-      <button description="Reboot the phone." name="" action="reboot-normal" label="Normal"/>
+      <button description="Reboot the phone." name="" action="poweroff reboot" label="Normal"/>
 
-      <button description="Reboot the phone to recovery mode." name="" action="reboot-recovery" label="Recovery"/>
+      <button description="Reboot the phone to recovery mode." name="" action="poweroff recovery" label="Recovery"/>
 
-      <button description="Reboot the phone to download mode." name="" action="reboot-download" label="Download"/>
+      <button description="Reboot the phone to download mode." name="" action="poweroff download" label="Download"/>
 
-      <button description="Shutdown the phone." name="" action="reboot-halt" label="Shutdown"/>
+      <button description="Shutdown the phone." name="" action="poweroff normal" label="Shutdown"/>
 
     </settingsPane>
 

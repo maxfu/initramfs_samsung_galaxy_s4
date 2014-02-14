@@ -1,12 +1,12 @@
 #!/sbin/busybox sh
 
-FILEVAR=$(basename $2)
+FILEVAR=logger
 
-if [ "$FILEVAR"=='logger.ko' ];then
+if [ $2 -eq "module" ];then
 	if [ -z $3 ]; then
 		evalcmd='eval echo \$$FILEVAR'
 		if [ "a`eval $evalcmd`" == "a" ]; then
-			lsmod | grep ${FILEVAR%.ko}
+			lsmod | grep logger
 			ON=`echo $?`
 			if [ $ON -eq 1 ]; then
 				VAL="off"
@@ -20,8 +20,8 @@ if [ "$FILEVAR"=='logger.ko' ];then
 	else
 		if [ "$CONTROLSWITCH_LOGGER" == "on" -o "$CONFIG_BOOTED" == "true" ]; then
 			case "$3" in
-				off)	rmmod $2	;;
-				on)	insmod $2	;;
+				off)	rmmod /lib/modules/logger.ko	;;
+				on)	insmod /lib/modules/logger.ko	;;
 			esac
 		fi
 		eval $FILEVAR=$3
@@ -29,11 +29,11 @@ if [ "$FILEVAR"=='logger.ko' ];then
 
 	eval echo \$$FILEVAR
 
-elif [ "$FILEVAR"=='logger_mode' ];then
+elif [ $2 -eq "switch" ];then
 	if [ -z $3 ]; then
 		evalcmd='eval echo \$$FILEVAR'
 		if [ "a`eval $evalcmd`" == "a" ]; then
-			ON=`cat $2`
+			ON=`cat /sys/kernel/logger_mode/logger_mode`
 			if [ $ON -eq 0 ]; then
 				VAL="off"
 			else
@@ -46,8 +46,8 @@ elif [ "$FILEVAR"=='logger_mode' ];then
 	else
 		if [ "$CONTROLSWITCH_LOGGER" == "on" -o "$CONFIG_BOOTED" == "true" ]; then
 			case "$3" in
-				off)	echo 0 > $2	;;
-				on)	echo 1 > $2	;;
+				off)	echo 0 > /sys/kernel/logger_mode/logger_mode	;;
+				on)	echo 1 > /sys/kernel/logger_mode/logger_mode	;;
 			esac
 		fi
 		eval $FILEVAR=$3
