@@ -21,6 +21,36 @@ echo '
     </settingsPane>' >> $XML
 
 echo '
+    <settingsPane description="These settings control the system wide CPU power usage. The frequency settings in this section can override the ones in the CPU Scaling section. To get right result, set both." name="CPU Power Management">
+      <seekbar description="Set the maximum number the CPU uses. Default: 4 Cores." 
+               name="CPU max core number limit" 
+               action="cpugeneric /sys/power/cpucore_max_num_limit"
+               unit="Cores" reversed="false" step="1"
+               min="1" 
+               max="4" />
+
+      <seekbar description="Set the minimum number the CPU uses. Default: 1 Cores." 
+               name="CPU min core number limit" 
+               action="cpugeneric /sys/power/cpucore_min_num_limit"
+               unit="Cores" reversed="false" step="1"
+               min="1" 
+               max="4" />
+
+      <seekbar description="Set the maximum freqency the CPU scales up to. Default: '$MAXFREQ' MHz." 
+               name="CPU max frequency limit" 
+               action="cpugeneric /sys/power/cpufreq_max_limit"
+               unit="KHz" reversed="false" step="50000"
+               min="'`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq`'" 
+               max="'`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq`'" />
+
+      <seekbar description="Set the minimum freqency the CPU scales down to. Default: '$MINFREQ' MHz." 
+               name="CPU min frequency limit" 
+               action="cpugeneric /sys/power/cpufreq_min_limit"
+               unit="KHz" reversed="false" step="50000"
+               min="'`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq`'" 
+               max="'`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq`'" />
+    </settingsPane>
+
     <settingsPane description="CPU scaling" name="CPU frequency control">
       <seekbar description="Set the maximum freqency the CPU scales up to. Default: '$MAXFREQ' MHz." 
                name="CPU max frequency" 
