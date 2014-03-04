@@ -1,0 +1,6 @@
+Sun Apr 28 05:31:24 GMT 2013
+cpio: dev not created: newer or same age file exists
+cpio: proc not created: newer or same age file exists
+cpio: sys not created: newer or same age file exists
+1145 blocks
+Sun Apr 28 05:31:24 GMT 2013

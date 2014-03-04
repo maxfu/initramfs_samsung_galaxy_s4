@@ -1,0 +1,83 @@
+#!/sbin/busybox sh
+
+PATH_=$PATH
+BB=/sbin/busybox
+PATH_HYDRA=/res/misc/hydrafs
+PATH_SYSTEM=$PATH_HYDRA/mnt/system
+PATH_PROC=$PATH_HYDRA/mnt/proc
+export PATH=/sbin
+
+# extract block device files
+$BB tar -xf /misc/dev.tar
+
+$BB mount -t proc proc $PATH_PROC
+RECOVERY_MODE=$($BB grep -c bootmode=2 $PATH_PROC/cmdline)
+$BB umount $PATH_PROC
+
+if [ $RECOVERY_MODE = "1" ]; then
+    # recovery mode
+    # set feature_aosp -> aosp
+    # mount -t proc proc /proc
+    # echo 1 > /proc/sys/kernel/rom_feature_set
+    # umount /proc
+
+    $BB rm -f /init
+    $BB cp -rf $PATH_HYDRA/recovery/* /
+else
+    # normal mode
+    $BB mount -t ext4 /dev/block/mmcblk0p9 $PATH_SYSTEM
+    SDK_VER=$($BB grep ro\.build\.version\.sdk $PATH_SYSTEM/build.prop | $BB cut -d'=' -f2)
+
+    $BB rm -f /init
+    if [ $SDK_VER = "17" ]; then
+        if [ -f $PATH_SYSTEM/framework/twframework.jar ]; then
+            $BB echo "TWJB17" > $PATH_SYSTEM/version.prop
+            $BB cp -rf $PATH_HYDRA/twjb/* /
+        else
+            $BB echo "AOSPJB17" > $PATH_SYSTEM/version.prop
+            $BB cp -rf $PATH_HYDRA/aospjbb/* /
+        fi
+    elif [ $SDK_VER = "16" ]; then
+        if [ -f $PATH_SYSTEM/framework/twframework.jar ]; then
+            $BB echo "TWJB16" > $PATH_SYSTEM/version.prop
+            $BB cp -rf $PATH_HYDRA/twjb/* /
+        else
+            $BB echo "AOSPJB16" > $PATH_SYSTEM/version.prop
+            $BB cp -rf $PATH_HYDRA/aospjba/* /
+        fi
+    else
+        if [ -f $PATH_SYSTEM/framework/twframework.jar ]; then
+            if [ -f $PATH_SYSTEM/framework/framework-miui.jar ]; then
+                $BB echo "TWICS" > $PATH_SYSTEM/version.prop
+                $BB cp -rf $PATH_HYDRA/miuiics/* /
+            else
+                $BB echo "TWICS" > $PATH_SYSTEM/version.prop
+                $BB cp -rf $PATH_HYDRA/twics/* /
+            fi
+        else
+            $BB echo "AOSPICS" > $PATH_SYSTEM/version.prop
+            $BB cp -rf $PATH_HYDRA/aospics/* /
+        fi
+    fi
+
+    # auto home key restore
+    $BB mount -o remount,rw $PATH_SYSTEM;
+    GPIOKEYS="$PATH_SYSTEM/usr/keylayout/gpio-keys.kl";
+    if [ -e $GPIOKEYS ]; then
+        KHCOUNT=$($BB cat $GPIOKEYS | $BB grep "102" -c);
+        if [ $KHCOUNT = "1" ]; then
+            $BB sed -i 's/102/172/g' $GPIOKEYS;
+        fi;
+    fi;
+
+    $BB umount $PATH_SYSTEM
+fi
+
+# cleanup
+$BB rm -rf /dev/* /misc/dev.tar
+
+export PATH=$PATH_
+
+cd /
+$BB sync
+exec /init
