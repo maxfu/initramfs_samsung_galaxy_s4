@@ -360,6 +360,10 @@ on post-fs-data
     mkdir /data/backup 0700 system system
     restorecon /data/backup
 
+    # symlink to bugreport storage location
+    symlink /data/data/com.android.shell/files/bugreports /data/bugreports
+
+
 on boot
 # basic network init
     ifup lo
@@ -796,6 +800,15 @@ service sdumpstate /system/bin/dumpstate -P
     class main
     disabled
     oneshot
+
+# bugreport 
+service bugreport /system/bin/dumpstate -d -p -B \
+                -o /data/data/com.android.shell/files/bugreports/bugreport
+    class main
+    disabled
+    oneshot
+    keycodes 114 115 116
+
 
 # service for TZPR provisioning version check app
 service scranton_RD /system/bin/scranton_RD
