@@ -1,0 +1,8 @@
+#!/sbin/busybox sh
+
+sleep 3
+if [ $2 -eq "normal" ];then
+  halt
+else
+  reboot $2
+fi

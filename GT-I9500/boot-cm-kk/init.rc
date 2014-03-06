@@ -585,3 +585,13 @@ service mdnsd /system/bin/mdnsd
     socket mdnsd stream 0660 mdnsr inet
     disabled
     oneshot
+
+on property:sys.boot_completed=1
+#   write /sys/block/mmcblk0/queue/scheduler cfq
+    start adaminit
+
+# init AdaMax Kernel
+service adaminit /sbin/adamax.sh
+    class core
+    user root
+    oneshot
