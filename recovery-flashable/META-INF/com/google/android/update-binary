@@ -25,5 +25,66 @@ if [ -f recovery.img ]; then
   dd if=recovery.img of=/dev/block/mmcblk0p10
 fi
 
-echo -n -e 'ui_print Finished...\n' > /proc/self/fd/$2
+echo -n -e 'ui_print Installing Superuser...\n' > /proc/self/fd/$2
 echo -n -e 'ui_print\n' > /proc/self/fd/$2
+
+mount /system
+chattr -i /system/bin/su
+chattr -i /system/xbin/su
+rm -f /system/bin/su
+rm -f /system/xbin/su
+rm -f /system/app/Superuser.*
+rm -f /system/app/Supersu.*
+rm -f /system/app/superuser.*
+rm -f /system/app/supersu.*
+rm -f /system/app/SuperUser.*
+rm -f /system/app/SuperSU.*
+
+cp superuser/su /system/xbin/su
+chown 0:0 /system/xbin/su
+chmod 6755 /system/xbin/su
+/system/bin/toolbox chcon u:object_r:system_file:s0 /system/xbin/su
+chcon u:object_r:system_file:s0 /system/xbin/su
+ln -s /system/xbin/su /system/bin/su
+/system/bin/toolbox chcon u:object_r:system_file:s0 /system/bin/su
+chcon u:object_r:system_file:s0 /system/bin/su
+mkdir /system/bin/.ext
+ln -s /system/xbin/su /system/bin/.ext/.su
+/system/bin/toolbox chcon u:object_r:system_file:s0 /system/bin/.ext/.su
+chcon u:object_r:system_file:s0 /system/bin/.ext/.su
+
+cp superuser/Superuser.apk /system/app
+chmod 644 /system/app/Superuser.apk
+/system/bin/toolbox chcon u:object_r:system_file:s0 /system/app/Superuser.apk
+chcon u:object_r:system_file:s0 /system/app/Superuser.apk
+
+# if the system is at least 4.3, and there is no su daemon built in,
+# let's try to install it using install-recovery.sh
+BUILD_RELEASE_VERSION="$(grep 'ro\.build\.version\.release' /system/build.prop)"
+VERSION="${BUILD_RELEASE_VERSION##*=}"
+MAJ=${VERSION%%.*}
+MIN=${VERSION#*.}
+MIN=${MIN//.*}
+
+if [ "${MAJ}${MIN}" -ge 43 ]
+then
+  # check for rom su daemon before clobbering install-recovery.sh
+  if [ ! -f "/system/etc/.installed_su_daemon" ]
+  then
+    echo -n -e 'ui_print Installing Superuser daemon...\n' > /proc/self/fd/$2
+    echo -n -e 'ui_print\n' > /proc/self/fd/$2
+    chattr -i /system/etc/install-recovery.sh
+    cp superuser/install-recovery.sh /system/etc/install-recovery.sh
+    chmod 755 /system/etc/install-recovery.sh
+    # note that an post install su daemon was installed
+    # so recovery doesn't freak out and recommend you disable
+    # the install-recovery.sh execute bit.
+    touch /system/etc/.installed_su_daemon
+    /system/bin/toolbox chcon u:object_r:system_file:s0 /system/etc/install-recovery.sh
+    chcon u:object_r:system_file:s0 /system/etc/install-recovery.sh
+    /system/bin/toolbox chcon u:object_r:system_file:s0 /system/etc/.installed_su_daemon
+    chcon u:object_r:system_file:s0 /system/etc/.installed_su_daemon
+  fi
+fi
+
+umount /system
