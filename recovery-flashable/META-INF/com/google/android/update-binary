@@ -30,17 +30,52 @@ echo -n -e 'ui_print\n' > /proc/self/fd/$2
 
 mount /system
 chattr -i /system/bin/su
+chattr -i /system/bin/.ext/.su
 chattr -i /system/xbin/su
-rm -f /system/bin/su
-rm -f /system/xbin/su
-rm -f /system/app/Superuser.*
-rm -f /system/app/Supersu.*
-rm -f /system/app/superuser.*
-rm -f /system/app/supersu.*
-rm -f /system/app/SuperUser.*
-rm -f /system/app/SuperSU.*
+chattr -i /system/xbin/daemonsu
 
-cp superuser/su /system/xbin/su
+rm -f /system/bin/su
+rm -f /system/bin/.ext/.su
+rm -f /system/xbin/su
+rm -f /system/xbin/daemonsu
+rm -f /system/app/superuser.apk
+rm -f /system/app/superuser.odex
+rm -f /system/app/Superuser.apk
+rm -f /system/app/Superuser.odex
+rm -f /system/app/SuperUser.apk
+rm -f /system/app/SuperUser.odex
+rm -f /system/app/SUPERUSER.apk
+rm -f /system/app/SUPERUSER.odex
+rm -f /system/app/supersu.apk
+rm -f /system/app/supersu.odex
+rm -f /system/app/Supersu.apk
+rm -f /system/app/Supersu.odex
+rm -f /system/app/SuperSu.apk
+rm -f /system/app/SuperSu.odex
+rm -f /system/app/SuperSU.apk
+rm -f /system/app/SuperSU.odex
+rm -f /system/app/SUPERSU.apk
+rm -f /system/app/SUPERSU.odex
+rm -f /system/etc/install-recovery.sh
+rm -f /system/etc/init.d/99SuperSUDaemon
+rm -f /system/etc/.installed_su_daemon
+rm -f /data/dalvik-cache/*com.noshufou.android.su*
+rm -f /data/dalvik-cache/*com.koushikdutta.superuser*
+rm -f /data/dalvik-cache/*com.mgyun.shua.su*
+rm -f /data/dalvik-cache/*Superuser.apk*
+rm -f /data/dalvik-cache/*SuperUser.apk*
+rm -f /data/dalvik-cache/*superuser.apk*
+rm -f /data/dalvik-cache/*eu.chainfire.supersu*
+rm -f /data/dalvik-cache/*Supersu.apk*
+rm -f /data/dalvik-cache/*SuperSU.apk*
+rm -f /data/dalvik-cache/*supersu.apk*
+rm -f /data/dalvik-cache/*.oat
+rm -f /data/app/com.noshufou.android.su-*
+rm -f /data/app/com.koushikdutta.superuser-*
+rm -f /data/app/com.mgyun.shua.su-*
+rm -f /data/app/eu.chainfire.supersu-*
+
+cp /tmp/superuser/su /system/xbin/su
 chown 0:0 /system/xbin/su
 chmod 6755 /system/xbin/su
 /system/bin/toolbox chcon u:object_r:system_file:s0 /system/xbin/su
@@ -53,7 +88,7 @@ ln -s /system/xbin/su /system/bin/.ext/.su
 /system/bin/toolbox chcon u:object_r:system_file:s0 /system/bin/.ext/.su
 chcon u:object_r:system_file:s0 /system/bin/.ext/.su
 
-cp superuser/Superuser.apk /system/app
+cp /tmp/superuser/Superuser.apk /system/app
 chmod 644 /system/app/Superuser.apk
 /system/bin/toolbox chcon u:object_r:system_file:s0 /system/app/Superuser.apk
 chcon u:object_r:system_file:s0 /system/app/Superuser.apk
@@ -74,7 +109,7 @@ then
     echo -n -e 'ui_print Installing Superuser daemon...\n' > /proc/self/fd/$2
     echo -n -e 'ui_print\n' > /proc/self/fd/$2
     chattr -i /system/etc/install-recovery.sh
-    cp superuser/install-recovery.sh /system/etc/install-recovery.sh
+    cp /tmp/superuser/install-recovery.sh /system/etc/install-recovery.sh
     chmod 755 /system/etc/install-recovery.sh
     # note that an post install su daemon was installed
     # so recovery doesn't freak out and recommend you disable
