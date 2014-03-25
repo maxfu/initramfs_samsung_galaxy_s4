@@ -133,15 +133,15 @@ echo '            <seekBar description="" name="Radius" action="generic /sys/cla
 echo '            <seekBar description="" name="Threshold" action="generic /sys/class/misc/mdnie/hook_control/de_positive_b" unit="" min="-128" reversed="false" step="1" max="128"/>' >> $XML
 echo '        </settingsPane>' >> $XML
 # settingsPane: start: Chroma saturation control
-echo '    <settingsPane description="Chroma saturation works in the HSL colour space, modifying saturation will dilute the hue with white or darken with black. Variations in chroma are achieved by adding different amounts of a neutral gray of the same value as the color you want to alter." name="Chroma saturation control">' >> $XML
-echo '      <seekBar description="Saturation weight/multipliers for RGB/YCM chroma gains" name="Chroma saturation weight" action="generic /sys/class/misc/mdnie/hook_control/cs_weight" unit="" min="-20" reversed="false" step="1" max="20"/>' >> $XML
-echo '      <seekBar description="" name="Red gain" action="generic /sys/class/misc/mdnie/hook_control/cs_red" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
-echo '      <seekBar description="" name="Green gain" action="generic /sys/class/misc/mdnie/hook_control/cs_green" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
-echo '      <seekBar description="" name="Blue gain" action="generic /sys/class/misc/mdnie/hook_control/cs_blue" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
-echo '      <seekBar description="" name="Yellow gain" action="generic /sys/class/misc/mdnie/hook_control/cs_yellow" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
-echo '      <seekBar description="" name="Cyan gain" action="generic /sys/class/misc/mdnie/hook_control/cs_cyan" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
-echo '      <seekBar description="" name="Magenta gain" action="generic /sys/class/misc/mdnie/hook_control/cs_magenta" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
-echo '    </settingsPane>' >> $XML
+echo '        <settingsPane description="Chroma saturation works in the HSL colour space, modifying saturation will dilute the hue with white or darken with black. Variations in chroma are achieved by adding different amounts of a neutral gray of the same value as the color you want to alter." name="Chroma saturation control">' >> $XML
+echo '            <seekBar description="Saturation weight/multipliers for RGB/YCM chroma gains" name="Chroma saturation weight" action="generic /sys/class/misc/mdnie/hook_control/cs_weight" unit="" min="-20" reversed="false" step="1" max="20"/>' >> $XML
+echo '            <seekBar description="" name="Red gain" action="generic /sys/class/misc/mdnie/hook_control/cs_red" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
+echo '            <seekBar description="" name="Green gain" action="generic /sys/class/misc/mdnie/hook_control/cs_green" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
+echo '            <seekBar description="" name="Blue gain" action="generic /sys/class/misc/mdnie/hook_control/cs_blue" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
+echo '            <seekBar description="" name="Yellow gain" action="generic /sys/class/misc/mdnie/hook_control/cs_yellow" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
+echo '            <seekBar description="" name="Cyan gain" action="generic /sys/class/misc/mdnie/hook_control/cs_cyan" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
+echo '            <seekBar description="" name="Magenta gain" action="generic /sys/class/misc/mdnie/hook_control/cs_magenta" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
+echo '        </settingsPane>' >> $XML
 # settingsPane: start: White colour balance
 echo '        <settingsPane description="The controls is divided in 8 channels, RGB, YCM, W and K. SCR controls are RGB modifiers on each of the controls altering the primary luminosities on that channel." name="White colour balance">' >> $XML
 echo '            <seekBar description="Red in white" name="Red" action="generic /sys/class/misc/mdnie/hook_control/scr_white_red" unit="" min="-16" reversed="false" step="1" max="16"/>' >> $XML
