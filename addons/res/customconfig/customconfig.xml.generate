@@ -229,6 +229,10 @@ echo '    </settingsTab>' >> $XML
 
 # settingsTab: start: Tools
 echo '    <settingsTab name="Tools">' >> $XML
+echo '        <settingsPane description="Choose the USB mode." name="USB Mode">' >> $XML
+echo '            <button description="Switch to USB Mass Storage Mode." name="" action="usbmode ums" label="USB Mass Storage Mode"/>' >> $XML
+echo '            <button description="MTP Mode." name="" action="usbmode mtp" label="MTP Mode"/>' >> $XML
+echo '        </settingsPane>' >> $XML
 echo '        <settingsPane description="Reboot the phone to different modes. Normal mode just reboots the phone. In Recovery mode, user can flash ZIP packages on the sdcard or wipe the data to factory settings. In Download mode, user can flash the phone through Odin or Hamidal." name="Reboot Options">' >> $XML
 echo '            <button description="Reboot the phone." name="" action="poweroff reboot" label="Normal"/>' >> $XML
 echo '            <button description="Reboot the phone to recovery mode." name="" action="poweroff recovery" label="Recovery"/>' >> $XML
