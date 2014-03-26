@@ -3,15 +3,15 @@
 BLOCK=`mount | sed 's/ on / /g' | grep extSdCard | cut -f 1 -d ' ' | grep /dev/block`
 LUN=`find /sys -name lun* | grep android_usb`
 
-if [ $2 -eq "ums" ]; then
+if [ "$2" == "ums" ]; then
   setprop persist.sys.usb.config mass_storage,adb
   setprop sys.usb.config mass_storage,adb
-  echo $BLOCK > $LUN
-elif [ $2 -eq "mtp" ]; then
-  echo "" > $LUN
+  echo $BLOCK > $LUN/file
+  echo 'USB Mode: '$2
+elif [ "$2" == "mtp" ]; then
+  echo "" > $LUN/file
   vold
   setprop persist.sys.usb.config mtp,adb
   setprop sys.usb.config mtp,adb
+  echo 'USB Mode: '$2
 fi
-
-echo 'USB Mode: '$2
