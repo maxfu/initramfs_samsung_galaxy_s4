@@ -227,6 +227,27 @@ fi
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
 
+# settingsTab: start: Package Manager
+echo '    <settingsTab name="Package Manager">' >> $XML
+# settingsPane: start: Package Manager
+echo '        <settingsPane description="Package Manager can disable/enable packages. Disabling a system app is always safer than uninstalling it. Click and apply to disable." name="Disable Packages">' >> $XML
+for i in `pm list packages -e -f`; do
+INFO=${i#*:}
+NAME=${INFO#*=}
+FILE=${INFO%=*}
+echo '            <checkbox description="Disable '$NAME', which is '$FILE'. Do this with caution if the file is in /system/app." name="Disable '$NAME'" action="packagemanager disable '$NAME'" label="Disable '$NAME'"/>' >> $XML
+done
+echo '        </settingsPane>' >> $XML
+echo '        <settingsPane description="Following apps are currently disabled, click and apply to enable." name="Enable Packages">' >> $XML
+for i in `pm list packages -d -f`; do
+INFO=${i#*:}
+NAME=${INFO#*=}
+FILE=${INFO%=*}
+echo '            <checkbox description="Enable '$NAME', which is '$FILE'." name="Enable '$NAME'" action="packagemanager enable '$NAME'" label="Enable '$NAME'"/>' >> $XML
+done
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
+
 # settingsTab: start: Tools
 echo '    <settingsTab name="Tools">' >> $XML
 echo '        <settingsPane description="Choose the USB mode." name="USB Mode">' >> $XML

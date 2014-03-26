@@ -1,0 +1,14 @@
+#!/sbin/busybox sh
+
+BLOCK=`mount | sed 's/ on / /g' | grep extSdCard | cut -f 1 -d ' ' | grep /dev/block`
+LUN=`find /sys -name lun* | grep android_usb`
+
+if [ "$2" == "disable" ]; then
+  pm disable $3
+  echo 'Package Manager: disabled '$3
+elif [ "$2" == "enable" ]; then
+  pm enable $3
+  echo 'Package Manager: enabled '$3
+elif [ "$2" == "purge" ]; then
+  echo 'Package Manager: purge is bot ready'
+fi
