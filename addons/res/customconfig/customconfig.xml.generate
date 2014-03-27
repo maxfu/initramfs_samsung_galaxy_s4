@@ -47,7 +47,6 @@ echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
 
 # settingsTab: start: GPU
-if [ -d '/sys/devices/platform/pvrsrvkm.0' ]; then
 echo '    <settingsTab name="GPU">' >> $XML
 # settingsPane: start: GPU control switch
 echo '        <settingsPane description="Apply the settings on boot only if the desired settings prove to be stable, else the device ends up in a boot-loop. If turned off, the displayed values do not correspond the current live values but the saved profile values, some inconsistencies may occur on applying." name="GPU control switch">' >> $XML
@@ -60,22 +59,17 @@ for SGXFREQ in `cat /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_table`; do
 echo '                <spinnerItem name="'$SGXFREQ'" value="'$SGXFREQ'"/>' >> $XML
 done
 echo '            </spinner>' >> $XML
-echo '            <spinner name="GPU min frequency" action="gpugeneric /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_min_lock">' >> $XML
-for SGXFREQ in `cat /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_table`; do
-echo '                <spinnerItem name="'$SGXFREQ'" value="'$SGXFREQ'"/>' >> $XML
-done
-echo '            </spinner>' >> $XML
+echo '            <checkbox description="If enabled, the GPU ignores the normal DVFS policies and voltages, and uses hard-coded entries when waking out of clock-gating. The respective lock is 266MHz and 900mV." name="Set GPU wakeup state lockinng" action="gpugeneric01 /sys/module/pvrsrvkm/parameters/sec_wakeup_lock_state" label="GPU wakeup state locking"/>' >> $XML
 echo '        </settingsPane>' >> $XML
 # settingsPane: start: GPU voltage control
 if [ -f '/sys/devices/platform/pvrsrvkm.0/sgx_dvfs_volt_table' ]; then
 echo '        <settingsPane description="Decreasing voltage will lower power consumption of the GPU. Increasing it on overclocked frequencies improves stability. Too low voltage may cause instabilities and freezes. The Exynos 5410 undervolts automatically when the thermal sensor detects a cold state: the real voltage applied in that case is 75mV below the configured values." name="GPU voltage control">' >> $XML
 while read GFREQ GUVOLT; do
-echo '            <seekBar description="Default voltage: '$GUVOLT' µV" name="'$GFREQ' MHz step" action="gpuvolt '$GFREQ'" unit="µV" min="900000" reversed="false" step="12500" max="1250000"/>' >> $XML
+echo '            <seekBar description="Default voltage: '$GUVOLT' µV" name="'$GFREQ' MHz step" action="gpuvolt '$GFREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1150000"/>' >> $XML
 done < /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_volt_table
 echo '        </settingsPane>' >> $XML
 fi
 echo '    </settingsTab>' >> $XML
-fi
 
 # settingsTab: start: Audio
 if [ -d '/sys/class/misc/wolfson_control/' ]; then
@@ -95,9 +89,14 @@ echo '        </settingsPane>' >> $XML
 # settingsPane: start: Speaker tuning
 echo '        <settingsPane description="Speaker tuning uses a hardware equalizer to reshape the signal depending on the frequency response of the speaker to achieve a, as much as possible, flat frequency response. It gives much better sounding speaker output." name="Speaker tuning">' >> $XML
 echo '            <checkbox description="Enable headphone equalizer for speaker, pre-tuned." name="Speaker tuning" action="generic01 /sys/class/misc/wolfson_control/switch_eq_speaker" label="Enable speaker tuning"/>' >> $XML
+echo '            <seekBar description="Cutoff-frequency: 160Hz" name="Band 1 gain" action="generic /sys/class/misc/wolfson_control/eq_sp_gain_1" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="Center-frequency: 500Hz, bandwidth: 1050Hz" name="Band 2 gain" action="generic /sys/class/misc/wolfson_control/eq_sp_gain_2" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="Center-frequency: 2800Hz, bandwidth: 2200Hz" name="Band 3 gain" action="generic /sys/class/misc/wolfson_control/eq_sp_gain_3" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="Center-frequency: 7600Hz, bandwidth: 4500Hz" name="Band 4 gain" action="generic /sys/class/misc/wolfson_control/eq_sp_gain_4" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="Cutoff-frequency: 20000Hz" name="Band 5 gain" action="generic /sys/class/misc/wolfson_control/eq_sp_gain_5" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
 echo '        </settingsPane>' >> $XML
-# settingsPane: start: Equalizer settings
-echo '        <settingsPane description="Controls the hardware equalizer." name="Equalizer settings">' >> $XML
+# settingsPane: start: Equalizer tuning
+echo '        <settingsPane description="Controls the headphone equalizer." name="Headphone tuning">' >> $XML
 echo '            <checkbox description="Enable headphone equalizer for gain controls." name="Headphone equalizer" action="generic01 /sys/class/misc/wolfson_control/switch_eq_headphone" label="Enable headphone equalizer"/>' >> $XML
 echo '            <seekBar description="Cutoff-frequency: 96Hz" name="Band 1 gain" action="generic /sys/class/misc/wolfson_control/eq_hp_gain_1" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
 echo '            <seekBar description="Center-frequency: 273Hz, bandwidth: 551Hz" name="Band 2 gain" action="generic /sys/class/misc/wolfson_control/eq_hp_gain_2" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
@@ -164,6 +163,10 @@ MISC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/misc_input_curr`
 MISC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/misc_chrg_curr`
 WPC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/wpc_input_curr`
 WPC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/wpc_chrg_curr`
+MHL_500_CURR=`cat /sys/devices/platform/sec-battery/mhl_500_curr`
+MHL_900_CURR=`cat /sys/devices/platform/sec-battery/mhl_900_curr`
+MHL_1K5_CURR=`cat /sys/devices/platform/sec-battery/mhl_1500_curr`
+MHL_USB_CURR=`cat /sys/devices/platform/sec-battery/mhl_usb_curr`
 echo '    <settingsTab name="Battery">' >> $XML
 # settingsPane: start: Charging currents
 echo '        <settingsPane description="Device charging currents are composed of input current coming into the device (Nominal 5V) and charge current fed to the battery (Battery Charge Voltage). Charger detection divides charging cable types into several categories as described below. Input current is the sum of device load and charging load. If charging current exceeds input load, then charging current is dynamically adjusted. For avoiding battery deterioration, charging currents of less than 0.7 Coloumb are advised; ex. 2600mAh (Capacity) * 0.7C = ~1820mA." name="Charging currents">' >> $XML
@@ -171,6 +174,8 @@ echo '            <button description="Detect the currently connected charging s
 echo '            <button description="Detect the current charging current." name="" action="charge-current" label="Detect live charging current"/>' >> $XML
 echo '            <seekBar description="AC or mains input current limit applied to designated dedicated chargers and corresponding cables. Default: '$AC_INPUT_CURR' mA" name="AC / Mains Input Current" action="generic /sys/devices/platform/sec-battery/ac_input_curr" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
 echo '            <seekBar description="AC or mains charge current supplied to battery during charging. Default: '$AC_CHRG_CURR' mA" name="AC / Mains Charge Current" action="generic /sys/devices/platform/sec-battery/ac_chrg_curr" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
+echo '            <seekBar description="AC or mains screen-on input current limit. Default: 1200mA" name="AC / Mains Input Current" action="stupid-hex-no-prefix /sys/devices/platform/sec-battery/siop_input_limit" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
+echo '            <seekBar description="AC or mains screen-on charge current limit. Default: 1000mA" name="AC / Mains Charge Current" action="stupid-hex-no-prefix /sys/devices/platform/sec-battery/siop_charge_limit" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
 echo '            <seekBar description="Standard Downstream Port input current limit applied on plain and compliant USB data connectivity ports. Default: '$SDP_INPUT_CURR' mA" name="SDP Input Current" action="generic /sys/devices/platform/sec-battery/sdp_input_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
 echo '            <seekBar description="Standard Downstream Port charge current supplied to battery during charging. Default: '$SDP_CHRG_CURR' mA" name="SDP Charge Current" action="generic /sys/devices/platform/sec-battery/sdp_chrg_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
 echo '            <seekBar description="Dedicated Charging Port input current limit applied when detection of a standalone charger happens, or if a USB connector with shorted D+ and D- pins is attached. Default: '$DCP_INPUT_CURR' mA" name="DCP Input Current" action="generic /sys/devices/platform/sec-battery/dcp_input_curr" unit="mA" min="400" reversed="false" step="50" max="2000"/>' >> $XML
@@ -184,10 +189,12 @@ echo '            <seekBar description="Miscaenellous charge current supplied to
 echo '            <seekBar description="Wireless input current limit applied to the wireless charging port. Default: '$WPC_INPUT_CURR' mA" name="WPC Input Current" action="generic /sys/devices/platform/sec-battery/wpc_input_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
 echo '            <seekBar description="Wireless charge current supplied to battery during charging. Default: '$WPC_CHRG_CURR' mA" name="WPC Charge Current" action="generic /sys/devices/platform/sec-battery/wpc_chrg_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
 echo '        </settingsPane>' >> $XML
-# settingsPane: start: Special Mains limits
-echo '        <settingsPane description="Input and charging current are limited to certain maximas if the screen is turned on to avoid elevated heat generation. Normal charging limits are applied when the screen is off." name="Special Mains limits">' >> $XML
-echo '            <seekBar description="AC or mains screen-on input current limit. Default: 1200mA" name="AC / Mains Input Current" action="stupid-hex-no-prefix /sys/devices/platform/sec-battery/siop_input_limit" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
-echo '            <seekBar description="AC or mains screen-on charge current limit. Default: 1000mA" name="AC / Mains Charge Current" action="stupid-hex-no-prefix /sys/devices/platform/sec-battery/siop_charge_limit" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
+# settingsPane: start: MHL power
+echo '        <settingsPane description="Mobile High-Definition Link power sources." name="MHL power">' >> $XML
+echo '            <seekBar description="Input current of 500mA Class MHL power source. Default: '$MHL_500_CURR' mA" name="500mA MHL Class" action="generic /sys/devices/platform/sec-battery/mhl_500_curr" unit="mA" min="300" reversed="false" step="50" max="1000"/>' >> $XML
+echo '            <seekBar description="Input current of 900mA Class MHL power source. Default: '$MHL_900_CURR' mA" name="900mA MHL Class" action="generic /sys/devices/platform/sec-battery/mhl_900_curr" unit="mA" min="300" reversed="false" step="50" max="1500"/>' >> $XML
+echo '            <seekBar description="Input current of 1500mA Class MHL power source. Default: '$MHL_1K5_CURR' mA" name="1500mA MHL Class" action="generic /sys/devices/platform/sec-battery/mhl_1500_curr" unit="mA" min="300" reversed="false" step="50" max="2000"/>' >> $XML
+echo '            <seekBar description="Input current of USB powered MHL adapter power source. Default: '$MHL_USB_CURR' mA" name="USB powered MHL adapter" action="generic /sys/devices/platform/sec-battery/mhl_usb_curr" unit="mA" min="300" reversed="false" step="50" max="2000"/>' >> $XML
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
 
