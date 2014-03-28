@@ -221,8 +221,16 @@ echo '            <seekBar description="The read-ahead value on the external SD 
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
 
-# settingsTab: start: Logger
-echo '    <settingsTab name="Logger">' >> $XML
+# settingsTab: start: Misc
+echo '    <settingsTab name="Misc">' >> $XML
+# settingsPane: start: USB Mode
+echo '        <settingsPane description="Switch the USB mode between MTP and USB Mass Storage (ums) mode." name="USB Mode">' >> $XML
+echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set USB mdoe on boot" action="controlswitch USBMODE" label="Set on boot"/>' >> $XML
+echo '            <spinner name="Current internal storage scheduler" action="usbmode">' >> $XML
+echo '                <spinnerItem name="mtp" value="mtp"/>' >> $XML
+echo '                <spinnerItem name="ums" value="ums"/>' >> $XML
+echo '            </spinner>' >> $XML
+echo '        </settingsPane>' >> $XML
 # settingsPane: start: Android Logger
 echo '        <settingsPane description="Android Logger is a useful tool for developers to test and debug their Applications, but it can be disabled on normal use, this may give you better performance." name="Android Logger">' >> $XML
 echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set Logger settings on boot" action="controlswitch LOGGER" label="Set on boot"/>' >> $XML
@@ -236,10 +244,6 @@ echo '    </settingsTab>' >> $XML
 
 # settingsTab: start: Tools
 echo '    <settingsTab name="Tools">' >> $XML
-echo '        <settingsPane description="Choose the USB mode." name="USB Mode">' >> $XML
-echo '            <button description="Switch to USB Mass Storage Mode." name="" action="usbmode ums" label="USB Mass Storage Mode"/>' >> $XML
-echo '            <button description="MTP Mode." name="" action="usbmode mtp" label="MTP Mode"/>' >> $XML
-echo '        </settingsPane>' >> $XML
 echo '        <settingsPane description="Reboot the phone to different modes. Normal mode just reboots the phone. In Recovery mode, user can flash ZIP packages on the sdcard or wipe the data to factory settings. In Download mode, user can flash the phone through Odin or Hamidal." name="Reboot Options">' >> $XML
 echo '            <button description="Reboot the phone." name="" action="poweroff reboot" label="Normal"/>' >> $XML
 echo '            <button description="Reboot the phone to recovery mode." name="" action="poweroff recovery" label="Recovery"/>' >> $XML

@@ -588,10 +588,10 @@ service mdnsd /system/bin/mdnsd
 
 on property:sys.boot_completed=1
 #   write /sys/block/mmcblk0/queue/scheduler cfq
-    start adaminit
+    start maxfourinit
 
-# init AdaMax Kernel
-service adaminit /sbin/adamax.sh
+# init MaxFour Kernel
+service maxfourinit /sbin/maxfour.sh
     class core
     user root
     oneshot
