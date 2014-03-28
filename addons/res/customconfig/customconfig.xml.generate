@@ -59,6 +59,11 @@ for SGXFREQ in `cat /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_table`; do
 echo '                <spinnerItem name="'$SGXFREQ'" value="'$SGXFREQ'"/>' >> $XML
 done
 echo '            </spinner>' >> $XML
+echo '            <spinner name="GPU min frequency" action="gpugeneric /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_min_lock">' >> $XML
+for SGXFREQ in `cat /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_table`; do
+echo '                <spinnerItem name="'$SGXFREQ'" value="'$SGXFREQ'"/>' >> $XML
+done
+echo '            </spinner>' >> $XML
 echo '            <checkbox description="If enabled, the GPU ignores the normal DVFS policies and voltages, and uses hard-coded entries when waking out of clock-gating. The respective lock is 266MHz and 900mV." name="Set GPU wakeup state lockinng" action="gpugeneric01 /sys/module/pvrsrvkm/parameters/sec_wakeup_lock_state" label="GPU wakeup state locking"/>' >> $XML
 echo '        </settingsPane>' >> $XML
 # settingsPane: start: GPU voltage control
@@ -68,12 +73,15 @@ while read GFREQ GUVOLT; do
 echo '            <seekBar description="Default voltage: '$GUVOLT' µV" name="'$GFREQ' MHz step" action="gpuvolt '$GFREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1150000"/>' >> $XML
 done < /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_volt_table
 echo '        </settingsPane>' >> $XML
+else
+echo '        <settingsPane description="Non tc/oc version does not support voltage control." name="GPU voltage control">' >> $XML
+echo '        </settingsPane>' >> $XML
 fi
 echo '    </settingsTab>' >> $XML
 
 # settingsTab: start: Audio
-if [ -d '/sys/class/misc/wolfson_control/' ]; then
 echo '    <settingsTab name="Audio">' >> $XML
+if [ -d '/sys/class/misc/wolfson_control/' ]; then
 # settingsPane: start: Headphone Amplification
 echo '        <settingsPane description="Headphone amplification increases volume only on headphones and headsets. The controlled input is the digital input volume for the audio DAC." name="Headphone Amplification">' >> $XML
 echo '            <seekBar description="Headphone Amplifier Level" name="Headphone left channel volume" action="digital-volume-abs /sys/class/misc/wolfson_control/headphone_left" unit="dB" min="-8" reversed="false" step="1" max="22"/>' >> $XML
@@ -104,8 +112,11 @@ echo '            <seekBar description="Center-frequency: 784Hz, bandwidth: 1560
 echo '            <seekBar description="Center-frequency: 2206Hz, bandwidth: 4409Hz" name="Band 4 gain" action="generic /sys/class/misc/wolfson_control/eq_hp_gain_4" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
 echo '            <seekBar description="Cutoff-frequency: 6340Hz" name="Band 5 gain" action="generic /sys/class/misc/wolfson_control/eq_hp_gain_5" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
 echo '        </settingsPane>' >> $XML
-echo '    </settingsTab>' >> $XML
+else
+echo '        <settingsPane description="Wolfson sound control needs to run on a GT-I9500 with Wolfson sound chip. You are using a Galaxy S4 various phone with Yamaha sound chip." name="Headphone tuning">' >> $XML
+echo '        </settingsPane>' >> $XML
 fi
+echo '    </settingsTab>' >> $XML
 
 # settingsTab: start: Screen
 echo '    <settingsTab name="Screen">' >> $XML
