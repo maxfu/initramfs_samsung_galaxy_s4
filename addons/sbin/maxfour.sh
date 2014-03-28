@@ -23,7 +23,7 @@ for i in /sys/block/*/queue/add_random; do
 done
 echo 0 > /proc/sys/kernel/randomize_va_space
 echo 532 > /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_max_lock
-echo 177 > /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_max_lock
+echo 177 > /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_min_lock
 echo 50 > /sys/class/devfreq/exynos5-busfreq-mif/polling_interval
 echo 70 > /sys/class/devfreq/exynos5-busfreq-mif/time_in_state/upthreshold
 
