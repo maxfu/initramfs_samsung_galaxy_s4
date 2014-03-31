@@ -1,0 +1,27 @@
+#!/sbin/busybox sh
+
+STEP=MIF_VOLT_`echo $2`
+
+if [ -z $3 ]; then
+	evalcmd='eval echo \$$STEP'
+	if [ "a`eval $evalcmd`" == "a" ]; then
+		while read FREQ UVOLT; do
+			eval "MIF_VOLT_$FREQ=$UVOLT"
+			echo "MIF_VOLT_$FREQ=$UVOLT" >> $DEFAULT_PROFILE
+		done < /sys/class/devfreq/exynos5-busfreq-mif/volt_table
+	fi
+else
+	eval $STEP=$3
+
+	if [ "$CONTROLSWITCH_MIF" == "on" -o "$CONFIG_BOOTED" == true ]; then
+		VOLTAGES=""
+		while read FREQ UVOLT; do
+			evalcmd='eval echo \$MIF_VOLT_$FREQ'
+			VOLTAGES="$VOLTAGES `eval $evalcmd`"
+		done < /sys/class/devfreq/exynos5-busfreq-mif/volt_table
+
+		echo $VOLTAGES > /sys/class/devfreq/exynos5-busfreq-mif/volt_table
+	fi
+fi
+
+eval echo \$$STEP
