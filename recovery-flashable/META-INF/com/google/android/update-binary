@@ -4,7 +4,7 @@
 # communicate with it using the recovery api.
 # arg 3 is the zip file
 
-echo -n -e 'ui_print Welcome to AdaMax kernel...\n' > /proc/self/fd/$2
+echo -n -e 'ui_print Welcome to MaxFour kernel...\n' > /proc/self/fd/$2
 echo -n -e 'ui_print\n' > /proc/self/fd/$2
 
 echo -n -e 'ui_print Preparing files...\n' > /proc/self/fd/$2
@@ -23,103 +23,6 @@ if [ -f recovery.img ]; then
   echo -n -e 'ui_print Installing recovery image...\n' > /proc/self/fd/$2
   echo -n -e 'ui_print\n' > /proc/self/fd/$2
   dd if=recovery.img of=/dev/block/mmcblk0p10
-fi
-
-echo -n -e 'ui_print Installing Superuser...\n' > /proc/self/fd/$2
-echo -n -e 'ui_print\n' > /proc/self/fd/$2
-
-mount /system
-chattr -i /system/bin/su
-chattr -i /system/bin/.ext/.su
-chattr -i /system/xbin/su
-chattr -i /system/xbin/daemonsu
-
-rm -f /system/bin/su
-rm -f /system/bin/.ext/.su
-rm -f /system/xbin/su
-rm -f /system/xbin/daemonsu
-rm -f /system/app/superuser.apk
-rm -f /system/app/superuser.odex
-rm -f /system/app/Superuser.apk
-rm -f /system/app/Superuser.odex
-rm -f /system/app/SuperUser.apk
-rm -f /system/app/SuperUser.odex
-rm -f /system/app/SUPERUSER.apk
-rm -f /system/app/SUPERUSER.odex
-rm -f /system/app/supersu.apk
-rm -f /system/app/supersu.odex
-rm -f /system/app/Supersu.apk
-rm -f /system/app/Supersu.odex
-rm -f /system/app/SuperSu.apk
-rm -f /system/app/SuperSu.odex
-rm -f /system/app/SuperSU.apk
-rm -f /system/app/SuperSU.odex
-rm -f /system/app/SUPERSU.apk
-rm -f /system/app/SUPERSU.odex
-rm -f /system/etc/install-recovery.sh
-rm -f /system/etc/init.d/99SuperSUDaemon
-rm -f /system/etc/.installed_su_daemon
-rm -f /data/dalvik-cache/*com.noshufou.android.su*
-rm -f /data/dalvik-cache/*com.koushikdutta.superuser*
-rm -f /data/dalvik-cache/*com.mgyun.shua.su*
-rm -f /data/dalvik-cache/*Superuser.apk*
-rm -f /data/dalvik-cache/*SuperUser.apk*
-rm -f /data/dalvik-cache/*superuser.apk*
-rm -f /data/dalvik-cache/*eu.chainfire.supersu*
-rm -f /data/dalvik-cache/*Supersu.apk*
-rm -f /data/dalvik-cache/*SuperSU.apk*
-rm -f /data/dalvik-cache/*supersu.apk*
-rm -f /data/dalvik-cache/*.oat
-rm -f /data/app/com.noshufou.android.su-*
-rm -f /data/app/com.koushikdutta.superuser-*
-rm -f /data/app/com.mgyun.shua.su-*
-rm -f /data/app/eu.chainfire.supersu-*
-
-cp /tmp/superuser/su /system/xbin/su
-chown 0:0 /system/xbin/su
-chmod 6755 /system/xbin/su
-/system/bin/toolbox chcon u:object_r:system_file:s0 /system/xbin/su
-chcon u:object_r:system_file:s0 /system/xbin/su
-ln -s /system/xbin/su /system/bin/su
-/system/bin/toolbox chcon u:object_r:system_file:s0 /system/bin/su
-chcon u:object_r:system_file:s0 /system/bin/su
-mkdir /system/bin/.ext
-ln -s /system/xbin/su /system/bin/.ext/.su
-/system/bin/toolbox chcon u:object_r:system_file:s0 /system/bin/.ext/.su
-chcon u:object_r:system_file:s0 /system/bin/.ext/.su
-
-cp /tmp/superuser/Superuser.apk /system/app
-chmod 644 /system/app/Superuser.apk
-/system/bin/toolbox chcon u:object_r:system_file:s0 /system/app/Superuser.apk
-chcon u:object_r:system_file:s0 /system/app/Superuser.apk
-
-# if the system is at least 4.3, and there is no su daemon built in,
-# let's try to install it using install-recovery.sh
-BUILD_RELEASE_VERSION="$(grep 'ro\.build\.version\.release' /system/build.prop)"
-VERSION="${BUILD_RELEASE_VERSION##*=}"
-MAJ=${VERSION%%.*}
-MIN=${VERSION#*.}
-MIN=${MIN//.*}
-
-if [ "${MAJ}${MIN}" -ge 43 ]
-then
-  # check for rom su daemon before clobbering install-recovery.sh
-  if [ ! -f "/system/etc/.installed_su_daemon" ]
-  then
-    echo -n -e 'ui_print Installing Superuser daemon...\n' > /proc/self/fd/$2
-    echo -n -e 'ui_print\n' > /proc/self/fd/$2
-    chattr -i /system/etc/install-recovery.sh
-    cp /tmp/superuser/install-recovery.sh /system/etc/install-recovery.sh
-    chmod 755 /system/etc/install-recovery.sh
-    # note that an post install su daemon was installed
-    # so recovery doesn't freak out and recommend you disable
-    # the install-recovery.sh execute bit.
-    touch /system/etc/.installed_su_daemon
-    /system/bin/toolbox chcon u:object_r:system_file:s0 /system/etc/install-recovery.sh
-    chcon u:object_r:system_file:s0 /system/etc/install-recovery.sh
-    /system/bin/toolbox chcon u:object_r:system_file:s0 /system/etc/.installed_su_daemon
-    chcon u:object_r:system_file:s0 /system/etc/.installed_su_daemon
-  fi
 fi
 
 umount /system
