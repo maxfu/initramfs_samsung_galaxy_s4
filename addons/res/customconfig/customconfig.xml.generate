@@ -185,6 +185,7 @@ echo '   </settingsTab>' >> $XML
 # settingsTab: start: Battery
 AC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/ac_input_curr`
 AC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/ac_chrg_curr`
+SDP_INPUT_CURR=`cat /sys/devices/platform/sec-battery/sdp_input_curr`
 SDP_CHRG_CURR=`cat /sys/devices/platform/sec-battery/sdp_chrg_curr` 
 DCP_INPUT_CURR=`cat /sys/devices/platform/sec-battery/dcp_input_curr`
 DCP_CHRG_CURR=`cat /sys/devices/platform/sec-battery/dcp_chrg_curr`
