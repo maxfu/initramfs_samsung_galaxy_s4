@@ -3,12 +3,15 @@
 XML=$CONFIG_XML
 MAXFREQ=`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq`
 MINFREQ=`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq`
+LANG=`getprop persist.sys.language`
 
 echo "" > $XML
 echo '<settingsRoot>' >> $XML
 
+if [ "$LANG" == "zh" ]; then
+# Chinese: start
 # settingsTab: start: CPU
-echo '    <settingsTab name="CPU">' >> $XML
+echo '    <settingsTab name="CHINESE">' >> $XML
 # settingsPane: start: CPU control switch
 echo '        <settingsPane description="Apply the settings on boot only if the desired settings prove to be stable, else the device ends up in a boot-loop. If turned off, the displayed values do not correspond the current live values but the saved profile values, some inconsistencies may occur on applying." name="CPU control switch">' >> $XML
 echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set CPU settings on boot" action="controlswitch CPU" label="Set on boot"/>' >> $XML
@@ -45,7 +48,6 @@ done < /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table
 echo '            </settingsPane>' >> $XML
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
-
 # settingsTab: start: GPU
 echo '    <settingsTab name="GPU">' >> $XML
 # settingsPane: start: GPU control switch
@@ -78,7 +80,6 @@ echo '        <settingsPane description="Non tc/oc version does not support volt
 echo '        </settingsPane>' >> $XML
 fi
 echo '    </settingsTab>' >> $XML
-
 # settingsTab: start: INT
 echo '    <settingsTab name="INT">' >> $XML
 # settingsPane: start: GPU control switch
@@ -89,7 +90,6 @@ echo '            <seekBar description="Default voltage: '$IUVOLT' µV" name="'$
 done < /sys/class/devfreq/exynos5-busfreq-int/volt_table
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
-
 # settingsTab: start: MIF
 echo '    <settingsTab name="MIF">' >> $XML
 # settingsPane: start: GPU control switch
@@ -100,7 +100,6 @@ echo '            <seekBar description="Default voltage: '$IUVOLT' µV" name="'$
 done < /sys/class/devfreq/exynos5-busfreq-mif/volt_table
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
-
 # settingsTab: start: MEMIO
 echo '    <settingsTab name="MEMIO">' >> $XML
 # settingsPane: start: GPU control switch
@@ -111,7 +110,6 @@ echo '            <seekBar description="Default voltage: '$IUVOLT' µV" name="'$
 done < /sys/class/devfreq/exynos5-busfreq-mif/memio_volt_table
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
-
 # settingsTab: start: Audio
 echo '    <settingsTab name="Audio">' >> $XML
 if [ -d '/sys/class/misc/wolfson_control/' ]; then
@@ -150,7 +148,6 @@ echo '        <settingsPane description="Wolfson sound control needs to run on a
 echo '        </settingsPane>' >> $XML
 fi
 echo '    </settingsTab>' >> $XML
-
 # settingsTab: start: Screen
 echo '    <settingsTab name="Screen">' >> $XML
 # settingsPane: start: Global controls
@@ -192,7 +189,6 @@ echo '            <seekBar description="Green in white" name="Green" action="gen
 echo '            <seekBar description="Blue in white" name="Blue" action="generic /sys/class/misc/mdnie/hook_control/scr_white_blue" unit="" min="-16" reversed="false" step="1" max="16"/>' >> $XML
 echo '        </settingsPane>' >> $XML
 echo '   </settingsTab>' >> $XML
-
 # settingsTab: start: Battery
 AC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/ac_input_curr`
 AC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/ac_chrg_curr`
@@ -242,7 +238,6 @@ echo '            <seekBar description="Input current of 1500mA Class MHL power 
 echo '            <seekBar description="Input current of USB powered MHL adapter power source. Default: '$MHL_USB_CURR' mA" name="USB powered MHL adapter" action="generic /sys/devices/platform/sec-battery/mhl_usb_curr" unit="mA" min="300" reversed="false" step="50" max="2000"/>' >> $XML
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
-
 # settingsTab: start: I/O
 echo '    <settingsTab name="I/O">' >> $XML
 # settingsPane: start: I/O schedulers
@@ -265,7 +260,6 @@ echo '            <seekBar description="The read-ahead value on the internal pho
 echo '            <seekBar description="The read-ahead value on the external SD card." name="SD card read-ahead" action="generictagforce sd /sys/block/mmcblk1/queue/read_ahead_kb" unit="kB" min="128" reversed="false" step="128" max="2048"/>' >> $XML
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
-
 # settingsTab: start: Misc
 echo '    <settingsTab name="Misc">' >> $XML
 # settingsPane: start: USB Mode
@@ -286,7 +280,6 @@ echo '            <checkbox description="It is recommended to disable Android Lo
 fi
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
-
 # settingsTab: start: Tools
 echo '    <settingsTab name="Tools">' >> $XML
 echo '        <settingsPane description="Reboot the phone to different modes. Normal mode just reboots the phone. In Recovery mode, user can flash ZIP packages on the sdcard or wipe the data to factory settings. In Download mode, user can flash the phone through Odin or Hamidal." name="Reboot Options">' >> $XML
@@ -296,7 +289,293 @@ echo '            <button description="Reboot the phone to download mode." name=
 echo '            <button description="Shutdown the phone." name="" action="poweroff normal" label="Shutdown"/>' >> $XML
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
-  
+# Chinese: end
+else
+# English: start
+# settingsTab: start: CPU
+echo '    <settingsTab name="CPU">' >> $XML
+# settingsPane: start: CPU control switch
+echo '        <settingsPane description="Apply the settings on boot only if the desired settings prove to be stable, else the device ends up in a boot-loop. If turned off, the displayed values do not correspond the current live values but the saved profile values, some inconsistencies may occur on applying." name="CPU control switch">' >> $XML
+echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set CPU settings on boot" action="controlswitch CPU" label="Set on boot"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+# settingsPane: start: CPU frequency control
+echo '        <settingsPane description="CPU scaling" name="CPU frequency control">' >> $XML
+echo '            <spinner name="Current CPU governor" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor">' >> $XML
+for CPUGOV in `cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors`; do
+echo '                <spinnerItem name="'$CPUGOV'" value="'$CPUGOV'"/>' >> $XML
+done
+echo '            </spinner>' >> $XML
+echo '            <seekbar description="Set the maximum number the CPU uses. Default: 4 Cores." name="CPU max core number limit" action="cpugeneric /sys/power/cpucore_max_num_limit" unit="Cores" reversed="false" step="1" min="1" max="4" />' >> $XML
+echo '            <seekbar description="Set the minimum number the CPU uses. Default: 1 Cores." name="CPU min core number limit" action="cpugeneric /sys/power/cpucore_min_num_limit" unit="Cores" reversed="false" step="1" min="1" max="4" />' >> $XML
+echo '            <seekbar description="Set the maximum frequency the CPU scales up to. Default: '$MAXFREQ' MHz." name="CPU max frequency" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq" unit="KHz" reversed="false" step="50000" min="'$MINFREQ'" max="'$MAXFREQ'" />' >> $XML
+echo '            <seekbar description="Set the minimum frequency the CPU scales down to. Default: '$MINFREQ' MHz." name="CPU min frequency" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq" unit="KHz" reversed="false" step="50000" min="'$MINFREQ'" max="'$MAXFREQ'" />' >> $XML
+echo '        </settingsPane>' >> $XML
+# settingsPane: start: CPU voltage control
+echo '        <settingsPane description="Decreasing voltage will lower power consumption of the CPU. Increasing it on overclocked frequencies improves stability. Too low voltage may cause instabilities and freezes. The Exynos 5410 undervolts automatically when the thermal sensor detects a cold state: the real voltage applied in that case is 75mV below the configured values." name="CPU voltage control">' >> $XML
+echo '            <settingsPane description="" name="big cores">' >> $XML
+while read FREQ UVOLT; do
+if [ "$MAXFREQ" == "2000" ]; then
+if [ "$FREQ" == "650" ]; then
+echo '            </settingsPane>' >> $XML
+echo '            <settingsPane description="Actual frequencies of LITTLE cores to be multiplied by 2" name="LITTLE cores">' >> $XML
+fi
+else
+if [ "$FREQ" == "600" ]; then
+echo '            </settingsPane>' >> $XML
+echo '            <settingsPane description="Actual frequencies of LITTLE cores to be multiplied by 2" name="LITTLE cores">' >> $XML
+fi
+fi
+echo '                <seekBar description="Default voltage: '$UVOLT' µV" name="'$FREQ' MHz step" action="cpuvolt '$FREQ'" unit="µV" min="600000" reversed="false" step="6250" max="1350000"/>' >> $XML
+done < /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table
+echo '            </settingsPane>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
+# settingsTab: start: GPU
+echo '    <settingsTab name="GPU">' >> $XML
+# settingsPane: start: GPU control switch
+echo '        <settingsPane description="Apply the settings on boot only if the desired settings prove to be stable, else the device ends up in a boot-loop. If turned off, the displayed values do not correspond the current live values but the saved profile values, some inconsistencies may occur on applying." name="GPU control switch">' >> $XML
+echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set GPU settings on boot" action="controlswitch GPU" label="Set on boot"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+# settingsPane: start: GPU frequency control
+echo '        <settingsPane description="GPU scaling" name="GPU frequency control">' >> $XML
+echo '            <spinner name="GPU max frequency" action="gpugeneric /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_max_lock">' >> $XML
+for SGXFREQ in `cat /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_table`; do
+echo '                <spinnerItem name="'$SGXFREQ'" value="'$SGXFREQ'"/>' >> $XML
+done
+echo '            </spinner>' >> $XML
+echo '            <spinner name="GPU min frequency" action="gpugeneric /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_min_lock">' >> $XML
+for SGXFREQ in `cat /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_table`; do
+echo '                <spinnerItem name="'$SGXFREQ'" value="'$SGXFREQ'"/>' >> $XML
+done
+echo '            </spinner>' >> $XML
+echo '            <checkbox description="If enabled, the GPU ignores the normal DVFS policies and voltages, and uses hard-coded entries when waking out of clock-gating. The respective lock is 266MHz and 900mV." name="Set GPU wakeup state lockinng" action="gpugeneric01 /sys/module/pvrsrvkm/parameters/sec_wakeup_lock_state" label="GPU wakeup state locking"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+# settingsPane: start: GPU voltage control
+if [ -f '/sys/devices/platform/pvrsrvkm.0/sgx_dvfs_volt_table' ]; then
+echo '        <settingsPane description="Decreasing voltage will lower power consumption of the GPU. Increasing it on overclocked frequencies improves stability. Too low voltage may cause instabilities and freezes. The Exynos 5410 undervolts automatically when the thermal sensor detects a cold state: the real voltage applied in that case is 75mV below the configured values." name="GPU voltage control">' >> $XML
+while read GFREQ GUVOLT; do
+echo '            <seekBar description="Default voltage: '$GUVOLT' µV" name="'$GFREQ' MHz step" action="gpuvolt '$GFREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1150000"/>' >> $XML
+done < /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_volt_table
+echo '        </settingsPane>' >> $XML
+else
+echo '        <settingsPane description="Non tc/oc version does not support voltage control." name="GPU voltage control">' >> $XML
+echo '        </settingsPane>' >> $XML
+fi
+echo '    </settingsTab>' >> $XML
+# settingsTab: start: INT
+echo '    <settingsTab name="INT">' >> $XML
+# settingsPane: start: GPU control switch
+echo '        <settingsPane description="Apply the settings on boot only if the desired settings prove to be stable, else the device ends up in a boot-loop. If turned off, the displayed values do not correspond the current live values but the saved profile values, some inconsistencies may occur on applying." name="INT control switch">' >> $XML
+echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set INT settings on boot" action="controlswitch INT" label="Set on boot"/>' >> $XML
+while read IFREQ IUVOLT; do
+echo '            <seekBar description="Default voltage: '$IUVOLT' µV" name="'$IFREQ' MHz step" action="intvolt '$IFREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1100000"/>' >> $XML
+done < /sys/class/devfreq/exynos5-busfreq-int/volt_table
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
+
+# settingsTab: start: MIF
+echo '    <settingsTab name="MIF">' >> $XML
+# settingsPane: start: GPU control switch
+echo '        <settingsPane description="Apply the settings on boot only if the desired settings prove to be stable, else the device ends up in a boot-loop. If turned off, the displayed values do not correspond the current live values but the saved profile values, some inconsistencies may occur on applying." name="MIF control switch">' >> $XML
+echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set MIF settings on boot" action="controlswitch MIF" label="Set on boot"/>' >> $XML
+while read IFREQ IUVOLT; do
+echo '            <seekBar description="Default voltage: '$IUVOLT' µV" name="'$IFREQ' MHz step" action="mifvolt '$IFREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1100000"/>' >> $XML
+done < /sys/class/devfreq/exynos5-busfreq-mif/volt_table
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
+# settingsTab: start: MEMIO
+echo '    <settingsTab name="MEMIO">' >> $XML
+# settingsPane: start: GPU control switch
+echo '        <settingsPane description="Apply the settings on boot only if the desired settings prove to be stable, else the device ends up in a boot-loop. If turned off, the displayed values do not correspond the current live values but the saved profile values, some inconsistencies may occur on applying." name="MEMIO control switch">' >> $XML
+echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set MEMIO settings on boot" action="controlswitch MEMIO" label="Set on boot"/>' >> $XML
+while read IFREQ IUVOLT; do
+echo '            <seekBar description="Default voltage: '$IUVOLT' µV" name="'$IFREQ' MHz step" action="memiovolt '$IFREQ'" unit="µV" min="900000" reversed="false" step="6250" max="1250000"/>' >> $XML
+done < /sys/class/devfreq/exynos5-busfreq-mif/memio_volt_table
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
+
+# settingsTab: start: Audio
+echo '    <settingsTab name="Audio">' >> $XML
+if [ -d '/sys/class/misc/wolfson_control/' ]; then
+# settingsPane: start: Headphone Amplification
+echo '        <settingsPane description="Headphone amplification increases volume only on headphones and headsets. The controlled input is the digital input volume for the audio DAC." name="Headphone Amplification">' >> $XML
+echo '            <seekBar description="Headphone Amplifier Level" name="Headphone left channel volume" action="digital-volume-abs /sys/class/misc/wolfson_control/headphone_left" unit="dB" min="-8" reversed="false" step="1" max="22"/>' >> $XML
+echo '            <seekBar description="" name="Headphone right channel volume" action="digital-volume-abs /sys/class/misc/wolfson_control/headphone_right" unit="dB" min="-8" reversed="false" step="1" max="22"/>' >> $XML
+echo '            <checkbox description="Enables mono output." name="Mono mixer" action="generic01 /sys/class/misc/wolfson_control/switch_hp_mono" label="Enable mono output"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+# settingsPane: start: Speaker Amplification
+echo '        <settingsPane description="Speaker amplification increases volume on the external speaker and earpiece. Speaker volumes are expressed as deltas to Samsung audio profiles, so not to completely override them." name="Speaker Amplification">' >> $XML
+echo '            <seekBar description="External speaker amplification level." name="Main speaker volume" action="digital-volume /sys/class/misc/wolfson_control/speaker_volume" unit="dB" min="-8" reversed="false" step="1" max="16"/>' >> $XML
+echo '            <seekBar description="Earpiece speaker amplification level." name="Earpiece volume" action="digital-volume /sys/class/misc/wolfson_control/earpiece_volume" unit="dB" min="-8" reversed="false" step="1" max="16"/>' >> $XML
+echo '            <checkbox description="Disables the main speaker when audio is outputted via headphones, all audio routed to the speaker is disabled." name="Privacy mode" action="generic01 /sys/class/misc/wolfson_control/switch_sp_privacy" label="Enable privacy mode"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+# settingsPane: start: Speaker tuning
+echo '        <settingsPane description="Speaker tuning uses a hardware equalizer to reshape the signal depending on the frequency response of the speaker to achieve a, as much as possible, flat frequency response. It gives much better sounding speaker output." name="Speaker tuning">' >> $XML
+echo '            <checkbox description="Enable headphone equalizer for speaker, pre-tuned." name="Speaker tuning" action="generic01 /sys/class/misc/wolfson_control/switch_eq_speaker" label="Enable speaker tuning"/>' >> $XML
+echo '            <seekBar description="Cutoff-frequency: 160Hz" name="Band 1 gain" action="generic /sys/class/misc/wolfson_control/eq_sp_gain_1" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="Center-frequency: 500Hz, bandwidth: 1050Hz" name="Band 2 gain" action="generic /sys/class/misc/wolfson_control/eq_sp_gain_2" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="Center-frequency: 2800Hz, bandwidth: 2200Hz" name="Band 3 gain" action="generic /sys/class/misc/wolfson_control/eq_sp_gain_3" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="Center-frequency: 7600Hz, bandwidth: 4500Hz" name="Band 4 gain" action="generic /sys/class/misc/wolfson_control/eq_sp_gain_4" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="Cutoff-frequency: 20000Hz" name="Band 5 gain" action="generic /sys/class/misc/wolfson_control/eq_sp_gain_5" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+# settingsPane: start: Equalizer tuning
+echo '        <settingsPane description="Controls the headphone equalizer." name="Headphone tuning">' >> $XML
+echo '            <checkbox description="Enable headphone equalizer for gain controls." name="Headphone equalizer" action="generic01 /sys/class/misc/wolfson_control/switch_eq_headphone" label="Enable headphone equalizer"/>' >> $XML
+echo '            <seekBar description="Cutoff-frequency: 96Hz" name="Band 1 gain" action="generic /sys/class/misc/wolfson_control/eq_hp_gain_1" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="Center-frequency: 273Hz, bandwidth: 551Hz" name="Band 2 gain" action="generic /sys/class/misc/wolfson_control/eq_hp_gain_2" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="Center-frequency: 784Hz, bandwidth: 1560Hz" name="Band 3 gain" action="generic /sys/class/misc/wolfson_control/eq_hp_gain_3" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="Center-frequency: 2206Hz, bandwidth: 4409Hz" name="Band 4 gain" action="generic /sys/class/misc/wolfson_control/eq_hp_gain_4" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="Cutoff-frequency: 6340Hz" name="Band 5 gain" action="generic /sys/class/misc/wolfson_control/eq_hp_gain_5" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+else
+echo '        <settingsPane description="Wolfson sound control needs to run on a GT-I9500 with Wolfson sound chip. You are using a Galaxy S4 various phone with Yamaha sound chip." name="Headphone tuning">' >> $XML
+echo '        </settingsPane>' >> $XML
+fi
+echo '    </settingsTab>' >> $XML
+# settingsTab: start: Screen
+echo '    <settingsTab name="Screen">' >> $XML
+# settingsPane: start: Global controls
+echo '        <settingsPane description="mobile Digital Natural Image engine control. Samsungs hardware image post-processor controls virtually any image manipulation. All control master switches, if left as delta controls, will negate the sequence setting if checked. Master sequence has SCR and CS enabled by default." name="Global controls">' >> $XML
+echo '            <checkbox description="Register intercept acts like a hook and will enable catching scenario settings and modifying them through delta controls. If a scenario does not have a setting (register) in its base sequence, then it cannot be modified by the hook." name="Register intercept" action="generic01 /sys/class/misc/mdnie/hook_intercept" label="Enable register hook"/>' >> $XML
+echo '            <checkbox description="Enabling the master sequence will disable and ignore Samsungs profiles and scenarios, the ROM controls will be disabled." name="Master sequence" action="generic01 /sys/class/misc/mdnie/sequence_intercept" label="Enable master sequence"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+# settingsPane: start: Smearing fix
+echo '        <settingsPane description="i950X devices have an issue with the AMOLED controller in which, if individual pixels get power-gated for true black, they occur a latency delay when getting powered on again, resulting in a visible smearing effect. The following controls provide a method of applying a slight grey on the black channel to avoid this problem." name="Smearing fix">' >> $XML
+echo '            <seekBar description="RGB increase for 0.39% grey per step." name="Black increase" action="generic /sys/class/misc/mdnie/black_increase_value" unit="" min="0" reversed="false" step="1" max="5"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+# settingsPane: start: Digital screen brightness
+echo '        <settingsPane description="Uses mDNIe to bypass the backlight driver brightness and decrease brightness by reducing luminance on the the channel RGB values. It allows to reduce brightness beyond the stock minimum." name="Digital screen brightness">' >> $XML
+echo '            <seekBar description="The amount of luminance to be shaved off from the colour channel components." name="Brightness reduction" action="generic /sys/class/misc/mdnie/brightness_reduction" unit="" min="0" reversed="false" step="1" max="128"/>' >> $XML
+echo '            <seekBar description="The stock backlight driver ignores brightness values below 10 (0-255) and values below that point do not have any effect on brightness. The takeover point is the point in the brightness curve where the digital brightness reduction takes effect. The brightness reduction is weighted linearly from full configured value to zero on the range of zero brightness to the takeover point. If the takeover point is beyond 10, then both hardware and digital brightness reduction can take place. This can help with having a less abrupt brightness curve caused by the digital reduction." name="Takeover point" action="generic /sys/class/misc/mdnie/brightness_takeover_point" unit="" min="0" reversed="false" step="1" max="64"/>' >> $XML
+echo '            <seekBar description="Positive delta to be applied on top system brightness. Used only for the digital reduction logic during stock ROM auto-brightness activation, can be used to brighten back up the reduction value by shifting the interpreted brightness value without sacrificing minimum brightness in manual mode." name="Auto-brightness input delta" action="generic /sys/class/misc/mdnie/brightness_input_delta" unit="" min="0" reversed="false" step="1" max="64"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+# settingsPane: start: Digital edge enhancement control
+echo '        <settingsPane description="" name="Digital edge enhancement control">' >> $XML
+echo '            <checkbox description="" name="Edge enhancement switch" action="generic01 /sys/class/misc/mdnie/hook_control/s_edge_enhancement" label="Enable edge enhancement"/>' >> $XML
+echo '            <seekBar description="" name="Amount" action="generic /sys/class/misc/mdnie/hook_control/de_positive_e" unit="" min="-128" reversed="false" step="1" max="128"/>' >> $XML
+echo '            <seekBar description="" name="Radius" action="generic /sys/class/misc/mdnie/hook_control/de_positive_f" unit="" min="-128" reversed="false" step="1" max="128"/>' >> $XML
+echo '            <seekBar description="" name="Threshold" action="generic /sys/class/misc/mdnie/hook_control/de_positive_b" unit="" min="-128" reversed="false" step="1" max="128"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+# settingsPane: start: Chroma saturation control
+echo '        <settingsPane description="Chroma saturation works in the HSL colour space, modifying saturation will dilute the hue with white or darken with black. Variations in chroma are achieved by adding different amounts of a neutral gray of the same value as the color you want to alter." name="Chroma saturation control">' >> $XML
+echo '            <seekBar description="Saturation weight/multipliers for RGB/YCM chroma gains" name="Chroma saturation weight" action="generic /sys/class/misc/mdnie/hook_control/cs_weight" unit="" min="-20" reversed="false" step="1" max="20"/>' >> $XML
+echo '            <seekBar description="" name="Red gain" action="generic /sys/class/misc/mdnie/hook_control/cs_red" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
+echo '            <seekBar description="" name="Green gain" action="generic /sys/class/misc/mdnie/hook_control/cs_green" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
+echo '            <seekBar description="" name="Blue gain" action="generic /sys/class/misc/mdnie/hook_control/cs_blue" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
+echo '            <seekBar description="" name="Yellow gain" action="generic /sys/class/misc/mdnie/hook_control/cs_yellow" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
+echo '            <seekBar description="" name="Cyan gain" action="generic /sys/class/misc/mdnie/hook_control/cs_cyan" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
+echo '            <seekBar description="" name="Magenta gain" action="generic /sys/class/misc/mdnie/hook_control/cs_magenta" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+# settingsPane: start: White colour balance
+echo '        <settingsPane description="The controls is divided in 8 channels, RGB, YCM, W and K. SCR controls are RGB modifiers on each of the controls altering the primary luminosities on that channel." name="White colour balance">' >> $XML
+echo '            <seekBar description="Red in white" name="Red" action="generic /sys/class/misc/mdnie/hook_control/scr_white_red" unit="" min="-16" reversed="false" step="1" max="16"/>' >> $XML
+echo '            <seekBar description="Green in white" name="Green" action="generic /sys/class/misc/mdnie/hook_control/scr_white_green" unit="" min="-16" reversed="false" step="1" max="16"/>' >> $XML
+echo '            <seekBar description="Blue in white" name="Blue" action="generic /sys/class/misc/mdnie/hook_control/scr_white_blue" unit="" min="-16" reversed="false" step="1" max="16"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '   </settingsTab>' >> $XML
+# settingsTab: start: Battery
+AC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/ac_input_curr`
+AC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/ac_chrg_curr`
+SDP_INPUT_CURR=`cat /sys/devices/platform/sec-battery/sdp_input_curr`
+SDP_CHRG_CURR=`cat /sys/devices/platform/sec-battery/sdp_chrg_curr` 
+DCP_INPUT_CURR=`cat /sys/devices/platform/sec-battery/dcp_input_curr`
+DCP_CHRG_CURR=`cat /sys/devices/platform/sec-battery/dcp_chrg_curr`
+CDP_INPUT_CURR=`cat /sys/devices/platform/sec-battery/cdp_input_curr`
+CDP_CHRG_CURR=`cat /sys/devices/platform/sec-battery/cdp_chrg_curr`
+ACA_INPUT_CURR=`cat /sys/devices/platform/sec-battery/aca_input_curr`
+ACA_CHRG_CURR=`cat /sys/devices/platform/sec-battery/aca_chrg_curr`
+MISC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/misc_input_curr`
+MISC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/misc_chrg_curr`
+WPC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/wpc_input_curr`
+WPC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/wpc_chrg_curr`
+MHL_500_CURR=`cat /sys/devices/platform/sec-battery/mhl_500_curr`
+MHL_900_CURR=`cat /sys/devices/platform/sec-battery/mhl_900_curr`
+MHL_1K5_CURR=`cat /sys/devices/platform/sec-battery/mhl_1500_curr`
+MHL_USB_CURR=`cat /sys/devices/platform/sec-battery/mhl_usb_curr`
+echo '    <settingsTab name="Battery">' >> $XML
+# settingsPane: start: Charging currents
+echo '        <settingsPane description="Device charging currents are composed of input current coming into the device (Nominal 5V) and charge current fed to the battery (Battery Charge Voltage). Charger detection divides charging cable types into several categories as described below. Input current is the sum of device load and charging load. If charging current exceeds input load, then charging current is dynamically adjusted. For avoiding battery deterioration, charging currents of less than 0.7 Coloumb are advised; ex. 2600mAh (Capacity) * 0.7C = ~1820mA." name="Charging currents">' >> $XML
+echo '            <button description="Detect the currently connected charging source." name="" action="charge-source" label="Detect live charging source"/>' >> $XML
+echo '            <button description="Detect the current charging current." name="" action="charge-current" label="Detect live charging current"/>' >> $XML
+echo '            <seekBar description="AC or mains input current limit applied to designated dedicated chargers and corresponding cables. Default: '$AC_INPUT_CURR' mA" name="AC / Mains Input Current" action="generic /sys/devices/platform/sec-battery/ac_input_curr" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
+echo '            <seekBar description="AC or mains charge current supplied to battery during charging. Default: '$AC_CHRG_CURR' mA" name="AC / Mains Charge Current" action="generic /sys/devices/platform/sec-battery/ac_chrg_curr" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
+echo '            <seekBar description="AC or mains screen-on input current limit. Default: 1200mA" name="AC / Mains Input Current" action="stupid-hex-no-prefix /sys/devices/platform/sec-battery/siop_input_limit" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
+echo '            <seekBar description="AC or mains screen-on charge current limit. Default: 1000mA" name="AC / Mains Charge Current" action="stupid-hex-no-prefix /sys/devices/platform/sec-battery/siop_charge_limit" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
+echo '            <seekBar description="Standard Downstream Port input current limit applied on plain and compliant USB data connectivity ports. Default: '$SDP_INPUT_CURR' mA" name="SDP Input Current" action="generic /sys/devices/platform/sec-battery/sdp_input_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
+echo '            <seekBar description="Standard Downstream Port charge current supplied to battery during charging. Default: '$SDP_CHRG_CURR' mA" name="SDP Charge Current" action="generic /sys/devices/platform/sec-battery/sdp_chrg_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
+echo '            <seekBar description="Dedicated Charging Port input current limit applied when detection of a standalone charger happens, or if a USB connector with shorted D+ and D- pins is attached. Default: '$DCP_INPUT_CURR' mA" name="DCP Input Current" action="generic /sys/devices/platform/sec-battery/dcp_input_curr" unit="mA" min="400" reversed="false" step="50" max="2000"/>' >> $XML
+echo '            <seekBar description="Dedicated Charging Port charge current supplied to battery during charging. Default: '$DCP_CHRG_CURR' mA" name="DCP Charge Current." action="generic /sys/devices/platform/sec-battery/dcp_chrg_curr" unit="mA" min="400" reversed="false" step="50" max="2000"/>' >> $XML
+echo '            <seekBar description="Charging Downstream Port input current limit applied on BCS 1.1 special charging USB data connectivity ports. Default: '$CDP_INPUT_CURR' mA" name="CDP Input Current" action="generic /sys/devices/platform/sec-battery/cdp_input_curr" unit="mA" min="400" reversed="false" step="50" max="1500"/>' >> $XML
+echo '            <seekBar description="Charging Downstream Port and Mains charge current supplied to battery during charging. Default: '$CDP_CHRG_CURR' mA" name="CDP Charge Current" action="generic /sys/devices/platform/sec-battery/cdp_chrg_curr" unit="mA" min="400" reversed="false" step="50" max="1500"/>' >> $XML
+echo '            <seekBar description="Accessory Charging Adapter input current limit applied to various dedicated USB accessories. Default: '$ACA_INPUT_CURR' mA" name="ACA Input Current" action="generic /sys/devices/platform/sec-battery/aca_input_curr" unit="mA" min="100" reversed="false" step="25" max="1000"/>' >> $XML
+echo '            <seekBar description="Accessory Charging Adapter charge current supplied to battery during charging. Default: '$ACA_CHRG_CURR' mA" name="ACA Charge Current" action="generic /sys/devices/platform/sec-battery/aca_chrg_curr" unit="mA" min="100" reversed="false" step="25" max="1000"/>' >> $XML
+echo '            <seekBar description="Miscaenellous input current limit applied to any other unidentifiable charging source. Default: '$MISC_INPUT_CURR' mA" name="Misc Input Current" action="generic /sys/devices/platform/sec-battery/misc_input_curr" unit="mA" min="100" reversed="false" step="50" max="2000"/>' >> $XML
+echo '            <seekBar description="Miscaenellous charge current supplied to battery during charging. Default: '$MISC_CHRG_CURR' mA" name="Misc Charge Current" action="generic /sys/devices/platform/sec-battery/misc_chrg_curr" unit="mA" min="100" reversed="false" step="50" max="2000"/>' >> $XML
+echo '            <seekBar description="Wireless input current limit applied to the wireless charging port. Default: '$WPC_INPUT_CURR' mA" name="WPC Input Current" action="generic /sys/devices/platform/sec-battery/wpc_input_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
+echo '            <seekBar description="Wireless charge current supplied to battery during charging. Default: '$WPC_CHRG_CURR' mA" name="WPC Charge Current" action="generic /sys/devices/platform/sec-battery/wpc_chrg_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+# settingsPane: start: MHL power
+echo '        <settingsPane description="Mobile High-Definition Link power sources." name="MHL power">' >> $XML
+echo '            <seekBar description="Input current of 500mA Class MHL power source. Default: '$MHL_500_CURR' mA" name="500mA MHL Class" action="generic /sys/devices/platform/sec-battery/mhl_500_curr" unit="mA" min="300" reversed="false" step="50" max="1000"/>' >> $XML
+echo '            <seekBar description="Input current of 900mA Class MHL power source. Default: '$MHL_900_CURR' mA" name="900mA MHL Class" action="generic /sys/devices/platform/sec-battery/mhl_900_curr" unit="mA" min="300" reversed="false" step="50" max="1500"/>' >> $XML
+echo '            <seekBar description="Input current of 1500mA Class MHL power source. Default: '$MHL_1K5_CURR' mA" name="1500mA MHL Class" action="generic /sys/devices/platform/sec-battery/mhl_1500_curr" unit="mA" min="300" reversed="false" step="50" max="2000"/>' >> $XML
+echo '            <seekBar description="Input current of USB powered MHL adapter power source. Default: '$MHL_USB_CURR' mA" name="USB powered MHL adapter" action="generic /sys/devices/platform/sec-battery/mhl_usb_curr" unit="mA" min="300" reversed="false" step="50" max="2000"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
+# settingsTab: start: I/O
+echo '    <settingsTab name="I/O">' >> $XML
+# settingsPane: start: I/O schedulers
+echo '        <settingsPane description="Set the active I/O elevator algorithm. The scheduler decides how to handle I/O requests and how to handle them. FIOPS is the everyday recommended default scheduler." name="I/O schedulers">' >> $XML
+echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set I/O settings on boot" action="controlswitch IOSCHED" label="Set on boot"/>' >> $XML
+echo '            <spinner name="Current internal storage scheduler" action="iosched internal /sys/block/mmcblk0/queue/scheduler">' >> $XML
+for IOSCHED in `cat /sys/block/mmcblk0/queue/scheduler | sed -e 's/\]//;s/\[//'`; do
+echo '                <spinnerItem name="'$IOSCHED'" value="'$IOSCHED'"/>' >> $XML
+done
+echo '            </spinner>' >> $XML
+echo '            <spinner name="Current SD card scheduler" action="iosched sd /sys/block/mmcblk1/queue/scheduler">' >> $XML
+for IOSCHED in `cat /sys/block/mmcblk1/queue/scheduler | sed -e 's/\]//;s/\[//'`; do
+echo '                <spinnerItem name="'$IOSCHED'" value="'$IOSCHED'"/>' >> $XML
+done
+echo '            </spinner>' >> $XML
+echo '        </settingsPane>' >> $XML
+# settingsPane: start: I/O read-ahead
+echo '        <settingsPane description="The readahead value is the requested block size the host controller reads into memory on any given I/O read request. Increasing the read-ahead on cards with high latency and lower IOPS will increase the raw thoroughput." name="I/O read-ahead">' >> $XML
+echo '            <seekBar description="The read-ahead value on the internal phone memory." name="Internal storage read-ahead" action="generictagforce internal /sys/block/mmcblk0/queue/read_ahead_kb" unit="kB" min="128" reversed="false" step="128" max="2048"/>' >> $XML
+echo '            <seekBar description="The read-ahead value on the external SD card." name="SD card read-ahead" action="generictagforce sd /sys/block/mmcblk1/queue/read_ahead_kb" unit="kB" min="128" reversed="false" step="128" max="2048"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
+# settingsTab: start: Misc
+echo '    <settingsTab name="Misc">' >> $XML
+# settingsPane: start: USB Mode
+echo '        <settingsPane description="Switch the USB mode between MTP and USB Mass Storage (ums) mode." name="USB Mode">' >> $XML
+echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set USB mdoe on boot" action="controlswitch USBMODE" label="Set on boot"/>' >> $XML
+echo '            <spinner name="Current internal storage scheduler" action="usbmode">' >> $XML
+echo '                <spinnerItem name="mtp" value="mtp"/>' >> $XML
+echo '                <spinnerItem name="ums" value="ums"/>' >> $XML
+echo '            </spinner>' >> $XML
+echo '        </settingsPane>' >> $XML
+# settingsPane: start: Android Logger
+echo '        <settingsPane description="Android Logger is a useful tool for developers to test and debug their Applications, but it can be disabled on normal use, this may give you better performance." name="Android Logger">' >> $XML
+echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set Logger settings on boot" action="controlswitch LOGGER" label="Set on boot"/>' >> $XML
+if [ -f '/lib/modules/logger.ko' ]; then
+echo '            <checkbox description="It is recommended to disable Android Logger if you do not need it" name="Enable/Disable Android Logger" action="logger module" label="Enable Android logger"/>' >> $XML
+elif [ -f '/sys/kernel/logger_mode/logger_mode' ]; then
+echo '            <checkbox description="It is recommended to disable Android Logger if you do not need it" name="Enable/Disable Android Logger" action="logger switch" label="Enable Android logger"/>' >> $XML
+fi
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
+# settingsTab: start: Tools
+echo '    <settingsTab name="Tools">' >> $XML
+echo '        <settingsPane description="Reboot the phone to different modes. Normal mode just reboots the phone. In Recovery mode, user can flash ZIP packages on the sdcard or wipe the data to factory settings. In Download mode, user can flash the phone through Odin or Hamidal." name="Reboot Options">' >> $XML
+echo '            <button description="Reboot the phone." name="" action="poweroff reboot" label="Normal"/>' >> $XML
+echo '            <button description="Reboot the phone to recovery mode." name="" action="poweroff recovery" label="Recovery"/>' >> $XML
+echo '            <button description="Reboot the phone to download mode." name="" action="poweroff download" label="Download"/>' >> $XML
+echo '            <button description="Shutdown the phone." name="" action="poweroff normal" label="Shutdown"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
+# English: end
+fi
+
 echo '</settingsRoot>' >> $XML
 
 chmod 777 $XML
