@@ -25,7 +25,3 @@ else
 fi
 
 eval echo \$$FILEVAR
-
-
-
-

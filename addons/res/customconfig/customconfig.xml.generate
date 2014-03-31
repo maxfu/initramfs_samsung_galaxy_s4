@@ -69,14 +69,31 @@ echo '        </settingsPane>' >> $XML
 # settingsPane: start: GPU voltage control
 if [ -f '/sys/devices/platform/pvrsrvkm.0/sgx_dvfs_volt_table' ]; then
 echo '        <settingsPane description="Decreasing voltage will lower power consumption of the GPU. Increasing it on overclocked frequencies improves stability. Too low voltage may cause instabilities and freezes. The Exynos 5410 undervolts automatically when the thermal sensor detects a cold state: the real voltage applied in that case is 75mV below the configured values." name="GPU voltage control">' >> $XML
-while read GFREQ GUVOLT; do
-echo '            <seekBar description="Default voltage: '$GUVOLT' µV" name="'$GFREQ' MHz step" action="gpuvolt '$GFREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1150000"/>' >> $XML
+while read FREQ VOLT; do
+echo '            <seekBar description="Default voltage: '$VOLT' µV" name="'$FREQ' MHz step" action="gpuvolt '$FREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1150000"/>' >> $XML
 done < /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_volt_table
 echo '        </settingsPane>' >> $XML
 else
 echo '        <settingsPane description="Non tc/oc version does not support voltage control." name="GPU voltage control">' >> $XML
 echo '        </settingsPane>' >> $XML
 fi
+echo '    </settingsTab>' >> $XML
+
+# settingsTab: start: Internal & Memory
+echo '    <settingsTab name="Internal & Memory">' >> $XML
+# settingsPane: start: Internal voltage control
+echo '        <settingsPane description="INT voltage is the voltage supplied to the internal auxiliary IP blocks, such as the hardware video decoders, the scaling blocks, the image signal processors, the display controllers, and the MMC controllers." name="Internal voltage control">' >> $XML
+echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set Internal & Memory settings on boot" action="controlswitch IAM" label="Set on boot"/>' >> $XML
+while read FREQ VOLT; do
+echo '            <seekBar description="Default voltage: '$VOLT' µV" name="'$(expr $FREQ / 1000)' MHz step" action="intvolt '$FREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1100000"/>' >> $XML
+done < /sys/class/devfreq/exynos5-busfreq-int/volt_table
+while read FREQ VOLT; do
+echo '            <seekBar description="Default voltage: '$VOLT' µV" name="'$(expr $FREQ / 1000)' MHz step" action="mifvolt '$FREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1100000"/>' >> $XML
+done < /sys/class/devfreq/exynos5-busfreq-mif/volt_table
+while read FREQ VOLT; do
+echo '            <seekBar description="Default voltage: '$VOLT' µV" name="'$(expr $FREQ / 1000)' MHz step" action="memiovolt '$FREQ'" unit="µV" min="900000" reversed="false" step="6250" max="1250000"/>' >> $XML
+done < /sys/class/devfreq/exynos5-busfreq-mif/memio_volt_table
+echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
 
 # settingsTab: start: Audio
