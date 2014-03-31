@@ -5,6 +5,15 @@ MAXFREQ=`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq`
 MINFREQ=`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq`
 LANG=`getprop persist.sys.language`
 
+chmod 777 /res/customconfig/lang.zh
+chmod 777 /res/customconfig/lang.en
+
+if [ "$LANG" == "zh" ]; then
+source /res/customconfig/lang.zh
+else
+source /res/customconfig/lang.en
+fi
+
 echo "" > $XML
 echo '<settingsRoot>' >> $XML
 
@@ -278,15 +287,6 @@ echo '            <checkbox description="It is recommended to disable Android Lo
 elif [ -f '/sys/kernel/logger_mode/logger_mode' ]; then
 echo '            <checkbox description="It is recommended to disable Android Logger if you do not need it" name="Enable/Disable Android Logger" action="logger switch" label="Enable Android logger"/>' >> $XML
 fi
-echo '        </settingsPane>' >> $XML
-echo '    </settingsTab>' >> $XML
-# settingsTab: start: Tools
-echo '    <settingsTab name="Tools">' >> $XML
-echo '        <settingsPane description="Reboot the phone to different modes. Normal mode just reboots the phone. In Recovery mode, user can flash ZIP packages on the sdcard or wipe the data to factory settings. In Download mode, user can flash the phone through Odin or Hamidal." name="Reboot Options">' >> $XML
-echo '            <button description="Reboot the phone." name="" action="poweroff reboot" label="Normal"/>' >> $XML
-echo '            <button description="Reboot the phone to recovery mode." name="" action="poweroff recovery" label="Recovery"/>' >> $XML
-echo '            <button description="Reboot the phone to download mode." name="" action="poweroff download" label="Download"/>' >> $XML
-echo '            <button description="Shutdown the phone." name="" action="poweroff normal" label="Shutdown"/>' >> $XML
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
 # Chinese: end
@@ -564,17 +564,18 @@ echo '            <checkbox description="It is recommended to disable Android Lo
 fi
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
-# settingsTab: start: Tools
-echo '    <settingsTab name="Tools">' >> $XML
-echo '        <settingsPane description="Reboot the phone to different modes. Normal mode just reboots the phone. In Recovery mode, user can flash ZIP packages on the sdcard or wipe the data to factory settings. In Download mode, user can flash the phone through Odin or Hamidal." name="Reboot Options">' >> $XML
-echo '            <button description="Reboot the phone." name="" action="poweroff reboot" label="Normal"/>' >> $XML
-echo '            <button description="Reboot the phone to recovery mode." name="" action="poweroff recovery" label="Recovery"/>' >> $XML
-echo '            <button description="Reboot the phone to download mode." name="" action="poweroff download" label="Download"/>' >> $XML
-echo '            <button description="Shutdown the phone." name="" action="poweroff normal" label="Shutdown"/>' >> $XML
-echo '        </settingsPane>' >> $XML
-echo '    </settingsTab>' >> $XML
 # English: end
 fi
+
+# settingsTab: start: Tools
+echo '    <settingsTab name="'$STN_TOOLS'">' >> $XML
+echo '        <settingsPane description="'$SPD_REBOOT_OPTIONS'" name="'$SPN_REBOOT_OPTIONS'">' >> $XML
+echo '            <button description="'$BTD_REBOOT_NORMAL'" name="" action="poweroff reboot" label="'$BTL_REBOOT_NORMAL'"/>' >> $XML
+echo '            <button description="'$BTD_REBOOT_RECOVERY'" name="" action="poweroff recovery" label="'$BTL_REBOOT_RECOVERY'"/>' >> $XML
+echo '            <button description="'$BTD_REBOOT_DOWNLOAD'" name="" action="poweroff download" label="'$BTL_REBOOT_DOWNLOAD'"/>' >> $XML
+echo '            <button description="'$BTD_REBOOT_SHUTDOWN'" name="" action="poweroff normal" label="'$BTL_REBOOT_SHUTDOWN'"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
 
 echo '</settingsRoot>' >> $XML
 
