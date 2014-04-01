@@ -160,6 +160,10 @@ rm /data/.maxfour/action.cache
 /system/bin/setprop ro.ril.disable.power.collapse 0
 /system/bin/setprop ro.telephony.call_ring.delay 1000
 
+# Workaround on siop currents which by default is too high
+echo 1200 > /sys/devices/platform/sec-battery/siop_input_limit
+echo 1000 > /sys/devices/platform/sec-battery/siop_charge_limit
+
 sync
 
 # init.d support
