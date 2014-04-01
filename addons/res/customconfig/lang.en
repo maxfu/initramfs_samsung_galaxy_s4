@@ -42,7 +42,7 @@ SPD_GPU_VOLT='Decreasing voltage will lower power consumption of the GPU. Increa
 SPN_GPU_VOLT='GPU voltage control'
 SBD_GPU_VOLT='Default voltage:'
 SPD_GPU_NTC='Non tc/oc version does not support voltage control.'
-SPD_GPU_NTC='GPU voltage control'
+SPN_GPU_NTC='GPU voltage control'
 
 STN_INT='INT'
 SPD_INT='Apply the settings on boot only if the desired settings prove to be stable, else the device ends up in a boot-loop. If turned off, the displayed values do not correspond the current live values but the saved profile values, some inconsistencies may occur on applying.'

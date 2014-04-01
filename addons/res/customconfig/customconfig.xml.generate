@@ -25,12 +25,11 @@ MHL_900_CURR=`cat /sys/devices/platform/sec-battery/mhl_900_curr`
 MHL_1K5_CURR=`cat /sys/devices/platform/sec-battery/mhl_1500_curr`
 MHL_USB_CURR=`cat /sys/devices/platform/sec-battery/mhl_usb_curr`
 
-if [ "$LANG" == "zh" ]; then
-chmod 777 /res/customconfig/lang.zh
-source /res/customconfig/lang.zh
-else
 chmod 777 /res/customconfig/lang.en
 source /res/customconfig/lang.en
+if [ -f /res/customconfig/lang.$LANG ]; then
+chmod 777 /res/customconfig/lang.$LANG
+source /res/customconfig/lang.$LANG
 fi
 
 echo "" > $XML
