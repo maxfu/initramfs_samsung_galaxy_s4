@@ -1,9 +1,29 @@
 #!/sbin/busybox sh
 
 XML=$CONFIG_XML
+LANG=`getprop persist.sys.language`
+
 MAXFREQ=`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq`
 MINFREQ=`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq`
-LANG=`getprop persist.sys.language`
+
+AC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/ac_input_curr`
+AC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/ac_chrg_curr`
+SDP_INPUT_CURR=`cat /sys/devices/platform/sec-battery/sdp_input_curr`
+SDP_CHRG_CURR=`cat /sys/devices/platform/sec-battery/sdp_chrg_curr` 
+DCP_INPUT_CURR=`cat /sys/devices/platform/sec-battery/dcp_input_curr`
+DCP_CHRG_CURR=`cat /sys/devices/platform/sec-battery/dcp_chrg_curr`
+CDP_INPUT_CURR=`cat /sys/devices/platform/sec-battery/cdp_input_curr`
+CDP_CHRG_CURR=`cat /sys/devices/platform/sec-battery/cdp_chrg_curr`
+ACA_INPUT_CURR=`cat /sys/devices/platform/sec-battery/aca_input_curr`
+ACA_CHRG_CURR=`cat /sys/devices/platform/sec-battery/aca_chrg_curr`
+MISC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/misc_input_curr`
+MISC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/misc_chrg_curr`
+WPC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/wpc_input_curr`
+WPC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/wpc_chrg_curr`
+MHL_500_CURR=`cat /sys/devices/platform/sec-battery/mhl_500_curr`
+MHL_900_CURR=`cat /sys/devices/platform/sec-battery/mhl_900_curr`
+MHL_1K5_CURR=`cat /sys/devices/platform/sec-battery/mhl_1500_curr`
+MHL_USB_CURR=`cat /sys/devices/platform/sec-battery/mhl_usb_curr`
 
 if [ "$LANG" == "zh" ]; then
 chmod 777 /res/customconfig/lang.zh
@@ -197,55 +217,6 @@ echo '            <seekBar description="Green in white" name="Green" action="gen
 echo '            <seekBar description="Blue in white" name="Blue" action="generic /sys/class/misc/mdnie/hook_control/scr_white_blue" unit="" min="-16" reversed="false" step="1" max="16"/>' >> $XML
 echo '        </settingsPane>' >> $XML
 echo '   </settingsTab>' >> $XML
-# settingsTab: start: Battery
-AC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/ac_input_curr`
-AC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/ac_chrg_curr`
-SDP_INPUT_CURR=`cat /sys/devices/platform/sec-battery/sdp_input_curr`
-SDP_CHRG_CURR=`cat /sys/devices/platform/sec-battery/sdp_chrg_curr` 
-DCP_INPUT_CURR=`cat /sys/devices/platform/sec-battery/dcp_input_curr`
-DCP_CHRG_CURR=`cat /sys/devices/platform/sec-battery/dcp_chrg_curr`
-CDP_INPUT_CURR=`cat /sys/devices/platform/sec-battery/cdp_input_curr`
-CDP_CHRG_CURR=`cat /sys/devices/platform/sec-battery/cdp_chrg_curr`
-ACA_INPUT_CURR=`cat /sys/devices/platform/sec-battery/aca_input_curr`
-ACA_CHRG_CURR=`cat /sys/devices/platform/sec-battery/aca_chrg_curr`
-MISC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/misc_input_curr`
-MISC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/misc_chrg_curr`
-WPC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/wpc_input_curr`
-WPC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/wpc_chrg_curr`
-MHL_500_CURR=`cat /sys/devices/platform/sec-battery/mhl_500_curr`
-MHL_900_CURR=`cat /sys/devices/platform/sec-battery/mhl_900_curr`
-MHL_1K5_CURR=`cat /sys/devices/platform/sec-battery/mhl_1500_curr`
-MHL_USB_CURR=`cat /sys/devices/platform/sec-battery/mhl_usb_curr`
-echo '    <settingsTab name="Battery">' >> $XML
-# settingsPane: start: Charging currents
-echo '        <settingsPane description="Device charging currents are composed of input current coming into the device (Nominal 5V) and charge current fed to the battery (Battery Charge Voltage). Charger detection divides charging cable types into several categories as described below. Input current is the sum of device load and charging load. If charging current exceeds input load, then charging current is dynamically adjusted. For avoiding battery deterioration, charging currents of less than 0.7 Coloumb are advised; ex. 2600mAh (Capacity) * 0.7C = ~1820mA." name="Charging currents">' >> $XML
-echo '            <button description="Detect the currently connected charging source." name="" action="charge-source" label="Detect live charging source"/>' >> $XML
-echo '            <button description="Detect the current charging current." name="" action="charge-current" label="Detect live charging current"/>' >> $XML
-echo '            <seekBar description="AC or mains input current limit applied to designated dedicated chargers and corresponding cables. Default: '$AC_INPUT_CURR' mA" name="AC / Mains Input Current" action="generic /sys/devices/platform/sec-battery/ac_input_curr" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
-echo '            <seekBar description="AC or mains charge current supplied to battery during charging. Default: '$AC_CHRG_CURR' mA" name="AC / Mains Charge Current" action="generic /sys/devices/platform/sec-battery/ac_chrg_curr" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
-echo '            <seekBar description="AC or mains screen-on input current limit. Default: 1200mA" name="AC / Mains Input Current" action="stupid-hex-no-prefix /sys/devices/platform/sec-battery/siop_input_limit" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
-echo '            <seekBar description="AC or mains screen-on charge current limit. Default: 1000mA" name="AC / Mains Charge Current" action="stupid-hex-no-prefix /sys/devices/platform/sec-battery/siop_charge_limit" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
-echo '            <seekBar description="Standard Downstream Port input current limit applied on plain and compliant USB data connectivity ports. Default: '$SDP_INPUT_CURR' mA" name="SDP Input Current" action="generic /sys/devices/platform/sec-battery/sdp_input_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
-echo '            <seekBar description="Standard Downstream Port charge current supplied to battery during charging. Default: '$SDP_CHRG_CURR' mA" name="SDP Charge Current" action="generic /sys/devices/platform/sec-battery/sdp_chrg_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
-echo '            <seekBar description="Dedicated Charging Port input current limit applied when detection of a standalone charger happens, or if a USB connector with shorted D+ and D- pins is attached. Default: '$DCP_INPUT_CURR' mA" name="DCP Input Current" action="generic /sys/devices/platform/sec-battery/dcp_input_curr" unit="mA" min="400" reversed="false" step="50" max="2000"/>' >> $XML
-echo '            <seekBar description="Dedicated Charging Port charge current supplied to battery during charging. Default: '$DCP_CHRG_CURR' mA" name="DCP Charge Current." action="generic /sys/devices/platform/sec-battery/dcp_chrg_curr" unit="mA" min="400" reversed="false" step="50" max="2000"/>' >> $XML
-echo '            <seekBar description="Charging Downstream Port input current limit applied on BCS 1.1 special charging USB data connectivity ports. Default: '$CDP_INPUT_CURR' mA" name="CDP Input Current" action="generic /sys/devices/platform/sec-battery/cdp_input_curr" unit="mA" min="400" reversed="false" step="50" max="1500"/>' >> $XML
-echo '            <seekBar description="Charging Downstream Port and Mains charge current supplied to battery during charging. Default: '$CDP_CHRG_CURR' mA" name="CDP Charge Current" action="generic /sys/devices/platform/sec-battery/cdp_chrg_curr" unit="mA" min="400" reversed="false" step="50" max="1500"/>' >> $XML
-echo '            <seekBar description="Accessory Charging Adapter input current limit applied to various dedicated USB accessories. Default: '$ACA_INPUT_CURR' mA" name="ACA Input Current" action="generic /sys/devices/platform/sec-battery/aca_input_curr" unit="mA" min="100" reversed="false" step="25" max="1000"/>' >> $XML
-echo '            <seekBar description="Accessory Charging Adapter charge current supplied to battery during charging. Default: '$ACA_CHRG_CURR' mA" name="ACA Charge Current" action="generic /sys/devices/platform/sec-battery/aca_chrg_curr" unit="mA" min="100" reversed="false" step="25" max="1000"/>' >> $XML
-echo '            <seekBar description="Miscaenellous input current limit applied to any other unidentifiable charging source. Default: '$MISC_INPUT_CURR' mA" name="Misc Input Current" action="generic /sys/devices/platform/sec-battery/misc_input_curr" unit="mA" min="100" reversed="false" step="50" max="2000"/>' >> $XML
-echo '            <seekBar description="Miscaenellous charge current supplied to battery during charging. Default: '$MISC_CHRG_CURR' mA" name="Misc Charge Current" action="generic /sys/devices/platform/sec-battery/misc_chrg_curr" unit="mA" min="100" reversed="false" step="50" max="2000"/>' >> $XML
-echo '            <seekBar description="Wireless input current limit applied to the wireless charging port. Default: '$WPC_INPUT_CURR' mA" name="WPC Input Current" action="generic /sys/devices/platform/sec-battery/wpc_input_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
-echo '            <seekBar description="Wireless charge current supplied to battery during charging. Default: '$WPC_CHRG_CURR' mA" name="WPC Charge Current" action="generic /sys/devices/platform/sec-battery/wpc_chrg_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
-echo '        </settingsPane>' >> $XML
-# settingsPane: start: MHL power
-echo '        <settingsPane description="Mobile High-Definition Link power sources." name="MHL power">' >> $XML
-echo '            <seekBar description="Input current of 500mA Class MHL power source. Default: '$MHL_500_CURR' mA" name="500mA MHL Class" action="generic /sys/devices/platform/sec-battery/mhl_500_curr" unit="mA" min="300" reversed="false" step="50" max="1000"/>' >> $XML
-echo '            <seekBar description="Input current of 900mA Class MHL power source. Default: '$MHL_900_CURR' mA" name="900mA MHL Class" action="generic /sys/devices/platform/sec-battery/mhl_900_curr" unit="mA" min="300" reversed="false" step="50" max="1500"/>' >> $XML
-echo '            <seekBar description="Input current of 1500mA Class MHL power source. Default: '$MHL_1K5_CURR' mA" name="1500mA MHL Class" action="generic /sys/devices/platform/sec-battery/mhl_1500_curr" unit="mA" min="300" reversed="false" step="50" max="2000"/>' >> $XML
-echo '            <seekBar description="Input current of USB powered MHL adapter power source. Default: '$MHL_USB_CURR' mA" name="USB powered MHL adapter" action="generic /sys/devices/platform/sec-battery/mhl_usb_curr" unit="mA" min="300" reversed="false" step="50" max="2000"/>' >> $XML
-echo '        </settingsPane>' >> $XML
-echo '    </settingsTab>' >> $XML
 # Chinese: end
 
 
@@ -364,61 +335,43 @@ echo '            <seekBar description="Green in white" name="Green" action="gen
 echo '            <seekBar description="Blue in white" name="Blue" action="generic /sys/class/misc/mdnie/hook_control/scr_white_blue" unit="" min="-16" reversed="false" step="1" max="16"/>' >> $XML
 echo '        </settingsPane>' >> $XML
 echo '   </settingsTab>' >> $XML
-# settingsTab: start: Battery
-AC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/ac_input_curr`
-AC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/ac_chrg_curr`
-SDP_INPUT_CURR=`cat /sys/devices/platform/sec-battery/sdp_input_curr`
-SDP_CHRG_CURR=`cat /sys/devices/platform/sec-battery/sdp_chrg_curr` 
-DCP_INPUT_CURR=`cat /sys/devices/platform/sec-battery/dcp_input_curr`
-DCP_CHRG_CURR=`cat /sys/devices/platform/sec-battery/dcp_chrg_curr`
-CDP_INPUT_CURR=`cat /sys/devices/platform/sec-battery/cdp_input_curr`
-CDP_CHRG_CURR=`cat /sys/devices/platform/sec-battery/cdp_chrg_curr`
-ACA_INPUT_CURR=`cat /sys/devices/platform/sec-battery/aca_input_curr`
-ACA_CHRG_CURR=`cat /sys/devices/platform/sec-battery/aca_chrg_curr`
-MISC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/misc_input_curr`
-MISC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/misc_chrg_curr`
-WPC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/wpc_input_curr`
-WPC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/wpc_chrg_curr`
-MHL_500_CURR=`cat /sys/devices/platform/sec-battery/mhl_500_curr`
-MHL_900_CURR=`cat /sys/devices/platform/sec-battery/mhl_900_curr`
-MHL_1K5_CURR=`cat /sys/devices/platform/sec-battery/mhl_1500_curr`
-MHL_USB_CURR=`cat /sys/devices/platform/sec-battery/mhl_usb_curr`
-echo '    <settingsTab name="Battery">' >> $XML
-# settingsPane: start: Charging currents
-echo '        <settingsPane description="Device charging currents are composed of input current coming into the device (Nominal 5V) and charge current fed to the battery (Battery Charge Voltage). Charger detection divides charging cable types into several categories as described below. Input current is the sum of device load and charging load. If charging current exceeds input load, then charging current is dynamically adjusted. For avoiding battery deterioration, charging currents of less than 0.7 Coloumb are advised; ex. 2600mAh (Capacity) * 0.7C = ~1820mA." name="Charging currents">' >> $XML
-echo '            <button description="Detect the currently connected charging source." name="" action="charge-source" label="Detect live charging source"/>' >> $XML
-echo '            <button description="Detect the current charging current." name="" action="charge-current" label="Detect live charging current"/>' >> $XML
-echo '            <seekBar description="AC or mains input current limit applied to designated dedicated chargers and corresponding cables. Default: '$AC_INPUT_CURR' mA" name="AC / Mains Input Current" action="generic /sys/devices/platform/sec-battery/ac_input_curr" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
-echo '            <seekBar description="AC or mains charge current supplied to battery during charging. Default: '$AC_CHRG_CURR' mA" name="AC / Mains Charge Current" action="generic /sys/devices/platform/sec-battery/ac_chrg_curr" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
-echo '            <seekBar description="AC or mains screen-on input current limit. Default: 1200mA" name="AC / Mains Input Current" action="stupid-hex-no-prefix /sys/devices/platform/sec-battery/siop_input_limit" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
-echo '            <seekBar description="AC or mains screen-on charge current limit. Default: 1000mA" name="AC / Mains Charge Current" action="stupid-hex-no-prefix /sys/devices/platform/sec-battery/siop_charge_limit" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
-echo '            <seekBar description="Standard Downstream Port input current limit applied on plain and compliant USB data connectivity ports. Default: '$SDP_INPUT_CURR' mA" name="SDP Input Current" action="generic /sys/devices/platform/sec-battery/sdp_input_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
-echo '            <seekBar description="Standard Downstream Port charge current supplied to battery during charging. Default: '$SDP_CHRG_CURR' mA" name="SDP Charge Current" action="generic /sys/devices/platform/sec-battery/sdp_chrg_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
-echo '            <seekBar description="Dedicated Charging Port input current limit applied when detection of a standalone charger happens, or if a USB connector with shorted D+ and D- pins is attached. Default: '$DCP_INPUT_CURR' mA" name="DCP Input Current" action="generic /sys/devices/platform/sec-battery/dcp_input_curr" unit="mA" min="400" reversed="false" step="50" max="2000"/>' >> $XML
-echo '            <seekBar description="Dedicated Charging Port charge current supplied to battery during charging. Default: '$DCP_CHRG_CURR' mA" name="DCP Charge Current." action="generic /sys/devices/platform/sec-battery/dcp_chrg_curr" unit="mA" min="400" reversed="false" step="50" max="2000"/>' >> $XML
-echo '            <seekBar description="Charging Downstream Port input current limit applied on BCS 1.1 special charging USB data connectivity ports. Default: '$CDP_INPUT_CURR' mA" name="CDP Input Current" action="generic /sys/devices/platform/sec-battery/cdp_input_curr" unit="mA" min="400" reversed="false" step="50" max="1500"/>' >> $XML
-echo '            <seekBar description="Charging Downstream Port and Mains charge current supplied to battery during charging. Default: '$CDP_CHRG_CURR' mA" name="CDP Charge Current" action="generic /sys/devices/platform/sec-battery/cdp_chrg_curr" unit="mA" min="400" reversed="false" step="50" max="1500"/>' >> $XML
-echo '            <seekBar description="Accessory Charging Adapter input current limit applied to various dedicated USB accessories. Default: '$ACA_INPUT_CURR' mA" name="ACA Input Current" action="generic /sys/devices/platform/sec-battery/aca_input_curr" unit="mA" min="100" reversed="false" step="25" max="1000"/>' >> $XML
-echo '            <seekBar description="Accessory Charging Adapter charge current supplied to battery during charging. Default: '$ACA_CHRG_CURR' mA" name="ACA Charge Current" action="generic /sys/devices/platform/sec-battery/aca_chrg_curr" unit="mA" min="100" reversed="false" step="25" max="1000"/>' >> $XML
-echo '            <seekBar description="Miscaenellous input current limit applied to any other unidentifiable charging source. Default: '$MISC_INPUT_CURR' mA" name="Misc Input Current" action="generic /sys/devices/platform/sec-battery/misc_input_curr" unit="mA" min="100" reversed="false" step="50" max="2000"/>' >> $XML
-echo '            <seekBar description="Miscaenellous charge current supplied to battery during charging. Default: '$MISC_CHRG_CURR' mA" name="Misc Charge Current" action="generic /sys/devices/platform/sec-battery/misc_chrg_curr" unit="mA" min="100" reversed="false" step="50" max="2000"/>' >> $XML
-echo '            <seekBar description="Wireless input current limit applied to the wireless charging port. Default: '$WPC_INPUT_CURR' mA" name="WPC Input Current" action="generic /sys/devices/platform/sec-battery/wpc_input_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
-echo '            <seekBar description="Wireless charge current supplied to battery during charging. Default: '$WPC_CHRG_CURR' mA" name="WPC Charge Current" action="generic /sys/devices/platform/sec-battery/wpc_chrg_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
-echo '        </settingsPane>' >> $XML
-# settingsPane: start: MHL power
-echo '        <settingsPane description="Mobile High-Definition Link power sources." name="MHL power">' >> $XML
-echo '            <seekBar description="Input current of 500mA Class MHL power source. Default: '$MHL_500_CURR' mA" name="500mA MHL Class" action="generic /sys/devices/platform/sec-battery/mhl_500_curr" unit="mA" min="300" reversed="false" step="50" max="1000"/>' >> $XML
-echo '            <seekBar description="Input current of 900mA Class MHL power source. Default: '$MHL_900_CURR' mA" name="900mA MHL Class" action="generic /sys/devices/platform/sec-battery/mhl_900_curr" unit="mA" min="300" reversed="false" step="50" max="1500"/>' >> $XML
-echo '            <seekBar description="Input current of 1500mA Class MHL power source. Default: '$MHL_1K5_CURR' mA" name="1500mA MHL Class" action="generic /sys/devices/platform/sec-battery/mhl_1500_curr" unit="mA" min="300" reversed="false" step="50" max="2000"/>' >> $XML
-echo '            <seekBar description="Input current of USB powered MHL adapter power source. Default: '$MHL_USB_CURR' mA" name="USB powered MHL adapter" action="generic /sys/devices/platform/sec-battery/mhl_usb_curr" unit="mA" min="300" reversed="false" step="50" max="2000"/>' >> $XML
-echo '        </settingsPane>' >> $XML
-echo '    </settingsTab>' >> $XML
 # English: end
 fi
 
 
 
 
+# settingsTab: start: Battery
+echo '    <settingsTab name="'$STN_BATTERY'">' >> $XML
+# settingsPane: start: Charging currents
+echo '        <settingsPane description="'$SPD_BATTERY_CURRENT'" name="'$SPN_BATTERY_CURRENT'">' >> $XML
+echo '            <button description="'$BTD_BATTERY_SOURCE'" name="" action="charge-source" label="'$BTL_BATTERY_SOURCE'"/>' >> $XML
+echo '            <button description="'$BTD_BATTERY_CURRENT'" name="" action="charge-current" label="'$BTL_BATTERY_CURRENT'"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_AC_INPUT' '$AC_INPUT_CURR' mA" name="'$SBN_BATTERY_AC_INPUT'" action="generic /sys/devices/platform/sec-battery/ac_input_curr" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_AC_CHRG' '$AC_CHRG_CURR' mA" name="'$SBN_BATTERY_AC_CHRG'" action="generic /sys/devices/platform/sec-battery/ac_chrg_curr" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_SIOP_INPUT' 1200mA" name="'$SBN_BATTERY_SIOP_INPUT'" action="stupid-hex-no-prefix /sys/devices/platform/sec-battery/siop_input_limit" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_SIOP_CHRG' 1000mA" name="'$SBN_BATTERY_SIOP_CHRG'" action="stupid-hex-no-prefix /sys/devices/platform/sec-battery/siop_charge_limit" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_SDP_INPUT' '$SDP_INPUT_CURR' mA" name="'$SBN_BATTERY_SDP_INPUT'" action="generic /sys/devices/platform/sec-battery/sdp_input_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_SDP_CHRG' '$SDP_CHRG_CURR' mA" name="'$SBN_BATTERY_SDP_CHRG'" action="generic /sys/devices/platform/sec-battery/sdp_chrg_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_DCP_INPUT' '$DCP_INPUT_CURR' mA" name="'$SBN_BATTERY_DCP_INPUT'" action="generic /sys/devices/platform/sec-battery/dcp_input_curr" unit="mA" min="400" reversed="false" step="50" max="2000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_DCP_CHRG' '$DCP_CHRG_CURR' mA" name="'$SBN_BATTERY_DCP_CHRG'" action="generic /sys/devices/platform/sec-battery/dcp_chrg_curr" unit="mA" min="400" reversed="false" step="50" max="2000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_CDP_INPUT' '$CDP_INPUT_CURR' mA" name="'$SBN_BATTERY_CDP_INPUT'" action="generic /sys/devices/platform/sec-battery/cdp_input_curr" unit="mA" min="400" reversed="false" step="50" max="1500"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_CDP_CHRG' '$CDP_CHRG_CURR' mA" name="'$SBN_BATTERY_CDP_CHRG'" action="generic /sys/devices/platform/sec-battery/cdp_chrg_curr" unit="mA" min="400" reversed="false" step="50" max="1500"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_ACA_INPUT' '$ACA_INPUT_CURR' mA" name="'$SBN_BATTERY_ACA_INPUT'" action="generic /sys/devices/platform/sec-battery/aca_input_curr" unit="mA" min="100" reversed="false" step="25" max="1000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_ACA_CHRG' '$ACA_CHRG_CURR' mA" name="'$SBN_BATTERY_ACA_CHRG'" action="generic /sys/devices/platform/sec-battery/aca_chrg_curr" unit="mA" min="100" reversed="false" step="25" max="1000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_MISC_INPUT' '$MISC_INPUT_CURR' mA" name="'$SBN_BATTERY_MISC_INPUT'" action="generic /sys/devices/platform/sec-battery/misc_input_curr" unit="mA" min="100" reversed="false" step="50" max="2000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_MISC_CHRG' '$MISC_CHRG_CURR' mA" name="'$SBN_BATTERY_MISC_CHRG'" action="generic /sys/devices/platform/sec-battery/misc_chrg_curr" unit="mA" min="100" reversed="false" step="50" max="2000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_WPC_INPUT' '$WPC_INPUT_CURR' mA" name="'$SBN_BATTERY_WPC_INPUT'" action="generic /sys/devices/platform/sec-battery/wpc_input_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_WPC_CHRG' '$WPC_CHRG_CURR' mA" name="'$SBN_BATTERY_WPC_CHRG'" action="generic /sys/devices/platform/sec-battery/wpc_chrg_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+# settingsPane: start: MHL power
+echo '        <settingsPane description="'$SPD_BATTERY_MHL'" name="'$SPN_BATTERY_MHL'">' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_MHL_500' '$MHL_500_CURR' mA" name="'$SBN_BATTERY_MHL_500'" action="generic /sys/devices/platform/sec-battery/mhl_500_curr" unit="mA" min="300" reversed="false" step="50" max="1000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_MHL_900' '$MHL_900_CURR' mA" name="'$SBN_BATTERY_MHL_900'" action="generic /sys/devices/platform/sec-battery/mhl_900_curr" unit="mA" min="300" reversed="false" step="50" max="1500"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_MHL_1K5' '$MHL_1K5_CURR' mA" name="'$SBN_BATTERY_MHL_1K5'" action="generic /sys/devices/platform/sec-battery/mhl_1500_curr" unit="mA" min="300" reversed="false" step="50" max="2000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_MHL_USB' '$MHL_USB_CURR' mA" name="'$SBN_BATTERY_MHL_USB'" action="generic /sys/devices/platform/sec-battery/mhl_usb_curr" unit="mA" min="300" reversed="false" step="50" max="2000"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
 
 # settingsTab: start: I/O
 echo '    <settingsTab name="'$STN_IO'">' >> $XML
