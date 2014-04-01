@@ -5,90 +5,89 @@ MAXFREQ=`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq`
 MINFREQ=`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq`
 LANG=`getprop persist.sys.language`
 
-chmod 777 /res/customconfig/lang.zh
-chmod 777 /res/customconfig/lang.en
-
 if [ "$LANG" == "zh" ]; then
+chmod 777 /res/customconfig/lang.zh
 source /res/customconfig/lang.zh
 else
+chmod 777 /res/customconfig/lang.en
 source /res/customconfig/lang.en
 fi
 
 echo "" > $XML
 echo '<settingsRoot>' >> $XML
 
-if [ "$LANG" == "zh" ]; then
-# Chinese: start
 # settingsTab: start: CPU
-echo '    <settingsTab name="CHINESE">' >> $XML
-# settingsPane: start: CPU control switch
-echo '        <settingsPane description="Apply the settings on boot only if the desired settings prove to be stable, else the device ends up in a boot-loop. If turned off, the displayed values do not correspond the current live values but the saved profile values, some inconsistencies may occur on applying." name="CPU control switch">' >> $XML
-echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set CPU settings on boot" action="controlswitch CPU" label="Set on boot"/>' >> $XML
+echo '    <settingsTab name="'$STN_CPU'">' >> $XML
+echo '        <settingsPane description="'$SPD_CPU_CS'" name="'$SPN_CPU_CS'">' >> $XML
+echo '            <checkbox description="'$CSD_CPU'" name="'$CSN_CPU'" action="controlswitch CPU" label="'$CSL_CPU'"/>' >> $XML
 echo '        </settingsPane>' >> $XML
-# settingsPane: start: CPU frequency control
-echo '        <settingsPane description="CPU scaling" name="CPU frequency control">' >> $XML
-echo '            <spinner name="Current CPU governor" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor">' >> $XML
+echo '        <settingsPane description="'$SPD_CPU_SCAL'" name="'$SPN_CPU_SCAL'">' >> $XML
+echo '            <spinner name="'$SLN_CPU_GOV'" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor">' >> $XML
 for CPUGOV in `cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors`; do
 echo '                <spinnerItem name="'$CPUGOV'" value="'$CPUGOV'"/>' >> $XML
 done
 echo '            </spinner>' >> $XML
-echo '            <seekbar description="Set the maximum number the CPU uses. Default: 4 Cores." name="CPU max core number limit" action="cpugeneric /sys/power/cpucore_max_num_limit" unit="Cores" reversed="false" step="1" min="1" max="4" />' >> $XML
-echo '            <seekbar description="Set the minimum number the CPU uses. Default: 1 Cores." name="CPU min core number limit" action="cpugeneric /sys/power/cpucore_min_num_limit" unit="Cores" reversed="false" step="1" min="1" max="4" />' >> $XML
-echo '            <seekbar description="Set the maximum frequency the CPU scales up to. Default: '$MAXFREQ' MHz." name="CPU max frequency" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq" unit="KHz" reversed="false" step="50000" min="'$MINFREQ'" max="'$MAXFREQ'" />' >> $XML
-echo '            <seekbar description="Set the minimum frequency the CPU scales down to. Default: '$MINFREQ' MHz." name="CPU min frequency" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq" unit="KHz" reversed="false" step="50000" min="'$MINFREQ'" max="'$MAXFREQ'" />' >> $XML
+echo '            <seekbar description="'$SBD_CPU_CORE_MAX'" name="'$SBN_CPU_CORE_MAX'" action="cpugeneric /sys/power/cpucore_max_num_limit" unit="'$SBU_CPU_CORE_MAX'" reversed="false" step="1" min="1" max="4" />' >> $XML
+echo '            <seekbar description="'$SBD_CPU_CORE_MIN'" name="'$SBN_CPU_CORE_MIN'" action="cpugeneric /sys/power/cpucore_min_num_limit" unit="'$SBU_CPU_CORE_MIN'" reversed="false" step="1" min="1" max="4" />' >> $XML
+echo '            <seekbar description="'$SBD_CPU_FREQ_MAX' '$MAXFREQ' MHz." name="'$SBN_CPU_FREQ_MAX'" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq" unit="KHz" reversed="false" step="50000" min="'$MINFREQ'" max="'$MAXFREQ'" />' >> $XML
+echo '            <seekbar description="'$SBD_CPU_FREQ_MIN' '$MINFREQ' MHz." name="'$SBN_CPU_FREQ_MIN'" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq" unit="KHz" reversed="false" step="50000" min="'$MINFREQ'" max="'$MAXFREQ'" />' >> $XML
 echo '        </settingsPane>' >> $XML
-# settingsPane: start: CPU voltage control
-echo '        <settingsPane description="Decreasing voltage will lower power consumption of the CPU. Increasing it on overclocked frequencies improves stability. Too low voltage may cause instabilities and freezes. The Exynos 5410 undervolts automatically when the thermal sensor detects a cold state: the real voltage applied in that case is 75mV below the configured values." name="CPU voltage control">' >> $XML
-echo '            <settingsPane description="" name="big cores">' >> $XML
+echo '        <settingsPane description="'$SPD_CPU_VOLT'" name="'$SPN_CPU_VOLT'">' >> $XML
+echo '            <settingsPane description="" name="'$SPN_CPU_VOLT_BIG'">' >> $XML
 while read FREQ UVOLT; do
 if [ "$MAXFREQ" == "2000" ]; then
 if [ "$FREQ" == "650" ]; then
 echo '            </settingsPane>' >> $XML
-echo '            <settingsPane description="Actual frequencies of LITTLE cores to be multiplied by 2" name="LITTLE cores">' >> $XML
+echo '            <settingsPane description="'$SPD_CPU_VOLT_LITTLE'" name="'$SPN_CPU_VOLT_LITTLE'">' >> $XML
 fi
 else
 if [ "$FREQ" == "600" ]; then
 echo '            </settingsPane>' >> $XML
-echo '            <settingsPane description="Actual frequencies of LITTLE cores to be multiplied by 2" name="LITTLE cores">' >> $XML
+echo '            <settingsPane description="'$SPD_CPU_VOLT_LITTLE'" name="'$SPN_CPU_VOLT_LITTLE'">' >> $XML
 fi
 fi
-echo '                <seekBar description="Default voltage: '$UVOLT' µV" name="'$FREQ' MHz step" action="cpuvolt '$FREQ'" unit="µV" min="600000" reversed="false" step="6250" max="1350000"/>' >> $XML
+echo '                <seekBar description="'$SBD_CPU_VOLT' '$UVOLT' µV" name="'$FREQ' '$SBN_CPU_VOLT'" action="cpuvolt '$FREQ'" unit="µV" min="600000" reversed="false" step="6250" max="1350000"/>' >> $XML
 done < /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table
 echo '            </settingsPane>' >> $XML
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
+
 # settingsTab: start: GPU
-echo '    <settingsTab name="GPU">' >> $XML
-# settingsPane: start: GPU control switch
-echo '        <settingsPane description="Apply the settings on boot only if the desired settings prove to be stable, else the device ends up in a boot-loop. If turned off, the displayed values do not correspond the current live values but the saved profile values, some inconsistencies may occur on applying." name="GPU control switch">' >> $XML
-echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set GPU settings on boot" action="controlswitch GPU" label="Set on boot"/>' >> $XML
+echo '    <settingsTab name="'$STN_GPU'">' >> $XML
+echo '        <settingsPane description="'$SPD_GPU_CS'" name="'$SPN_GPU_CS'">' >> $XML
+echo '            <checkbox description="'$CSD_GPU'" name="'$CSN_GPU'" action="controlswitch GPU" label="'$CSL_GPU'"/>' >> $XML
 echo '        </settingsPane>' >> $XML
-# settingsPane: start: GPU frequency control
-echo '        <settingsPane description="GPU scaling" name="GPU frequency control">' >> $XML
-echo '            <spinner name="GPU max frequency" action="gpugeneric /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_max_lock">' >> $XML
+echo '        <settingsPane description="'$SPD_GPU_SCAL'" name="'$SPN_GPU_SCAL'">' >> $XML
+echo '            <spinner name="'$SLN_GPU_FREQ_MAX'" action="gpugeneric /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_max_lock">' >> $XML
 for SGXFREQ in `cat /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_table`; do
 echo '                <spinnerItem name="'$SGXFREQ'" value="'$SGXFREQ'"/>' >> $XML
 done
 echo '            </spinner>' >> $XML
-echo '            <spinner name="GPU min frequency" action="gpugeneric /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_min_lock">' >> $XML
+echo '            <spinner name="'$SLN_GPU_FREQ_MIN'" action="gpugeneric /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_min_lock">' >> $XML
 for SGXFREQ in `cat /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_table`; do
 echo '                <spinnerItem name="'$SGXFREQ'" value="'$SGXFREQ'"/>' >> $XML
 done
 echo '            </spinner>' >> $XML
-echo '            <checkbox description="If enabled, the GPU ignores the normal DVFS policies and voltages, and uses hard-coded entries when waking out of clock-gating. The respective lock is 266MHz and 900mV." name="Set GPU wakeup state lockinng" action="gpugeneric01 /sys/module/pvrsrvkm/parameters/sec_wakeup_lock_state" label="GPU wakeup state locking"/>' >> $XML
+echo '            <checkbox description="'$CBD_GPU_WAKE'" name="'$CBN_GPU_WAKE'" action="gpugeneric01 /sys/module/pvrsrvkm/parameters/sec_wakeup_lock_state" label="'$CBL_GPU_WAKE'"/>' >> $XML
 echo '        </settingsPane>' >> $XML
-# settingsPane: start: GPU voltage control
 if [ -f '/sys/devices/platform/pvrsrvkm.0/sgx_dvfs_volt_table' ]; then
-echo '        <settingsPane description="Decreasing voltage will lower power consumption of the GPU. Increasing it on overclocked frequencies improves stability. Too low voltage may cause instabilities and freezes. The Exynos 5410 undervolts automatically when the thermal sensor detects a cold state: the real voltage applied in that case is 75mV below the configured values." name="GPU voltage control">' >> $XML
+echo '        <settingsPane description="'$SPD_GPU_VOLT'" name="'$SPN_GPU_VOLT'">' >> $XML
 while read GFREQ GUVOLT; do
-echo '            <seekBar description="Default voltage: '$GUVOLT' µV" name="'$GFREQ' MHz step" action="gpuvolt '$GFREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1150000"/>' >> $XML
+echo '            <seekBar description="'$SBD_GPU_VOLT' '$GUVOLT' µV" name="'$GFREQ' MHz step" action="gpuvolt '$GFREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1150000"/>' >> $XML
 done < /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_volt_table
 echo '        </settingsPane>' >> $XML
 else
-echo '        <settingsPane description="Non tc/oc version does not support voltage control." name="GPU voltage control">' >> $XML
+echo '        <settingsPane description="'$SPD_GPU_NTC'" name="'$SPN_GPU_NTC'">' >> $XML
 echo '        </settingsPane>' >> $XML
 fi
 echo '    </settingsTab>' >> $XML
+
+
+
+
+
+if [ "$LANG" == "zh" ]; then
+# Chinese: start
 # settingsTab: start: INT
 echo '    <settingsTab name="INT">' >> $XML
 # settingsPane: start: GPU control switch
@@ -245,123 +244,15 @@ echo '            <seekBar description="Input current of 500mA Class MHL power s
 echo '            <seekBar description="Input current of 900mA Class MHL power source. Default: '$MHL_900_CURR' mA" name="900mA MHL Class" action="generic /sys/devices/platform/sec-battery/mhl_900_curr" unit="mA" min="300" reversed="false" step="50" max="1500"/>' >> $XML
 echo '            <seekBar description="Input current of 1500mA Class MHL power source. Default: '$MHL_1K5_CURR' mA" name="1500mA MHL Class" action="generic /sys/devices/platform/sec-battery/mhl_1500_curr" unit="mA" min="300" reversed="false" step="50" max="2000"/>' >> $XML
 echo '            <seekBar description="Input current of USB powered MHL adapter power source. Default: '$MHL_USB_CURR' mA" name="USB powered MHL adapter" action="generic /sys/devices/platform/sec-battery/mhl_usb_curr" unit="mA" min="300" reversed="false" step="50" max="2000"/>' >> $XML
-echo '        </settingsPane>' >> $XML
-echo '    </settingsTab>' >> $XML
-# settingsTab: start: I/O
-echo '    <settingsTab name="I/O">' >> $XML
-# settingsPane: start: I/O schedulers
-echo '        <settingsPane description="Set the active I/O elevator algorithm. The scheduler decides how to handle I/O requests and how to handle them. FIOPS is the everyday recommended default scheduler." name="I/O schedulers">' >> $XML
-echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set I/O settings on boot" action="controlswitch IOSCHED" label="Set on boot"/>' >> $XML
-echo '            <spinner name="Current internal storage scheduler" action="iosched internal /sys/block/mmcblk0/queue/scheduler">' >> $XML
-for IOSCHED in `cat /sys/block/mmcblk0/queue/scheduler | sed -e 's/\]//;s/\[//'`; do
-echo '                <spinnerItem name="'$IOSCHED'" value="'$IOSCHED'"/>' >> $XML
-done
-echo '            </spinner>' >> $XML
-echo '            <spinner name="Current SD card scheduler" action="iosched sd /sys/block/mmcblk1/queue/scheduler">' >> $XML
-for IOSCHED in `cat /sys/block/mmcblk1/queue/scheduler | sed -e 's/\]//;s/\[//'`; do
-echo '                <spinnerItem name="'$IOSCHED'" value="'$IOSCHED'"/>' >> $XML
-done
-echo '            </spinner>' >> $XML
-echo '        </settingsPane>' >> $XML
-# settingsPane: start: I/O read-ahead
-echo '        <settingsPane description="The readahead value is the requested block size the host controller reads into memory on any given I/O read request. Increasing the read-ahead on cards with high latency and lower IOPS will increase the raw thoroughput." name="I/O read-ahead">' >> $XML
-echo '            <seekBar description="The read-ahead value on the internal phone memory." name="Internal storage read-ahead" action="generictagforce internal /sys/block/mmcblk0/queue/read_ahead_kb" unit="kB" min="128" reversed="false" step="128" max="2048"/>' >> $XML
-echo '            <seekBar description="The read-ahead value on the external SD card." name="SD card read-ahead" action="generictagforce sd /sys/block/mmcblk1/queue/read_ahead_kb" unit="kB" min="128" reversed="false" step="128" max="2048"/>' >> $XML
-echo '        </settingsPane>' >> $XML
-echo '    </settingsTab>' >> $XML
-# settingsTab: start: Misc
-echo '    <settingsTab name="Misc">' >> $XML
-# settingsPane: start: USB Mode
-echo '        <settingsPane description="Switch the USB mode between MTP and USB Mass Storage (ums) mode." name="USB Mode">' >> $XML
-echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set USB mdoe on boot" action="controlswitch USBMODE" label="Set on boot"/>' >> $XML
-echo '            <spinner name="Current internal storage scheduler" action="usbmode">' >> $XML
-echo '                <spinnerItem name="mtp" value="mtp"/>' >> $XML
-echo '                <spinnerItem name="ums" value="ums"/>' >> $XML
-echo '            </spinner>' >> $XML
-echo '        </settingsPane>' >> $XML
-# settingsPane: start: Android Logger
-echo '        <settingsPane description="Android Logger is a useful tool for developers to test and debug their Applications, but it can be disabled on normal use, this may give you better performance." name="Android Logger">' >> $XML
-echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set Logger settings on boot" action="controlswitch LOGGER" label="Set on boot"/>' >> $XML
-if [ -f '/lib/modules/logger.ko' ]; then
-echo '            <checkbox description="It is recommended to disable Android Logger if you do not need it" name="Enable/Disable Android Logger" action="logger module" label="Enable Android logger"/>' >> $XML
-elif [ -f '/sys/kernel/logger_mode/logger_mode' ]; then
-echo '            <checkbox description="It is recommended to disable Android Logger if you do not need it" name="Enable/Disable Android Logger" action="logger switch" label="Enable Android logger"/>' >> $XML
-fi
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
 # Chinese: end
+
+
 else
+
+
 # English: start
-# settingsTab: start: CPU
-echo '    <settingsTab name="CPU">' >> $XML
-# settingsPane: start: CPU control switch
-echo '        <settingsPane description="Apply the settings on boot only if the desired settings prove to be stable, else the device ends up in a boot-loop. If turned off, the displayed values do not correspond the current live values but the saved profile values, some inconsistencies may occur on applying." name="CPU control switch">' >> $XML
-echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set CPU settings on boot" action="controlswitch CPU" label="Set on boot"/>' >> $XML
-echo '        </settingsPane>' >> $XML
-# settingsPane: start: CPU frequency control
-echo '        <settingsPane description="CPU scaling" name="CPU frequency control">' >> $XML
-echo '            <spinner name="Current CPU governor" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor">' >> $XML
-for CPUGOV in `cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors`; do
-echo '                <spinnerItem name="'$CPUGOV'" value="'$CPUGOV'"/>' >> $XML
-done
-echo '            </spinner>' >> $XML
-echo '            <seekbar description="Set the maximum number the CPU uses. Default: 4 Cores." name="CPU max core number limit" action="cpugeneric /sys/power/cpucore_max_num_limit" unit="Cores" reversed="false" step="1" min="1" max="4" />' >> $XML
-echo '            <seekbar description="Set the minimum number the CPU uses. Default: 1 Cores." name="CPU min core number limit" action="cpugeneric /sys/power/cpucore_min_num_limit" unit="Cores" reversed="false" step="1" min="1" max="4" />' >> $XML
-echo '            <seekbar description="Set the maximum frequency the CPU scales up to. Default: '$MAXFREQ' MHz." name="CPU max frequency" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq" unit="KHz" reversed="false" step="50000" min="'$MINFREQ'" max="'$MAXFREQ'" />' >> $XML
-echo '            <seekbar description="Set the minimum frequency the CPU scales down to. Default: '$MINFREQ' MHz." name="CPU min frequency" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq" unit="KHz" reversed="false" step="50000" min="'$MINFREQ'" max="'$MAXFREQ'" />' >> $XML
-echo '        </settingsPane>' >> $XML
-# settingsPane: start: CPU voltage control
-echo '        <settingsPane description="Decreasing voltage will lower power consumption of the CPU. Increasing it on overclocked frequencies improves stability. Too low voltage may cause instabilities and freezes. The Exynos 5410 undervolts automatically when the thermal sensor detects a cold state: the real voltage applied in that case is 75mV below the configured values." name="CPU voltage control">' >> $XML
-echo '            <settingsPane description="" name="big cores">' >> $XML
-while read FREQ UVOLT; do
-if [ "$MAXFREQ" == "2000" ]; then
-if [ "$FREQ" == "650" ]; then
-echo '            </settingsPane>' >> $XML
-echo '            <settingsPane description="Actual frequencies of LITTLE cores to be multiplied by 2" name="LITTLE cores">' >> $XML
-fi
-else
-if [ "$FREQ" == "600" ]; then
-echo '            </settingsPane>' >> $XML
-echo '            <settingsPane description="Actual frequencies of LITTLE cores to be multiplied by 2" name="LITTLE cores">' >> $XML
-fi
-fi
-echo '                <seekBar description="Default voltage: '$UVOLT' µV" name="'$FREQ' MHz step" action="cpuvolt '$FREQ'" unit="µV" min="600000" reversed="false" step="6250" max="1350000"/>' >> $XML
-done < /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table
-echo '            </settingsPane>' >> $XML
-echo '        </settingsPane>' >> $XML
-echo '    </settingsTab>' >> $XML
-# settingsTab: start: GPU
-echo '    <settingsTab name="GPU">' >> $XML
-# settingsPane: start: GPU control switch
-echo '        <settingsPane description="Apply the settings on boot only if the desired settings prove to be stable, else the device ends up in a boot-loop. If turned off, the displayed values do not correspond the current live values but the saved profile values, some inconsistencies may occur on applying." name="GPU control switch">' >> $XML
-echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set GPU settings on boot" action="controlswitch GPU" label="Set on boot"/>' >> $XML
-echo '        </settingsPane>' >> $XML
-# settingsPane: start: GPU frequency control
-echo '        <settingsPane description="GPU scaling" name="GPU frequency control">' >> $XML
-echo '            <spinner name="GPU max frequency" action="gpugeneric /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_max_lock">' >> $XML
-for SGXFREQ in `cat /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_table`; do
-echo '                <spinnerItem name="'$SGXFREQ'" value="'$SGXFREQ'"/>' >> $XML
-done
-echo '            </spinner>' >> $XML
-echo '            <spinner name="GPU min frequency" action="gpugeneric /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_min_lock">' >> $XML
-for SGXFREQ in `cat /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_table`; do
-echo '                <spinnerItem name="'$SGXFREQ'" value="'$SGXFREQ'"/>' >> $XML
-done
-echo '            </spinner>' >> $XML
-echo '            <checkbox description="If enabled, the GPU ignores the normal DVFS policies and voltages, and uses hard-coded entries when waking out of clock-gating. The respective lock is 266MHz and 900mV." name="Set GPU wakeup state lockinng" action="gpugeneric01 /sys/module/pvrsrvkm/parameters/sec_wakeup_lock_state" label="GPU wakeup state locking"/>' >> $XML
-echo '        </settingsPane>' >> $XML
-# settingsPane: start: GPU voltage control
-if [ -f '/sys/devices/platform/pvrsrvkm.0/sgx_dvfs_volt_table' ]; then
-echo '        <settingsPane description="Decreasing voltage will lower power consumption of the GPU. Increasing it on overclocked frequencies improves stability. Too low voltage may cause instabilities and freezes. The Exynos 5410 undervolts automatically when the thermal sensor detects a cold state: the real voltage applied in that case is 75mV below the configured values." name="GPU voltage control">' >> $XML
-while read GFREQ GUVOLT; do
-echo '            <seekBar description="Default voltage: '$GUVOLT' µV" name="'$GFREQ' MHz step" action="gpuvolt '$GFREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1150000"/>' >> $XML
-done < /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_volt_table
-echo '        </settingsPane>' >> $XML
-else
-echo '        <settingsPane description="Non tc/oc version does not support voltage control." name="GPU voltage control">' >> $XML
-echo '        </settingsPane>' >> $XML
-fi
-echo '    </settingsTab>' >> $XML
 # settingsTab: start: INT
 echo '    <settingsTab name="INT">' >> $XML
 # settingsPane: start: GPU control switch
@@ -520,52 +411,54 @@ echo '            <seekBar description="Input current of 500mA Class MHL power s
 echo '            <seekBar description="Input current of 900mA Class MHL power source. Default: '$MHL_900_CURR' mA" name="900mA MHL Class" action="generic /sys/devices/platform/sec-battery/mhl_900_curr" unit="mA" min="300" reversed="false" step="50" max="1500"/>' >> $XML
 echo '            <seekBar description="Input current of 1500mA Class MHL power source. Default: '$MHL_1K5_CURR' mA" name="1500mA MHL Class" action="generic /sys/devices/platform/sec-battery/mhl_1500_curr" unit="mA" min="300" reversed="false" step="50" max="2000"/>' >> $XML
 echo '            <seekBar description="Input current of USB powered MHL adapter power source. Default: '$MHL_USB_CURR' mA" name="USB powered MHL adapter" action="generic /sys/devices/platform/sec-battery/mhl_usb_curr" unit="mA" min="300" reversed="false" step="50" max="2000"/>' >> $XML
-echo '        </settingsPane>' >> $XML
-echo '    </settingsTab>' >> $XML
-# settingsTab: start: I/O
-echo '    <settingsTab name="I/O">' >> $XML
-# settingsPane: start: I/O schedulers
-echo '        <settingsPane description="Set the active I/O elevator algorithm. The scheduler decides how to handle I/O requests and how to handle them. FIOPS is the everyday recommended default scheduler." name="I/O schedulers">' >> $XML
-echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set I/O settings on boot" action="controlswitch IOSCHED" label="Set on boot"/>' >> $XML
-echo '            <spinner name="Current internal storage scheduler" action="iosched internal /sys/block/mmcblk0/queue/scheduler">' >> $XML
-for IOSCHED in `cat /sys/block/mmcblk0/queue/scheduler | sed -e 's/\]//;s/\[//'`; do
-echo '                <spinnerItem name="'$IOSCHED'" value="'$IOSCHED'"/>' >> $XML
-done
-echo '            </spinner>' >> $XML
-echo '            <spinner name="Current SD card scheduler" action="iosched sd /sys/block/mmcblk1/queue/scheduler">' >> $XML
-for IOSCHED in `cat /sys/block/mmcblk1/queue/scheduler | sed -e 's/\]//;s/\[//'`; do
-echo '                <spinnerItem name="'$IOSCHED'" value="'$IOSCHED'"/>' >> $XML
-done
-echo '            </spinner>' >> $XML
-echo '        </settingsPane>' >> $XML
-# settingsPane: start: I/O read-ahead
-echo '        <settingsPane description="The readahead value is the requested block size the host controller reads into memory on any given I/O read request. Increasing the read-ahead on cards with high latency and lower IOPS will increase the raw thoroughput." name="I/O read-ahead">' >> $XML
-echo '            <seekBar description="The read-ahead value on the internal phone memory." name="Internal storage read-ahead" action="generictagforce internal /sys/block/mmcblk0/queue/read_ahead_kb" unit="kB" min="128" reversed="false" step="128" max="2048"/>' >> $XML
-echo '            <seekBar description="The read-ahead value on the external SD card." name="SD card read-ahead" action="generictagforce sd /sys/block/mmcblk1/queue/read_ahead_kb" unit="kB" min="128" reversed="false" step="128" max="2048"/>' >> $XML
-echo '        </settingsPane>' >> $XML
-echo '    </settingsTab>' >> $XML
-# settingsTab: start: Misc
-echo '    <settingsTab name="Misc">' >> $XML
-# settingsPane: start: USB Mode
-echo '        <settingsPane description="Switch the USB mode between MTP and USB Mass Storage (ums) mode." name="USB Mode">' >> $XML
-echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set USB mdoe on boot" action="controlswitch USBMODE" label="Set on boot"/>' >> $XML
-echo '            <spinner name="Current internal storage scheduler" action="usbmode">' >> $XML
-echo '                <spinnerItem name="mtp" value="mtp"/>' >> $XML
-echo '                <spinnerItem name="ums" value="ums"/>' >> $XML
-echo '            </spinner>' >> $XML
-echo '        </settingsPane>' >> $XML
-# settingsPane: start: Android Logger
-echo '        <settingsPane description="Android Logger is a useful tool for developers to test and debug their Applications, but it can be disabled on normal use, this may give you better performance." name="Android Logger">' >> $XML
-echo '            <checkbox description="If enabled, the below settings will be applied at boot." name="Set Logger settings on boot" action="controlswitch LOGGER" label="Set on boot"/>' >> $XML
-if [ -f '/lib/modules/logger.ko' ]; then
-echo '            <checkbox description="It is recommended to disable Android Logger if you do not need it" name="Enable/Disable Android Logger" action="logger module" label="Enable Android logger"/>' >> $XML
-elif [ -f '/sys/kernel/logger_mode/logger_mode' ]; then
-echo '            <checkbox description="It is recommended to disable Android Logger if you do not need it" name="Enable/Disable Android Logger" action="logger switch" label="Enable Android logger"/>' >> $XML
-fi
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
 # English: end
 fi
+
+
+
+
+
+# settingsTab: start: I/O
+echo '    <settingsTab name="'$STN_IO'">' >> $XML
+echo '        <settingsPane description="'$SPD_IO_CS'" name="'$SPN_IO_CS'">' >> $XML
+echo '            <checkbox description="'$CSD_IO'" name="'$CSN_IO'" action="controlswitch IOSCHED" label="'$CSL_IO'"/>' >> $XML
+echo '            <spinner name="'$SLN_IO_SCHED_INTERNAL'" action="iosched internal /sys/block/mmcblk0/queue/scheduler">' >> $XML
+for IOSCHED in `cat /sys/block/mmcblk0/queue/scheduler | sed -e 's/\]//;s/\[//'`; do
+echo '                <spinnerItem name="'$IOSCHED'" value="'$IOSCHED'"/>' >> $XML
+done
+echo '            </spinner>' >> $XML
+echo '            <spinner name="'$SLN_IO_SCHED_SDCARD'" action="iosched sd /sys/block/mmcblk1/queue/scheduler">' >> $XML
+for IOSCHED in `cat /sys/block/mmcblk1/queue/scheduler | sed -e 's/\]//;s/\[//'`; do
+echo '                <spinnerItem name="'$IOSCHED'" value="'$IOSCHED'"/>' >> $XML
+done
+echo '            </spinner>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '        <settingsPane description="'$SPD_IO_READAHEAD'" name="'$SPN_IO_READAHEAD'">' >> $XML
+echo '            <seekBar description="'$SBD_IO_READAHEAD_INTERNAL'" name="'$SBN_IO_READAHEAD_INTERNAL'" action="generictagforce internal /sys/block/mmcblk0/queue/read_ahead_kb" unit="kB" min="128" reversed="false" step="128" max="2048"/>' >> $XML
+echo '            <seekBar description="'$SBD_IO_READAHEAD_SDCARD'" name="'$SBN_IO_READAHEAD_SDCARD'" action="generictagforce sd /sys/block/mmcblk1/queue/read_ahead_kb" unit="kB" min="128" reversed="false" step="128" max="2048"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
+
+# settingsTab: start: Misc
+echo '    <settingsTab name="'$STN_MISC'">' >> $XML
+echo '        <settingsPane description="'$SPD_USB_MODE'" name="'$SPN_USB_MODE'">' >> $XML
+echo '            <checkbox description="'$CSD_USB_MODE'" name="'$CSN_USB_MODE'" action="controlswitch USBMODE" label="'$CSL_USB_MODE'"/>' >> $XML
+echo '            <spinner name="'$SLN_USB_MODE'" action="usbmode">' >> $XML
+echo '                <spinnerItem name="'$SLIN_USB_MODE_MTP'" value="mtp"/>' >> $XML
+echo '                <spinnerItem name="'$SLIN_USB_MODE_UMS'" value="ums"/>' >> $XML
+echo '            </spinner>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '        <settingsPane description="'$SPD_LOGGER'" name="'$SPN_LOGGER'">' >> $XML
+echo '            <checkbox description="'$CSD_LOGGER'" name="'$CSN_LOGGER'" action="controlswitch LOGGER" label="'$CSL_LOGGER'"/>' >> $XML
+if [ -f '/lib/modules/logger.ko' ]; then
+echo '            <checkbox description="'$CBD_LOGGER'" name="'$CBN_LOGGER'" action="logger module" label="'$CBL_LOGGER'"/>' >> $XML
+elif [ -f '/sys/kernel/logger_mode/logger_mode' ]; then
+echo '            <checkbox description="'$CBD_LOGGER'" name="'$CBN_LOGGER'" action="logger switch" label="'$CBL_LOGGER'"/>' >> $XML
+fi
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
 
 # settingsTab: start: Tools
 echo '    <settingsTab name="'$STN_TOOLS'">' >> $XML
