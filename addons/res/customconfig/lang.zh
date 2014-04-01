@@ -170,7 +170,7 @@ SBD_SCREEN_BALANCE_BLUE='Blue in white'
 SBN_SCREEN_BALANCE_BLUE='Blue'
 
 STN_BATTERY='Battery'
-SPD_BATTERY_CURRENT='Device charging currents are composed of input current coming into the device (Nominal 5V) and charge current fed to the battery (Battery Charge Voltage). Charger detection divides charging cable types into several categories as described below. Input current is the sum of device load and charging load. If charging current exceeds input load, then charging current is dynamically adjusted. For avoiding battery deterioration, charging currents of less than 0.7 Coloumb are advised; ex. 2600mAh (Capacity) * 0.7C = ~1820mA.'
+SPD_BATTERY_CURRENT='设备的充电电流分为输入电流（电压一般为5V）与输出到电池的充电电流（电池充电电压）。充电检测把充电电缆类型分为如下几个分类。输入电流是设备负载电流与充电电流的总和。如果充电电流超出了输入电流，充电电流将被动抬调整。为了防止损坏电池，建议充电电流一般少于 0.7 库伦。例如：2600mAh * 0.7C = ~1820mA'
 SPN_BATTERY_CURRENT='Charging currents'
 BTD_BATTERY_SOURCE='Detect the currently connected charging source.'
 BTL_BATTERY_SOURCE='Detect live charging source'
