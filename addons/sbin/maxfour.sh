@@ -103,15 +103,13 @@ pm disable com.samsung.klmsagent
 setenforce 0
 
 # Some optimization from Perseus
-echo 2 > /sys/devices/system/cpu/sched_mc_power_savings
+/sbin/busybox echo 2 > /sys/devices/system/cpu/sched_mc_power_savings
 for i in /sys/block/*/queue/add_random; do
-    echo 0 > $i
+    /sbin/busybox echo 0 > $i
 done
-echo 0 > /proc/sys/kernel/randomize_va_space
-echo 532 > /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_max_lock
-echo 177 > /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_min_lock
-echo 50 > /sys/class/devfreq/exynos5-busfreq-mif/polling_interval
-echo 70 > /sys/class/devfreq/exynos5-busfreq-mif/time_in_state/upthreshold
+/sbin/busybox echo 0 > /proc/sys/kernel/randomize_va_space
+/sbin/busybox echo 50 > /sys/class/devfreq/exynos5-busfreq-mif/polling_interval
+/sbin/busybox echo 70 > /sys/class/devfreq/exynos5-busfreq-mif/time_in_state/upthreshold
 
 # Enable Kernel Samepage Merging
 /sbin/busybox echo 1 > /sys/kernel/mm/ksm/run
@@ -161,8 +159,8 @@ rm /data/.maxfour/action.cache
 /system/bin/setprop ro.telephony.call_ring.delay 1000
 
 # Workaround on siop currents which by default is too high
-echo 1200 > /sys/devices/platform/sec-battery/siop_input_limit
-echo 1000 > /sys/devices/platform/sec-battery/siop_charge_limit
+/system/bin/echo 1200 > /sys/devices/platform/sec-battery/siop_input_limit
+/system/bin/echo 1000 > /sys/devices/platform/sec-battery/siop_charge_limit
 
 sync
 
