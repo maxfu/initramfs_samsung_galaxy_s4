@@ -74,13 +74,21 @@ done
 echo '            </spinner>' >> $XML
 echo '            <seekbar description="'$SBD_CPU_CORE_MAX'" name="'$SBN_CPU_CORE_MAX'" action="cpugeneric /sys/power/cpucore_max_num_limit" unit="'$SBU_CPU_CORE_MAX'" reversed="false" step="1" min="1" max="4" />' >> $XML
 echo '            <seekbar description="'$SBD_CPU_CORE_MIN'" name="'$SBN_CPU_CORE_MIN'" action="cpugeneric /sys/power/cpucore_min_num_limit" unit="'$SBU_CPU_CORE_MIN'" reversed="false" step="1" min="1" max="4" />' >> $XML
-echo '            <seekbar description="'$SBD_CPU_FREQ_MAX' '$MAXFREQ' MHz." name="'$SBN_CPU_FREQ_MAX'" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq" unit="KHz" reversed="false" step="50000" min="'$MINFREQ'" max="'$MAXFREQ'" />' >> $XML
-echo '            <seekbar description="'$SBD_CPU_FREQ_MIN' '$MINFREQ' MHz." name="'$SBN_CPU_FREQ_MIN'" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq" unit="KHz" reversed="false" step="50000" min="'$MINFREQ'" max="'$MAXFREQ'" />' >> $XML
+echo '            <spinner name="'$SLN_CPU_FREQ_MAX' '$(expr $MAXFREQ / 1000)' MHz" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq">' >> $XML
+while read FREQ UVOLT; do
+echo '                <spinnerItem name="'$FREQ' MHz" value="'$(expr $FREQ * 1000)'"/>' >> $XML
+done < /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table
+echo '            </spinner>' >> $XML
+echo '            <spinner name="'$SLN_CPU_FREQ_MIN' '$(expr $MINFREQ / 1000)' MHz" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq">' >> $XML
+while read FREQ UVOLT; do
+echo '                <spinnerItem name="'$FREQ' MHz" value="'$(expr $FREQ * 1000)'"/>' >> $XML
+done < /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table
+echo '            </spinner>' >> $XML
 echo '        </settingsPane>' >> $XML
 echo '        <settingsPane description="'$SPD_CPU_VOLT'" name="'$SPN_CPU_VOLT'">' >> $XML
 echo '            <settingsPane description="" name="'$SPN_CPU_VOLT_BIG'">' >> $XML
 while read FREQ UVOLT; do
-if [ "$MAXFREQ" == "2000" ]; then
+if [ "$MAXFREQ" == "2000000" ]; then
 if [ "$FREQ" == "650" ]; then
 echo '            </settingsPane>' >> $XML
 echo '            <settingsPane description="'$SPD_CPU_VOLT_LITTLE'" name="'$SPN_CPU_VOLT_LITTLE'">' >> $XML
@@ -105,15 +113,15 @@ echo '        </settingsPane>' >> $XML
 echo '        <settingsPane description="'$SPD_GPU_SCAL'" name="'$SPN_GPU_SCAL'">' >> $XML
 echo '            <spinner name="'$SLN_GPU_FREQ_MAX'" action="gpugeneric /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_max_lock">' >> $XML
 for SGXFREQ in `cat /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_table`; do
-echo '                <spinnerItem name="'$SGXFREQ'" value="'$SGXFREQ'"/>' >> $XML
+echo '                <spinnerItem name="'$SGXFREQ' MHz" value="'$SGXFREQ'"/>' >> $XML
 done
-echo '                <spinnerItem name="0" value="0"/>' >> $XML
+echo '                <spinnerItem name="Unlimited" value="0"/>' >> $XML
 echo '            </spinner>' >> $XML
 echo '            <spinner name="'$SLN_GPU_FREQ_MIN'" action="gpugeneric /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_min_lock">' >> $XML
 for SGXFREQ in `cat /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_table`; do
-echo '                <spinnerItem name="'$SGXFREQ'" value="'$SGXFREQ'"/>' >> $XML
+echo '                <spinnerItem name="'$SGXFREQ' MHz" value="'$SGXFREQ'"/>' >> $XML
 done
-echo '                <spinnerItem name="0" value="0"/>' >> $XML
+echo '                <spinnerItem name="Unlimited" value="0"/>' >> $XML
 echo '            </spinner>' >> $XML
 echo '            <checkbox description="'$CBD_GPU_WAKE'" name="'$CBN_GPU_WAKE'" action="gpugeneric01 /sys/module/pvrsrvkm/parameters/sec_wakeup_lock_state" label="'$CBL_GPU_WAKE'"/>' >> $XML
 echo '        </settingsPane>' >> $XML
@@ -133,20 +141,22 @@ echo '    </settingsTab>' >> $XML
 echo '    <settingsTab name="'$STN_INT'">' >> $XML
 echo '        <settingsPane description="'$SPD_INT'" name="'$SPN_INT'">' >> $XML
 echo '            <checkbox description="'$CBD_INT'" name="'$CBN_INT'" action="controlswitch INT" label="'$CBL_INT'"/>' >> $XML
+
 echo '            <spinner name="'$SLN_INT_FREQ_MAX'" action="intgeneric /sys/class/devfreq/exynos5-busfreq-int/max_freq">' >> $XML
 for INTFREQ in `cat /sys/class/devfreq/exynos5-busfreq-int/freq_table`; do
-echo '                <spinnerItem name="'$INTFREQ'" value="'$INTFREQ'"/>' >> $XML
+echo '                <spinnerItem name="'$(expr $INTFREQ / 1000)' MHz" value="'$INTFREQ'"/>' >> $XML
 done
-echo '                <spinnerItem name="0" value="0"/>' >> $XML
+echo '                <spinnerItem name="Unlimited" value="0"/>' >> $XML
 echo '            </spinner>' >> $XML
+
 echo '            <spinner name="'$SLN_INT_FREQ_MIN'" action="intgeneric /sys/class/devfreq/exynos5-busfreq-int/min_freq">' >> $XML
 for INTFREQ in `cat /sys/class/devfreq/exynos5-busfreq-int/freq_table`; do
-echo '                <spinnerItem name="'$INTFREQ'" value="'$INTFREQ'"/>' >> $XML
+echo '                <spinnerItem name="'$(expr $INTFREQ / 1000)' MHz" value="'$INTFREQ'"/>' >> $XML
 done
-echo '                <spinnerItem name="0" value="0"/>' >> $XML
+echo '                <spinnerItem name="Unlimited" value="0"/>' >> $XML
 echo '            </spinner>' >> $XML
 while read IFREQ IUVOLT; do
-echo '            <seekBar description="'$SBD_INT' '$IUVOLT' µV" name="'$IFREQ' '$SBN_INT'" action="intvolt '$IFREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1100000"/>' >> $XML
+echo '            <seekBar description="'$SBD_INT' '$IUVOLT' µV" name="'$(expr $IFREQ / 1000)' '$SBN_INT'" action="intvolt '$IFREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1100000"/>' >> $XML
 done < /sys/class/devfreq/exynos5-busfreq-int/volt_table
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
@@ -157,18 +167,18 @@ echo '        <settingsPane description="'$SPD_MIF'" name="'$SPN_MIF'">' >> $XML
 echo '            <checkbox description="'$CBD_MIF'" name="'$CBN_MIF'" action="controlswitch MIF" label="'$CBL_MIF'"/>' >> $XML
 echo '            <spinner name="'$SLN_MIF_FREQ_MAX'" action="mifgeneric /sys/class/devfreq/exynos5-busfreq-mif/max_freq">' >> $XML
 for MIFFREQ in `cat /sys/class/devfreq/exynos5-busfreq-mif/freq_table`; do
-echo '                <spinnerItem name="'$MIFFREQ'" value="'$MIFFREQ'"/>' >> $XML
+echo '                <spinnerItem name="'$(expr $MIFFREQ / 1000)' MHz" value="'$MIFFREQ'"/>' >> $XML
 done
-echo '                <spinnerItem name="0" value="0"/>' >> $XML
+echo '                <spinnerItem name="Unlimited" value="0"/>' >> $XML
 echo '            </spinner>' >> $XML
 echo '            <spinner name="'$SLN_MIF_FREQ_MIN'" action="mifgeneric /sys/class/devfreq/exynos5-busfreq-mif/min_freq">' >> $XML
 for MIFFREQ in `cat /sys/class/devfreq/exynos5-busfreq-mif/freq_table`; do
-echo '                <spinnerItem name="'$MIFFREQ'" value="'$MIFFREQ'"/>' >> $XML
+echo '                <spinnerItem name="'$(expr $MIFFREQ / 1000)' MHz" value="'$MIFFREQ'"/>' >> $XML
 done
-echo '                <spinnerItem name="0" value="0"/>' >> $XML
+echo '                <spinnerItem name="Unlimited" value="0"/>' >> $XML
 echo '            </spinner>' >> $XML
 while read IFREQ IUVOLT; do
-echo '            <seekBar description="'$SBD_MIF' '$IUVOLT' µV" name="'$IFREQ' '$SBN_MIF'" action="mifvolt '$IFREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1100000"/>' >> $XML
+echo '            <seekBar description="'$SBD_MIF' '$IUVOLT' µV" name="'$(expr $IFREQ / 1000)' '$SBN_MIF'" action="mifvolt '$IFREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1100000"/>' >> $XML
 done < /sys/class/devfreq/exynos5-busfreq-mif/volt_table
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
@@ -178,7 +188,7 @@ echo '    <settingsTab name="'$STN_MEMIO'">' >> $XML
 echo '        <settingsPane description="'$SPD_MEMIO'" name="'$SPN_MEMIO'">' >> $XML
 echo '            <checkbox description="'$CBD_MEMIO'" name="'$CBN_MEMIO'" action="controlswitch MEMIO" label="'$CBL_MEMIO'"/>' >> $XML
 while read IFREQ IUVOLT; do
-echo '            <seekBar description="'$SBD_MEMIO' '$IUVOLT' µV" name="'$IFREQ' '$SBN_MEMIO'" action="memiovolt '$IFREQ'" unit="µV" min="900000" reversed="false" step="6250" max="1250000"/>' >> $XML
+echo '            <seekBar description="'$SBD_MEMIO' '$IUVOLT' µV" name="'$(expr $IFREQ / 1000)' '$SBN_MEMIO'" action="memiovolt '$IFREQ'" unit="µV" min="900000" reversed="false" step="6250" max="1250000"/>' >> $XML
 done < /sys/class/devfreq/exynos5-busfreq-mif/memio_volt_table
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
