@@ -25,6 +25,32 @@ MHL_900_CURR=`cat /sys/devices/platform/sec-battery/mhl_900_curr`
 MHL_1K5_CURR=`cat /sys/devices/platform/sec-battery/mhl_1500_curr`
 MHL_USB_CURR=`cat /sys/devices/platform/sec-battery/mhl_usb_curr`
 
+USBMODE=`getprop persist.sys.usb.config | sed 's/,adb//g' | sed 's/mass_storage/ums/g'`
+if [ "$USBMODE" == "ums" ]; then
+USBMODE='mtp'
+elif [ "$USBMODE" == "mtp" ]; then
+USBMODE='ums'
+fi
+
+if [ -f '/lib/modules/logger.ko' ]; then
+    lsmod | grep logger
+    LOGGER=`echo $?`
+    if [ $LOGGER -eq 1 ]; then
+    LOGGER=$BTL_MISC_LOGGER_ENABLE
+    else
+    LOGGER=$BTL_MISC_LOGGER_DISABLE
+    fi
+elif [ -f '/sys/kernel/logger_mode/logger_mode' ]; then
+    LOGGER=`cat /sys/kernel/logger_mode/logger_mode`
+    if [ $LOGGER -eq 0 ]; then
+    LOGGER=$BTL_MISC_LOGGER_ENABLE
+    else
+    LOGGER=$BTL_MISC_LOGGER_DISABLE
+    fi
+else
+    LOGGER=$BTL_MISC_LOGGER_MISSING
+fi
+
 chmod 777 /res/customconfig/lang.en
 source /res/customconfig/lang.en
 if [ -f /res/customconfig/lang.$LANG ]; then
@@ -110,13 +136,13 @@ echo '            <checkbox description="'$CBD_INT'" name="'$CBN_INT'" action="c
 echo '            <spinner name="'$SLN_INT_FREQ_MAX'" action="intgeneric /sys/class/devfreq/exynos5-busfreq-int/max_freq">' >> $XML
 while read INTFREQ; do
 echo '                <spinnerItem name="'$INTFREQ'" value="'$INTFREQ'"/>' >> $XML
-done < /sys/class/devfreq/exynos5-busfreq-int/volt_table
+done < /sys/class/devfreq/exynos5-busfreq-int/freq_table
 echo '                <spinnerItem name="0" value="0"/>' >> $XML
 echo '            </spinner>' >> $XML
 echo '            <spinner name="'$SLN_INT_FREQ_MIN'" action="intgeneric /sys/class/devfreq/exynos5-busfreq-int/min_freq">' >> $XML
 while read INTFREQ; do
 echo '                <spinnerItem name="'$INTFREQ'" value="'$INTFREQ'"/>' >> $XML
-done < /sys/class/devfreq/exynos5-busfreq-int/volt_table
+done < /sys/class/devfreq/exynos5-busfreq-int/freq_table
 echo '                <spinnerItem name="0" value="0"/>' >> $XML
 echo '            </spinner>' >> $XML
 while read IFREQ IUVOLT; do
@@ -132,13 +158,13 @@ echo '            <checkbox description="'$CBD_MIF'" name="'$CBN_MIF'" action="c
 echo '            <spinner name="'$SLN_MIF_FREQ_MAX'" action="mifgeneric /sys/class/devfreq/exynos5-busfreq-mif/max_freq">' >> $XML
 while read MIFFREQ; do
 echo '                <spinnerItem name="'$MIFFREQ'" value="'$MIFFREQ'"/>' >> $XML
-done < /sys/class/devfreq/exynos5-busfreq-mif/volt_table
+done < /sys/class/devfreq/exynos5-busfreq-mif/freq_table
 echo '                <spinnerItem name="0" value="0"/>' >> $XML
 echo '            </spinner>' >> $XML
 echo '            <spinner name="'$SLN_MIF_FREQ_MIN'" action="mifgeneric /sys/class/devfreq/exynos5-busfreq-mif/min_freq">' >> $XML
 while read MIFFREQ; do
 echo '                <spinnerItem name="'$MIFFREQ'" value="'$MIFFREQ'"/>' >> $XML
-done < /sys/class/devfreq/exynos5-busfreq-mif/volt_table
+done < /sys/class/devfreq/exynos5-busfreq-mif/freq_table
 echo '                <spinnerItem name="0" value="0"/>' >> $XML
 echo '            </spinner>' >> $XML
 while read IFREQ IUVOLT; do
@@ -283,30 +309,17 @@ echo '    </settingsTab>' >> $XML
 
 # settingsTab: start: Misc
 echo '    <settingsTab name="'$STN_MISC'">' >> $XML
-echo '        <settingsPane description="'$SPD_USB_MODE'" name="'$SPN_USB_MODE'">' >> $XML
-echo '            <checkbox description="'$CSD_USB_MODE'" name="'$CSN_USB_MODE'" action="controlswitch USBMODE" label="'$CSL_USB_MODE'"/>' >> $XML
-echo '            <spinner name="'$SLN_USB_MODE'" action="usbmode">' >> $XML
-echo '                <spinnerItem name="'$SLIN_USB_MODE_MTP'" value="mtp"/>' >> $XML
-echo '                <spinnerItem name="'$SLIN_USB_MODE_UMS'" value="ums"/>' >> $XML
-echo '            </spinner>' >> $XML
+echo '        <settingsPane description="'$SPD_MISC_USBMODE'" name="'$SPN_MISC_USBMODE'">' >> $XML
+echo '            <button description="'$BTD_MISC_USBMODE'" name="" action="usbmode" label="'$BTL_MISC_USBMODE' '$USBMODE'"/>' >> $XML
 echo '        </settingsPane>' >> $XML
-echo '        <settingsPane description="'$SPD_LOGGER'" name="'$SPN_LOGGER'">' >> $XML
-echo '            <checkbox description="'$CSD_LOGGER'" name="'$CSN_LOGGER'" action="controlswitch LOGGER" label="'$CSL_LOGGER'"/>' >> $XML
-if [ -f '/lib/modules/logger.ko' ]; then
-echo '            <checkbox description="'$CBD_LOGGER'" name="'$CBN_LOGGER'" action="logger module" label="'$CBL_LOGGER'"/>' >> $XML
-elif [ -f '/sys/kernel/logger_mode/logger_mode' ]; then
-echo '            <checkbox description="'$CBD_LOGGER'" name="'$CBN_LOGGER'" action="logger switch" label="'$CBL_LOGGER'"/>' >> $XML
-fi
+echo '        <settingsPane description="'$SPD_MISC_LOGGER'" name="'$SPN_MISC_LOGGER'">' >> $XML
+echo '            <button description="'$BTD_MISC_LOGGER'" name="" action="logger" label="'$LOGGER' '$BTL_MISC_LOGGER'"/>' >> $XML
 echo '        </settingsPane>' >> $XML
-echo '    </settingsTab>' >> $XML
-
-# settingsTab: start: Tools
-echo '    <settingsTab name="'$STN_TOOLS'">' >> $XML
-echo '        <settingsPane description="'$SPD_REBOOT_OPTIONS'" name="'$SPN_REBOOT_OPTIONS'">' >> $XML
-echo '            <button description="'$BTD_REBOOT_NORMAL'" name="" action="poweroff reboot" label="'$BTL_REBOOT_NORMAL'"/>' >> $XML
-echo '            <button description="'$BTD_REBOOT_RECOVERY'" name="" action="poweroff recovery" label="'$BTL_REBOOT_RECOVERY'"/>' >> $XML
-echo '            <button description="'$BTD_REBOOT_DOWNLOAD'" name="" action="poweroff download" label="'$BTL_REBOOT_DOWNLOAD'"/>' >> $XML
-echo '            <button description="'$BTD_REBOOT_SHUTDOWN'" name="" action="poweroff normal" label="'$BTL_REBOOT_SHUTDOWN'"/>' >> $XML
+echo '        <settingsPane description="'$SPD_MISC_REBOOT_OPTIONS'" name="'$SPN_MISC_REBOOT_OPTIONS'">' >> $XML
+echo '            <button description="'$BTD_MISC_REBOOT_NORMAL'" name="" action="poweroff reboot" label="'$BTL_MISC_REBOOT_NORMAL'"/>' >> $XML
+echo '            <button description="'$BTD_MISC_REBOOT_RECOVERY'" name="" action="poweroff recovery" label="'$BTL_MISC_REBOOT_RECOVERY'"/>' >> $XML
+echo '            <button description="'$BTD_MISC_REBOOT_DOWNLOAD'" name="" action="poweroff download" label="'$BTL_MISC_REBOOT_DOWNLOAD'"/>' >> $XML
+echo '            <button description="'$BTD_MISC_REBOOT_SHUTDOWN'" name="" action="poweroff normal" label="'$BTL_MISC_REBOOT_SHUTDOWN'"/>' >> $XML
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
 

@@ -1,27 +1,17 @@
 #!/sbin/busybox sh
 
-FILEVAR=usbmode
+USBMODE=`getprop persist.sys.usb.config | sed 's/,adb//g' | sed 's/mass_storage/ums/g'`
 
-if [ -z $2 ]; then
-    evalcmd='eval echo \$$FILEVAR'
-    if [ "a`eval $evalcmd`" == "a" ]; then
-        eval $FILEVAR=`getprop persist.sys.usb.config | sed 's/,adb//g' | sed 's/mass_storage/ums/g'`
-        echo $FILEVAR=`getprop persist.sys.usb.config | sed 's/,adb//g' | sed 's/mass_storage/ums/g'` >> $DEFAULT_PROFILE
-    fi
+if [ "$USBMODE" == "ums" ]; then
+    echo "" > $(find /sys -name lun* | grep android_usb)/file
+    vold
+    setprop persist.sys.usb.config mtp,adb
+    setprop sys.usb.config mtp,adb
+    echo "USB Mode set to MTP"
+elif [ "$USBMODE" == "mtp" ]; then
+    setprop persist.sys.usb.config mass_storage,adb
+    setprop sys.usb.config mass_storage,adb
+    echo $(mount | sed 's/ on / /g' | grep extSdCard | cut -f 1 -d ' ' | grep /dev/block) > $(find /sys -name lun* | grep android_usb)/file
+    echo "USB Mode set to UMS"
 else
-    if [ "$CONTROLSWITCH_USBMODE" == "on" -o "$CONFIG_BOOTED" == "true" ]; then
-        if [ "$2" == "ums" ]; then
-            setprop persist.sys.usb.config mass_storage,adb
-            setprop sys.usb.config mass_storage,adb
-            echo $(mount | sed 's/ on / /g' | grep extSdCard | cut -f 1 -d ' ' | grep /dev/block) > $(find /sys -name lun* | grep android_usb)/file
-        elif [ "$2" == "mtp" ]; then
-            echo "" > $(find /sys -name lun* | grep android_usb)/file
-            vold
-            setprop persist.sys.usb.config mtp,adb
-            setprop sys.usb.config mtp,adb
-        fi
-    fi
-    eval $FILEVAR=`getprop persist.sys.usb.config | sed 's/,adb//g' | sed 's/mass_storage/ums/g'`
 fi
-
-eval echo \$$FILEVAR
