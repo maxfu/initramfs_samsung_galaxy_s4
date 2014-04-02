@@ -134,15 +134,15 @@ echo '    <settingsTab name="'$STN_INT'">' >> $XML
 echo '        <settingsPane description="'$SPD_INT'" name="'$SPN_INT'">' >> $XML
 echo '            <checkbox description="'$CBD_INT'" name="'$CBN_INT'" action="controlswitch INT" label="'$CBL_INT'"/>' >> $XML
 echo '            <spinner name="'$SLN_INT_FREQ_MAX'" action="intgeneric /sys/class/devfreq/exynos5-busfreq-int/max_freq">' >> $XML
-while read INTFREQ; do
+for INTFREQ in `cat /sys/class/devfreq/exynos5-busfreq-int/freq_table`; do
 echo '                <spinnerItem name="'$INTFREQ'" value="'$INTFREQ'"/>' >> $XML
-done < /sys/class/devfreq/exynos5-busfreq-int/freq_table
+done
 echo '                <spinnerItem name="0" value="0"/>' >> $XML
 echo '            </spinner>' >> $XML
 echo '            <spinner name="'$SLN_INT_FREQ_MIN'" action="intgeneric /sys/class/devfreq/exynos5-busfreq-int/min_freq">' >> $XML
-while read INTFREQ; do
+for INTFREQ in `cat /sys/class/devfreq/exynos5-busfreq-int/freq_table`; do
 echo '                <spinnerItem name="'$INTFREQ'" value="'$INTFREQ'"/>' >> $XML
-done < /sys/class/devfreq/exynos5-busfreq-int/freq_table
+done
 echo '                <spinnerItem name="0" value="0"/>' >> $XML
 echo '            </spinner>' >> $XML
 while read IFREQ IUVOLT; do
@@ -156,15 +156,15 @@ echo '    <settingsTab name="'$STN_MIF'">' >> $XML
 echo '        <settingsPane description="'$SPD_MIF'" name="'$SPN_MIF'">' >> $XML
 echo '            <checkbox description="'$CBD_MIF'" name="'$CBN_MIF'" action="controlswitch MIF" label="'$CBL_MIF'"/>' >> $XML
 echo '            <spinner name="'$SLN_MIF_FREQ_MAX'" action="mifgeneric /sys/class/devfreq/exynos5-busfreq-mif/max_freq">' >> $XML
-while read MIFFREQ; do
+for MIFFREQ in `cat /sys/class/devfreq/exynos5-busfreq-mif/freq_table`; do
 echo '                <spinnerItem name="'$MIFFREQ'" value="'$MIFFREQ'"/>' >> $XML
-done < /sys/class/devfreq/exynos5-busfreq-mif/freq_table
+done
 echo '                <spinnerItem name="0" value="0"/>' >> $XML
 echo '            </spinner>' >> $XML
 echo '            <spinner name="'$SLN_MIF_FREQ_MIN'" action="mifgeneric /sys/class/devfreq/exynos5-busfreq-mif/min_freq">' >> $XML
-while read MIFFREQ; do
+for MIFFREQ in `cat /sys/class/devfreq/exynos5-busfreq-mif/freq_table`; do
 echo '                <spinnerItem name="'$MIFFREQ'" value="'$MIFFREQ'"/>' >> $XML
-done < /sys/class/devfreq/exynos5-busfreq-mif/freq_table
+done
 echo '                <spinnerItem name="0" value="0"/>' >> $XML
 echo '            </spinner>' >> $XML
 while read IFREQ IUVOLT; do
