@@ -105,6 +105,16 @@ echo '    </settingsTab>' >> $XML
 echo '    <settingsTab name="'$STN_INT'">' >> $XML
 echo '        <settingsPane description="'$SPD_INT'" name="'$SPN_INT'">' >> $XML
 echo '            <checkbox description="'$CBD_INT'" name="'$CBN_INT'" action="controlswitch INT" label="'$CBL_INT'"/>' >> $XML
+echo '            <spinner name="'$SLN_INT_FREQ_MAX'" action="intgeneric /sys/class/devfreq/exynos5-busfreq-int/max_freq">' >> $XML
+while read INTFREQ; do
+echo '                <spinnerItem name="'$INTFREQ'" value="'$INTFREQ'"/>' >> $XML
+done < /sys/class/devfreq/exynos5-busfreq-int/volt_table
+echo '            </spinner>' >> $XML
+echo '            <spinner name="'$SLN_INT_FREQ_MIN'" action="intgeneric /sys/class/devfreq/exynos5-busfreq-int/min_freq">' >> $XML
+while read INTFREQ; do
+echo '                <spinnerItem name="'$INTFREQ'" value="'$INTFREQ'"/>' >> $XML
+done < /sys/class/devfreq/exynos5-busfreq-int/volt_table
+echo '            </spinner>' >> $XML
 while read IFREQ IUVOLT; do
 echo '            <seekBar description="'$SBD_INT' '$IUVOLT' µV" name="'$IFREQ' '$SBN_INT'" action="intvolt '$IFREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1100000"/>' >> $XML
 done < /sys/class/devfreq/exynos5-busfreq-int/volt_table
@@ -115,6 +125,16 @@ echo '    </settingsTab>' >> $XML
 echo '    <settingsTab name="'$STN_MIF'">' >> $XML
 echo '        <settingsPane description="'$SPD_MIF'" name="'$SPN_MIF'">' >> $XML
 echo '            <checkbox description="'$CBD_MIF'" name="'$CBN_MIF'" action="controlswitch MIF" label="'$CBL_MIF'"/>' >> $XML
+echo '            <spinner name="'$SLN_MIF_FREQ_MAX'" action="mifgeneric /sys/class/devfreq/exynos5-busfreq-mif/max_freq">' >> $XML
+while read MIFFREQ; do
+echo '                <spinnerItem name="'$MIFFREQ'" value="'$MIFFREQ'"/>' >> $XML
+done < /sys/class/devfreq/exynos5-busfreq-mif/volt_table
+echo '            </spinner>' >> $XML
+echo '            <spinner name="'$SLN_MIF_FREQ_MIN'" action="mifgeneric /sys/class/devfreq/exynos5-busfreq-mif/min_freq">' >> $XML
+while read MIFFREQ; do
+echo '                <spinnerItem name="'$MIFFREQ'" value="'$MIFFREQ'"/>' >> $XML
+done < /sys/class/devfreq/exynos5-busfreq-mif/volt_table
+echo '            </spinner>' >> $XML
 while read IFREQ IUVOLT; do
 echo '            <seekBar description="'$SBD_MIF' '$IUVOLT' µV" name="'$IFREQ' '$SBN_MIF'" action="mifvolt '$IFREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1100000"/>' >> $XML
 done < /sys/class/devfreq/exynos5-busfreq-mif/volt_table
