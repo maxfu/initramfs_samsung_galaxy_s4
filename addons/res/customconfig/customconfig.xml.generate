@@ -26,36 +26,18 @@ MHL_1K5_CURR=`cat /sys/devices/platform/sec-battery/mhl_1500_curr`
 MHL_USB_CURR=`cat /sys/devices/platform/sec-battery/mhl_usb_curr`
 
 USBMODE=`getprop persist.sys.usb.config | sed 's/,adb//g' | sed 's/mass_storage/ums/g'`
-if [ "$USBMODE" == "ums" ]; then
-USBMODE='mtp'
-elif [ "$USBMODE" == "mtp" ]; then
-USBMODE='ums'
-fi
-
-if [ -f '/lib/modules/logger.ko' ]; then
-    lsmod | grep logger
-    LOGGER=`echo $?`
-    if [ $LOGGER -eq 1 ]; then
-    LOGGER=$BTL_MISC_LOGGER_ENABLE
-    else
-    LOGGER=$BTL_MISC_LOGGER_DISABLE
-    fi
-elif [ -f '/sys/kernel/logger_mode/logger_mode' ]; then
-    LOGGER=`cat /sys/kernel/logger_mode/logger_mode`
-    if [ $LOGGER -eq 0 ]; then
-    LOGGER=$BTL_MISC_LOGGER_ENABLE
-    else
-    LOGGER=$BTL_MISC_LOGGER_DISABLE
-    fi
-else
-    LOGGER=$BTL_MISC_LOGGER_MISSING
-fi
 
 chmod 777 /res/customconfig/lang.en
 source /res/customconfig/lang.en
 if [ -f /res/customconfig/lang.$LANG ]; then
 chmod 777 /res/customconfig/lang.$LANG
 source /res/customconfig/lang.$LANG
+fi
+
+if [ "$USBMODE" == "ums" ]; then
+USBMODE='MTP'
+elif [ "$USBMODE" == "mtp" ]; then
+USBMODE='UMS'
 fi
 
 echo "" > $XML
@@ -76,12 +58,12 @@ echo '            <seekbar description="'$SBD_CPU_CORE_MAX'" name="'$SBN_CPU_COR
 echo '            <seekbar description="'$SBD_CPU_CORE_MIN'" name="'$SBN_CPU_CORE_MIN'" action="cpugeneric /sys/power/cpucore_min_num_limit" unit="'$SBU_CPU_CORE_MIN'" reversed="false" step="1" min="1" max="4" />' >> $XML
 echo '            <spinner name="'$SLN_CPU_FREQ_MAX' '$(expr $MAXFREQ / 1000)' MHz" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq">' >> $XML
 while read FREQ UVOLT; do
-echo '                <spinnerItem name="'$FREQ' MHz" value="'$(expr $FREQ * 1000)'"/>' >> $XML
+echo '                <spinnerItem name="'$FREQ' MHz" value="'$FREQ'000"/>' >> $XML
 done < /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table
 echo '            </spinner>' >> $XML
 echo '            <spinner name="'$SLN_CPU_FREQ_MIN' '$(expr $MINFREQ / 1000)' MHz" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq">' >> $XML
 while read FREQ UVOLT; do
-echo '                <spinnerItem name="'$FREQ' MHz" value="'$(expr $FREQ * 1000)'"/>' >> $XML
+echo '                <spinnerItem name="'$FREQ' MHz" value="'$FREQ'000"/>' >> $XML
 done < /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table
 echo '            </spinner>' >> $XML
 echo '        </settingsPane>' >> $XML
@@ -319,12 +301,33 @@ echo '    </settingsTab>' >> $XML
 
 # settingsTab: start: Misc
 echo '    <settingsTab name="'$STN_MISC'">' >> $XML
+if [ -f /sys/devices/system/cpu/cpufreq/ondemand/boost_mode ] || [ -f /sys/devices/virtual/thermal/thermal_zone0/boost_mode ]; then
+echo '        <settingsPane description="'$SPD_MISC_BOOSTMODE'" name="'$SPN_MISC_BOOSTMODE'">' >> $XML
+echo '            <button description="'$BTD_MISC_BOOSTMODE_CHECK'" name="" action="boostmode check" label="'$BTL_MISC_BOOSTMODE_CHECK'"/>' >> $XML
+echo '            <button description="'$BTD_MISC_BOOSTMODE_SWITCH'" name="" action="boostmode switch" label="'$BTL_MISC_BOOSTMODE_SWITCH'"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+else
+echo '        <settingsPane description="'$SPD_MISC_BOOSTMODE_MISSING'" name="'$SPN_MISC_BOOSTMODE'">' >> $XML
+echo '        </settingsPane>' >> $XML
+fi
 echo '        <settingsPane description="'$SPD_MISC_USBMODE'" name="'$SPN_MISC_USBMODE'">' >> $XML
-echo '            <button description="'$BTD_MISC_USBMODE'" name="" action="usbmode" label="'$BTL_MISC_USBMODE' '$USBMODE'"/>' >> $XML
+echo '            <button description="'$BTD_MISC_USBMODE_CHECK'" name="" action="usbmode check" label="'$BTL_MISC_USBMODE_CHECK'"/>' >> $XML
+echo '            <button description="'$BTD_MISC_USBMODE_SWITCH'" name="" action="usbmode switch" label="'$BTL_MISC_USBMODE_SWITCH'"/>' >> $XML
 echo '        </settingsPane>' >> $XML
+if [ -f '/lib/modules/logger.ko' ]; then
 echo '        <settingsPane description="'$SPD_MISC_LOGGER'" name="'$SPN_MISC_LOGGER'">' >> $XML
-echo '            <button description="'$BTD_MISC_LOGGER'" name="" action="logger" label="'$LOGGER' '$BTL_MISC_LOGGER'"/>' >> $XML
+echo '            <button description="'$BTD_MISC_LOGGER_CHECK'" name="" action="logger check" label="'$BTL_MISC_LOGGER_CHECK'"/>' >> $XML
+echo '            <button description="'$BTD_MISC_LOGGER_SWITCH'" name="" action="logger switch" label="'$BTL_MISC_LOGGER_SWITCH'"/>' >> $XML
 echo '        </settingsPane>' >> $XML
+elif [ -f '/sys/kernel/logger_mode/logger_mode' ]; then
+echo '        <settingsPane description="'$SPD_MISC_LOGGER'" name="'$SPN_MISC_LOGGER'">' >> $XML
+echo '            <button description="'$BTD_MISC_LOGGER_CHECK'" name="" action="logger check" label="'$BTL_MISC_LOGGER_CHECK'"/>' >> $XML
+echo '            <button description="'$BTD_MISC_LOGGER_SWITCH'" name="" action="logger switch" label="'$BTL_MISC_LOGGER_SWITCH'"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+else
+echo '        <settingsPane description="'$SPN_MISC_LOGGER_MISSING'" name="'$SPN_MISC_LOGGER'">' >> $XML
+echo '        </settingsPane>' >> $XML
+fi
 echo '        <settingsPane description="'$SPD_MISC_REBOOT_OPTIONS'" name="'$SPN_MISC_REBOOT_OPTIONS'">' >> $XML
 echo '            <button description="'$BTD_MISC_REBOOT_NORMAL'" name="" action="poweroff reboot" label="'$BTL_MISC_REBOOT_NORMAL'"/>' >> $XML
 echo '            <button description="'$BTD_MISC_REBOOT_RECOVERY'" name="" action="poweroff recovery" label="'$BTL_MISC_REBOOT_RECOVERY'"/>' >> $XML

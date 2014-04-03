@@ -3,15 +3,22 @@
 USBMODE=`getprop persist.sys.usb.config | sed 's/,adb//g' | sed 's/mass_storage/ums/g'`
 
 if [ "$USBMODE" == "ums" ]; then
-    echo "" > $(find /sys -name lun* | grep android_usb)/file
-    vold
-    setprop persist.sys.usb.config mtp,adb
-    setprop sys.usb.config mtp,adb
-    echo "USB Mode set to MTP"
+    if [ "$2" == "switch" ]; then
+        echo "" > $(find /sys -name lun* | grep android_usb)/file
+        vold
+        setprop persist.sys.usb.config mtp,adb
+        setprop sys.usb.config mtp,adb
+        echo 'USB Mode: UMS'
+    else
+        echo 'USB Mode: MTP'
+    fi
 elif [ "$USBMODE" == "mtp" ]; then
-    setprop persist.sys.usb.config mass_storage,adb
-    setprop sys.usb.config mass_storage,adb
-    echo $(mount | sed 's/ on / /g' | grep extSdCard | cut -f 1 -d ' ' | grep /dev/block) > $(find /sys -name lun* | grep android_usb)/file
-    echo "USB Mode set to UMS"
-else
+    if [ "$2" == "switch" ]; then
+        setprop persist.sys.usb.config mass_storage,adb
+        setprop sys.usb.config mass_storage,adb
+        echo $(mount | sed 's/ on / /g' | grep extSdCard | cut -f 1 -d ' ' | grep /dev/block) > $(find /sys -name lun* | grep android_usb)/file
+        echo 'USB Mode: MTP'
+    else
+        echo 'USB Mode: UMS'
+    fi
 fi
