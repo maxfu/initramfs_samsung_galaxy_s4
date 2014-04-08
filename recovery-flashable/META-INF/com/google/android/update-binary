@@ -25,4 +25,5 @@ if [ -f recovery.img ]; then
   dd if=recovery.img of=/dev/block/mmcblk0p10
 fi
 
-umount /system
+echo -n -e 'ui_print Finished...\n' > /proc/self/fd/$2
+echo -n -e 'ui_print\n' > /proc/self/fd/$2
