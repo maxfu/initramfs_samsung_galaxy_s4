@@ -52,18 +52,18 @@ for node in $(/sbin/busybox find /sys -name nr_requests | /sbin/busybox grep mmc
 
 # Pre-config wolfson sound control if on GT-I9500
 if [ -d /sys/class/misc/wolfson_control ]; then
-    echo "0x0FA4 0x0404 0x0170 0x1DB9 0xF233 0x040B 0x08B6 0x1977 0xF45E 0x040A 0x114C 0x0B43 0xF7FA 0x040A 0x1F97 0xF41A 0x0400 0x1068" > /sys/class/misc/wolfson_control/eq_sp_freqs
-    echo 11 > /sys/class/misc/wolfson_control/eq_sp_gain_1
-    echo -7 > /sys/class/misc/wolfson_control/eq_sp_gain_2
-    echo 4 > /sys/class/misc/wolfson_control/eq_sp_gain_3
-    echo -10 > /sys/class/misc/wolfson_control/eq_sp_gain_4
-    echo -0 > /sys/class/misc/wolfson_control/eq_sp_gain_5
-    echo 1 > /sys/class/misc/wolfson_control/switch_eq_speaker
+    /sbin/busybox echo "0x0FA4 0x0404 0x0170 0x1DB9 0xF233 0x040B 0x08B6 0x1977 0xF45E 0x040A 0x114C 0x0B43 0xF7FA 0x040A 0x1F97 0xF41A 0x0400 0x1068" > /sys/class/misc/wolfson_control/eq_sp_freqs
+    /sbin/busybox echo 11 > /sys/class/misc/wolfson_control/eq_sp_gain_1
+    /sbin/busybox echo -7 > /sys/class/misc/wolfson_control/eq_sp_gain_2
+    /sbin/busybox echo 4 > /sys/class/misc/wolfson_control/eq_sp_gain_3
+    /sbin/busybox echo -10 > /sys/class/misc/wolfson_control/eq_sp_gain_4
+    /sbin/busybox echo -0 > /sys/class/misc/wolfson_control/eq_sp_gain_5
+    /sbin/busybox echo 1 > /sys/class/misc/wolfson_control/switch_eq_speaker
 fi
 
 # Install busybox if not present
 if [ ! -f /system/xbin/busybox ]; then
-    ln -s /sbin/busybox /system/xbin/busybox
+    /sbin/busybox ln -s /sbin/busybox /system/xbin/busybox
     for i in $(/sbin/busybox --list); do
         if [ ! -f /system/xbin/$i ]; then
             /sbin/busybox ln -s /sbin/busybox /system/xbin/$i
@@ -72,12 +72,12 @@ if [ ! -f /system/xbin/busybox ]; then
 fi
 
 # STweaks support
-chmod -R 755 /res/customconfig/actions
-chmod 755 /res/uci.sh
+/sbin/busybox chmod -R 755 /res/customconfig/actions
+/sbin/busybox chmod 755 /res/uci.sh
 /res/uci.sh apply
 
-rm /data/.maxfour/customconfig.xml
-rm /data/.maxfour/action.cache
+/sbin/busybox rm /data/.maxfour/customconfig.xml
+/sbin/busybox rm /data/.maxfour/action.cache
 
 # Some build.prop optimizations
 /system/bin/setprop pm.sleep_mode 1
@@ -85,8 +85,44 @@ rm /data/.maxfour/action.cache
 /system/bin/setprop ro.telephony.call_ring.delay 1000
 
 # Workaround on siop currents which by default is too high
-/system/bin/echo 1200 > /sys/devices/platform/sec-battery/siop_input_limit
-/system/bin/echo 1000 > /sys/devices/platform/sec-battery/siop_charge_limit
+/sbin/busybox echo 1200 > /sys/devices/platform/sec-battery/siop_input_limit
+/sbin/busybox echo 1000 > /sys/devices/platform/sec-battery/siop_charge_limit
+
+# Apply fstrim on some partitions
+/sbin/fstrim -v /system
+/sbin/fstrim -v /data
+/sbin/fstrim -v /cache
+
+# Apply normal usage oom settings
+/sbin/busybox echo "1024,2048,4096,8192,12288,16384" > /sys/module/lowmemorykiller/parameters/minfree
+
+# Apply sysctl optimizations (testing)
+/sbin/busybox sysctl -w fs.inotify.max_user_instances=256
+/sbin/busybox sysctl -w fs.inotify.max_queued_events=32000
+/sbin/busybox sysctl -w vm.vfs_cache_pressure=10
+/sbin/busybox sysctl -w kernel.panic=10
+/sbin/busybox sysctl -w kernel.msgmax=65536
+/sbin/busybox sysctl -w fs.file-max=524288
+/sbin/busybox sysctl -w vm.page-cluster=3
+/sbin/busybox sysctl -w net.core.wmem_max=524288
+/sbin/busybox sysctl -w kernel.sem='500 512000 64 2048'
+/sbin/busybox sysctl -w net.core.rmem_max=524288
+/sbin/busybox sysctl -w vm.min_free_kbytes=4096
+/sbin/busybox sysctl -w vm.drop_caches=3
+/sbin/busybox sysctl -w net.ipv4.tcp_rmem='6144 87380 524288'
+/sbin/busybox sysctl -w fs.lease-break-time=10
+/sbin/busybox sysctl -w kernel.threads-max=524288
+/sbin/busybox sysctl -w kernel.sched_wakeup_granularity_ns=3000000
+/sbin/busybox sysctl -w net.ipv4.tcp_wmem='6144 87380 524288'
+/sbin/busybox sysctl -w vm.dirty_ratio=90
+/sbin/busybox sysctl -w kernel.shmmax=268435456
+/sbin/busybox sysctl -w kernel.sched_min_granularity_ns=1500000
+/sbin/busybox sysctl -w kernel.sched_latency_ns=18000000
+/sbin/busybox sysctl -w vm.dirty_expire_centisecs=250
+/sbin/busybox sysctl -w kernel.msgmni=2048
+/sbin/busybox sysctl -w fs.inotify.max_user_watches=10240
+/sbin/busybox sysctl -w vm.dirty_background_ratio=70
+/sbin/busybox sysctl -w net.ipv4.tcp_tw_recycle=1
 
 sync
 
