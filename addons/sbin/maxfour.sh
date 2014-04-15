@@ -1,13 +1,13 @@
 #!/sbin/busybox sh
-# AdaMax kernel script (Root helper by Wanam)
+# MaxFour kernel script (Root helper by Wanam)
 # Used to be adam.sh by Wanam
 # Modified by MaxFu
 
 # Pre-defined functions
 set_perm() {
-    /res/supersu chown $1.$2 $4
-    /res/supersu chown $1:$2 $4
-    /res/supersu chmod $3 $4
+    /sbin/busybox chown $1.$2 $4
+    /sbin/busybox chown $1:$2 $4
+    /sbin/busybox chmod $3 $4
 }
 
 ch_con() {
@@ -15,8 +15,83 @@ ch_con() {
 	chcon u:object_r:system_file:s0 $1
 }
 
+# Start post-init script
 /sbin/busybox mount -o remount,rw /system
 /sbin/busybox mount -t rootfs -o remount,rw rootfs
+
+# Auto-Root, only install when /system/xbin/su is missing
+if [ ! -f /system/xbin/su ]; then
+# Disabling OTA survival
+/sbin/busybox chmod 0755 /tmp/supersu/$ARCH/chattr
+/sbin/busybox chattr -i /system/xbin/su
+/sbin/busybox chattr -i /system/bin/.ext/.su
+/sbin/busybox chattr -i /system/xbin/daemonsu
+/sbin/busybox chattr -i /system/etc/install-recovery.sh
+# Removing old files
+/sbin/busybox rm -f /system/bin/su
+/sbin/busybox rm -f /system/xbin/su
+/sbin/busybox rm -f /system/xbin/daemonsu
+/sbin/busybox rm -f /system/bin/.ext/.su
+/sbin/busybox rm -f /system/etc/install-recovery.sh
+/sbin/busybox rm -f /system/etc/init.d/99SuperSUDaemon
+/sbin/busybox rm -f /system/etc/.installed_su_daemon
+/sbin/busybox rm -f /system/app/Superuser.apk
+/sbin/busybox rm -f /system/app/Superuser.odex
+/sbin/busybox rm -f /system/app/SuperUser.apk
+/sbin/busybox rm -f /system/app/SuperUser.odex
+/sbin/busybox rm -f /system/app/superuser.apk
+/sbin/busybox rm -f /system/app/superuser.odex
+/sbin/busybox rm -f /system/app/Supersu.apk
+/sbin/busybox rm -f /system/app/Supersu.odex
+/sbin/busybox rm -f /system/app/SuperSU.apk
+/sbin/busybox rm -f /system/app/SuperSU.odex
+/sbin/busybox rm -f /system/app/supersu.apk
+/sbin/busybox rm -f /system/app/supersu.odex
+/sbin/busybox rm -f /data/dalvik-cache/*com.noshufou.android.su*
+/sbin/busybox rm -f /data/dalvik-cache/*com.koushikdutta.superuser*
+/sbin/busybox rm -f /data/dalvik-cache/*com.mgyun.shua.su*
+/sbin/busybox rm -f /data/dalvik-cache/*Superuser.apk*
+/sbin/busybox rm -f /data/dalvik-cache/*SuperUser.apk*
+/sbin/busybox rm -f /data/dalvik-cache/*superuser.apk*
+/sbin/busybox rm -f /data/dalvik-cache/*eu.chainfire.supersu*
+/sbin/busybox rm -f /data/dalvik-cache/*Supersu.apk*
+/sbin/busybox rm -f /data/dalvik-cache/*SuperSU.apk*
+/sbin/busybox rm -f /data/dalvik-cache/*supersu.apk*
+/sbin/busybox rm -f /data/dalvik-cache/*.oat
+/sbin/busybox rm -f /data/app/com.noshufou.android.su-*
+/sbin/busybox rm -f /data/app/com.koushikdutta.superuser-*
+/sbin/busybox rm -f /data/app/com.mgyun.shua.su-*
+/sbin/busybox rm -f /data/app/eu.chainfire.supersu-*
+# Placing files"
+/sbin/busybox mkdir /system/bin/.ext
+/sbin/busybox cp /res/supersu/su /system/xbin/su
+/sbin/busybox cp /res/supersu/su /system/xbin/daemonsu
+/sbin/busybox cp /res/supersu/su /system/bin/.ext/.su
+/sbin/busybox cp /res/supersu/Superuser.apk /system/app/Superuser.apk
+/sbin/busybox cp /res/supersu/install-recovery.sh /system/etc/install-recovery.sh
+/sbin/busybox cp /res/supersu/99SuperSUDaemon /system/etc/init.d/99SuperSUDaemon
+/sbin/busybox echo 1 > /system/etc/.installed_su_daemon
+/sbin/busybox ln -s /system/xbin/su /system/bin/su
+# Setting permissions
+set_perm 0 0 0777 /system/bin/.ext
+set_perm 0 0 06755 /system/bin/.ext/.su
+set_perm 0 0 06755 /system/xbin/su
+set_perm 0 0 0755 /system/xbin/daemonsu
+set_perm 0 0 0755 /system/etc/install-recovery.sh
+set_perm 0 0 0755 /system/etc/init.d/99SuperSUDaemon
+set_perm 0 0 0644 /system/etc/.installed_su_daemon
+set_perm 0 0 0644 /system/app/Superuser.apk
+# Setting context
+ch_con /system/bin/.ext/.su
+ch_con /system/xbin/su
+ch_con /system/xbin/daemonsu
+ch_con /system/etc/install-recovery.sh
+ch_con /system/etc/init.d/99SuperSUDaemon
+ch_con /system/etc/.installed_su_daemon
+ch_con /system/app/Superuser.apk
+# Post-installation script
+/system/xbin/su --install
+fi
 
 # Disable knox stuff
 pm disable com.sec.knox.seandroid
