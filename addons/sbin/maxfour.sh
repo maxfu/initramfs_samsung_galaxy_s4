@@ -199,6 +199,16 @@ fi
 /sbin/busybox sysctl -w vm.page-cluster=3
 /sbin/busybox sysctl -w vm.vfs_cache_pressure=10
 
+# Process runtime_dependency flag
+REL=`/sbin/busybox uname -r`
+REN=`/sbin/busybox echo $REL | /sbin/busybox sed 's/aosp/touchwiz/g'`
+if [ $REN = $REL ]; then
+  /sbin/busybox echo "0 0" > /proc/sys/kernel/runtime_dependency
+else
+  /sbin/busybox echo "2 0" > /proc/sys/kernel/runtime_dependency
+fi
+
+# Sync
 sync
 
 # init.d support
