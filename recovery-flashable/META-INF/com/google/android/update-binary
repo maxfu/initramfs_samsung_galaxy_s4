@@ -17,6 +17,13 @@ if [ -f boot.img ]; then
   echo -n -e 'ui_print Installing boot image...\n' > /proc/self/fd/$2
   echo -n -e 'ui_print\n' > /proc/self/fd/$2
   dd if=boot.img of=/dev/block/mmcblk0p9
+  echo -n -e 'ui_print Wiping old uci settings...\n' > /proc/self/fd/$2
+  echo -n -e 'ui_print\n' > /proc/self/fd/$2
+  mount /data
+  mount -o rw,remount /data
+  rm -rf /data/.maxfour
+  rm -rf /data/.adamkernel
+  umount /data
 fi
 
 if [ -f recovery.img ]; then
