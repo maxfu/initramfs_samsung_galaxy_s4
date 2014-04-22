@@ -22,10 +22,8 @@ SPD_CPU_VOLT_LITTLE='Actual frequencies of LITTLE cores to be multiplied by 2.'
 SPN_CPU_VOLT_LITTLE='LITTLE cores'
 SBD_CPU_VOLT='Default voltage:'
 SBN_CPU_VOLT='MHz step'
-SPD_CPU_NOVOLT
-SPN_CPU_NOVOLT
-SPD_MEMIO_NOMEMIO='CPU voltage control is not support on this transplanted MaxFourLite kernel. To use CPU voltage control, use MaxFour compiled kernel.'
-SPN_MEMIO_NOMEMIO='CPU voltage control'
+SPD_CPU_NOVOLT='CPU voltage control is not support on this transplanted MaxFourLite kernel. To use CPU voltage control, use MaxFour compiled kernel.'
+SPN_CPU_NOVOLT='CPU voltage control'
 
 STN_GPU='GPU'
 SPD_GPU_CS='This tab contains the settings for GPU performance and power usage. Click Apply to take affect.'
