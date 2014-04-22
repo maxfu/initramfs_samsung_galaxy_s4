@@ -219,6 +219,7 @@ on post-fs-data
     chmod 0771 /data
     # We restorecon /data in case the userdata partition has been reset.
     restorecon /data
+    restorecon /data/.layout_version
 
     # Create dump dir and collect dumps.
     # Do this before we mount cache so eventually we can use cache for
@@ -350,15 +351,17 @@ on post-fs-data
     #setprop vold.post_fs_data_done 1
 
     # Separate location for storing security policy files on data
-
     mkdir /data/security 0711 system system
     mkdir /data/security/spota 0711 system system
     mkdir /data/security/booleans 0711 system system
 
-
     # Restorecon for backup data file
     mkdir /data/backup 0700 system system
     restorecon /data/backup
+
+    # symlink to bugreport storage location
+    symlink /data/data/com.android.shell/files/bugreports /data/bugreports
+
 
 on boot
 # basic network init
@@ -656,7 +659,6 @@ service ril-daemon /system/bin/rild -l /system/lib/libsec-ril-cdma.so -m 7777 --
     socket rild-debug stream 660 radio system
     user root
     group radio cache inet misc audio sdcard_r sdcard_rw log
-#   onrestart restart cpboot-daemon
 
 service ril-daemon2 /system/bin/rild -s rild2 -ds rild-debug2 -m 7778 -- -d /dev/ttyS1 -D 7204
     class main
@@ -664,7 +666,6 @@ service ril-daemon2 /system/bin/rild -s rild2 -ds rild-debug2 -m 7778 -- -d /dev
     socket rild-debug2 stream 660 radio system
     user root
     group radio cache inet misc audio sdcard_r sdcard_rw log qcom_oncrpc diag graphics
-#   onrestart restart cpboot-daemon
 
 service DR-daemon /system/bin/ddexe
     class main
@@ -691,10 +692,10 @@ service BCS-daemon /system/bin/connfwexe
     user root
     group system radio inet net_raw
 
-# service ML-daemon /system/bin/mlexe
-#     class main
-#     user root
-#     group system radio inet net_raw
+#service ML-daemon /system/bin/mlexe
+#    class main
+#    user root
+#    group system radio inet net_raw
 
 service mobex-daemon /system/bin/npsmobex
     class main
@@ -804,6 +805,15 @@ service sdumpstate /system/bin/dumpstate -P
     class main
     disabled
     oneshot
+
+# bugreport 
+service bugreport /system/bin/dumpstate -d -p -B \
+                -o /data/data/com.android.shell/files/bugreports/bugreport
+    class main
+    disabled
+    oneshot
+    keycodes 114 115 116
+
 
 # service for TZPR provisioning version check app
 service scranton_RD /system/bin/scranton_RD
