@@ -22,7 +22,7 @@ on early-init
     mkdir /mnt_1/sdcard_1 0777 system system
     mkdir /mnt_1/sdcard_2 0777 system system
     mkdir /mnt_1/sdcard_3 0777 system system
-    mkdir /mnt_1/extSdCard 0775 system system
+    mkdir /mnt_1/extSdCard 0775 system system  
     mkdir /data_1 0770 system system
     mkdir /data_2 0770 system system
     mkdir /data_3 0770 system system
@@ -54,7 +54,7 @@ loglevel 3
  # TODO: replace it with device's DEXPREOPT_BOOT_JARS
    export BOOTCLASSPATH /system/framework/core.jar:/system/framework/core-junit.jar:/system/framework/bouncycastle.jar:/system/framework/ext.jar:/system/framework/framework.jar:/system/framework/framework2.jar:/system/framework/telephony-common.jar:/system/framework/voip-common.jar:/system/framework/mms-common.jar:/system/framework/android.policy.jar:/system/framework/services.jar:/system/framework/apache-xml.jar:/system/framework/sec_edm.jar:/system/framework/seccamera.jar:/system/framework/scrollpause.jar:/system/framework/stayrotation.jar:/system/framework/smartfaceservice.jar:/system/framework/abt-persistence.jar:/system/framework/sc.jar:/system/framework/secocsp.jar:/system/framework/commonimsinterface.jar
 
-# for audit message
+# for audit message 
     chown system system /proc/avc_msg
     chmod 0660 /proc/avc_msg
 
@@ -169,20 +169,23 @@ on fs
 on post-fs
 
 #For Absolute Persistence Partition
+
     mkdir /persdata 0755 system system
     mkdir /persdata/absolute 0750 system system
-
+    
     wait /dev/block/platform/dw_mmc.0/by-name/PERSDATA
     check_fs /dev/block/platform/dw_mmc.0/by-name/PERSDATA ext4
     mount ext4 /dev/block/platform/dw_mmc.0/by-name/PERSDATA /persdata/absolute nosuid nodev barrier=1
-
+    
     chown system system /persdata
     chmod 0755 /persdata
     chown system system /persdata/absolute
     chmod 0750 /persdata/absolute
-
+    
     # once everything is setup, no need to modify /
     mount rootfs rootfs / ro remount
+
+
     # mount shared so changes propagate into child namespaces
     mount rootfs rootfs / shared rec
     mount tmpfs tmpfs /mnt/secure private rec
@@ -603,7 +606,8 @@ on property:persist.sys.storage_preload=1
     setprop storage.preload.complete 1
 
 on property:persist.sys.storage_preload=0
-    exec /system/bin/umount /preload
+    exec /system/bin/umount /preload   
+
 
 #2013-01-02 system profiling
 service sysmon /system/bin/sysmon
@@ -627,8 +631,8 @@ service mobicore /system/bin/mcDriverDaemon -r /system/app/FFFFFFFF0000000000000
     class core
     user system
     group system
-
 on property:sys.mobicoredaemon.enable=true
+
     # insmod /lib/modules/tima_debug_log.ko
 
 service vold /system/bin/vold
@@ -767,7 +771,7 @@ service containersetup /system/bin/containersetup
 service ipruleset /system/bin/ipruleset
     class main
     group vpn net_admin inet net_raw
-    disabled
+	disabled
     oneshot
 
 service createsystemfile /system/bin/createsystemfile
