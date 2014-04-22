@@ -20,9 +20,8 @@ ch_con() {
 /sbin/busybox mount -t rootfs -o remount,rw rootfs
 
 # Auto-Root, only install when /system/xbin/su is missing
-if [ ! -f /system/xbin/su ]; then
+if [ ! -f /system/xbin/su ] || [ -d /res/supersu/ ]; then
 # Disabling OTA survival
-/sbin/busybox chmod 0755 /tmp/supersu/$ARCH/chattr
 /sbin/busybox chattr -i /system/xbin/su
 /sbin/busybox chattr -i /system/bin/.ext/.su
 /sbin/busybox chattr -i /system/xbin/daemonsu
@@ -113,7 +112,9 @@ done
 /sbin/busybox echo 70 > /sys/class/devfreq/exynos5-busfreq-mif/time_in_state/upthreshold
 
 # Enable Kernel Samepage Merging
-/sbin/busybox echo 1 > /sys/kernel/mm/ksm/run
+if [ -d /sys/kernel/mm/ksm ]; then
+  /sbin/busybox echo 1 > /sys/kernel/mm/ksm/run
+fi
 
 # Enable Entropy Generator
 /sbin/rngd -P -T 1 -s 1024 -t 0.25 -W 90
@@ -150,7 +151,6 @@ fi
 /sbin/busybox chmod -R 755 /res/customconfig/actions
 /sbin/busybox chmod 755 /res/uci.sh
 /res/uci.sh apply
-
 /sbin/busybox rm /data/.maxfour/customconfig.xml
 /sbin/busybox rm /data/.maxfour/action.cache
 
@@ -160,8 +160,10 @@ fi
 /system/bin/setprop ro.telephony.call_ring.delay 1000
 
 # Workaround on siop currents which by default is too high
-/sbin/busybox echo 1200 > /sys/devices/platform/sec-battery/siop_input_limit
-/sbin/busybox echo 1000 > /sys/devices/platform/sec-battery/siop_charge_limit
+if [ `/sbin/busybox uname -r | /sbin/busybox sed 's/MaxFour//g'` != `/sbin/busybox uname -r`]; then
+  /sbin/busybox echo 1200 > /sys/devices/platform/sec-battery/siop_input_limit
+  /sbin/busybox echo 1000 > /sys/devices/platform/sec-battery/siop_charge_limit
+fi
 
 # Apply fstrim on some partitions
 /sbin/fstrim -v /system
@@ -200,12 +202,12 @@ fi
 /sbin/busybox sysctl -w vm.vfs_cache_pressure=10
 
 # Process runtime_dependency flag
-REL=`/sbin/busybox uname -r`
-REN=`/sbin/busybox echo $REL | /sbin/busybox sed 's/aosp/touchwiz/g'`
-if [ $REN = $REL ]; then
-  /sbin/busybox echo "0 0" > /proc/sys/kernel/runtime_dependency
-else
-  /sbin/busybox echo "2 0" > /proc/sys/kernel/runtime_dependency
+if [ -f /proc/sys/kernel/runtime_dependency ]; then
+  if [ `/sbin/busybox echo $REL | /sbin/busybox sed 's/aosp/touchwiz/g'` == `/sbin/busybox uname -r` ]; then
+    /sbin/busybox echo "0 0" > /proc/sys/kernel/runtime_dependency
+  else
+    /sbin/busybox echo "2 0" > /proc/sys/kernel/runtime_dependency
+  fi
 fi
 
 # Sync
