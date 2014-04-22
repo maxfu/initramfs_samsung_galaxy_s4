@@ -323,7 +323,6 @@ echo '            <seekBar description="'$SBD_IO_READAHEAD_INTERNAL'" name="'$SB
 echo '            <seekBar description="'$SBD_IO_READAHEAD_SDCARD'" name="'$SBN_IO_READAHEAD_SDCARD'" action="generictagforce sd /sys/block/mmcblk1/queue/read_ahead_kb" unit="kB" min="128" reversed="false" step="128" max="2048"/>' >> $XML
 echo '        </settingsPane>' >> $XML
 echo '    </settingsTab>' >> $XML
-fi
 
 # settingsTab: start: Misc
 echo '    <settingsTab name="'$STN_MISC'">' >> $XML
