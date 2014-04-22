@@ -1,0 +1,35 @@
+#!/sbin/busybox sh
+
+BOOST_MODE_CPUFREQ='0'
+BOOST_MODE_THERMAL='0'
+if [ -f /sys/devices/system/cpu/cpufreq/ondemand/boost_mode ]; then 
+    BOOST_MODE_CPUFREQ=`cat /sys/devices/system/cpu/cpufreq/ondemand/boost_mode`
+fi
+if [ -f /sys/devices/virtual/thermal/thermal_zone0/boost_mode ]; then
+    BOOST_MODE_THERMAL=`cat /sys/devices/virtual/thermal/thermal_zone0/boost_mode`
+fi
+if [ "$BOOST_MODE_CPUFREQ" == "0" ] && [ "$BOOST_MODE_CPUFREQ" == "0" ]; then
+    if [ "$2" == "switch" ]; then
+        if [ -f /sys/devices/system/cpu/cpufreq/ondemand/boost_mode ]; then 
+            echo 1 > /sys/devices/system/cpu/cpufreq/ondemand/boost_mode
+        fi
+        if [ -f /sys/devices/virtual/thermal/thermal_zone0/boost_mode ]; then
+            echo 1 > /sys/devices/virtual/thermal/thermal_zone0/boost_mode
+        fi
+        echo 'Boost Mode: Enabled'
+    else
+        echo 'Boost Mode: Disabled'
+    fi
+else
+    if [ "$2" == "switch" ]; then
+        if [ -f /sys/devices/system/cpu/cpufreq/ondemand/boost_mode ]; then 
+	    echo 0 > /sys/devices/system/cpu/cpufreq/ondemand/boost_mode
+        fi
+        if [ -f /sys/devices/virtual/thermal/thermal_zone0/boost_mode ]; then
+            echo 0 > /sys/devices/virtual/thermal/thermal_zone0/boost_mode
+        fi
+        echo 'Boost Mode: Disabled'
+    else
+        echo 'Boost Mode: Enabled'
+    fi
+fi

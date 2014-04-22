@@ -1,0 +1,15 @@
+#!/sbin/busybox sh
+
+if [ "$2" == "normal" ];then
+    echo "Shutdown in 3 seconds."
+    sleep 3
+    halt
+elif [ "$2" == "reboot" ];then
+    echo "Reboot in 3 seconds."
+    sleep 3
+    reboot
+else
+    echo "Reboot to $2 mode in 3 seconds."
+    sleep 3
+    reboot $2
+fi
