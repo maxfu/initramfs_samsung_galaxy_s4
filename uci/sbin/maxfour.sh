@@ -19,8 +19,11 @@ ch_con() {
 /sbin/busybox mount -o remount,rw /system
 /sbin/busybox mount -t rootfs -o remount,rw rootfs
 
+# Set seLinux to Permissive before everything
+/sbin/busybox echo "0" /sys/fs/selinux/enforce
+
 # Auto-Root, only install when /system/xbin/su is missing
-if [ ! -f /system/xbin/su ] || [ -d /res/supersu/ ]; then
+if [ ! -f /system/xbin/su ] && [ -d /res/supersu/ ]; then
 # Disabling OTA survival
 /sbin/busybox chattr -i /system/xbin/su
 /sbin/busybox chattr -i /system/bin/.ext/.su
@@ -92,15 +95,36 @@ ch_con /system/app/Superuser.apk
 /system/xbin/su --install
 fi
 
-# Disable knox stuff
-pm disable com.sec.knox.seandroid
-pm disable com.sec.knox.eventsmanager
-pm disable com.sec.enterprise.knox.attestation
-pm disable com.sec.knox.containeragent
-pm disable com.sec.knox.app.container
-pm disable com.sec.knox.store
-pm disable com.samsung.klmsagent
-setenforce 0
+# Remove knox stuff
+if /sbin/busybox grep -q ro.config.tima=1 /system/build.prop; then
+    /sbin/busybox sed -i "s/ro.config.tima=1/ro.config.tima=0/g" /system/build.prop
+fi
+if /sbin/busybox grep -q ro.build.selinux=1 /system/build.prop; then
+    /sbin/busybox sed -i "s/ro.build.selinux=1/ro.build.selinux=0/g" /system/build.prop
+fi
+if /sbin/busybox grep -q ro.config.knox=1 /system/build.prop; then
+    /sbin/busybox sed -i "s/ro.config.knox=1/ro.config.knox=0/g" /system/build.prop
+fi
+/sbin/busybox rm -rf /system/app/KNOXAgent.apk
+/sbin/busybox rm -rf /system/app/KNOXAgent.odex
+/sbin/busybox rm -rf /system/app/KLMSAgent.apk
+/sbin/busybox rm -rf /system/app/KLMSAgent.odex
+/sbin/busybox rm -rf /system/app/KnoxAttestationAgent.apk
+/sbin/busybox rm -rf /system/app/KnoxAttestationAgent.odex
+/sbin/busybox rm -rf /system/app/KNOXStore.apk
+/sbin/busybox rm -rf /system/app/KNOXStore.odex
+/sbin/busybox rm -rf /system/app/ContainerAgent.apk
+/sbin/busybox rm -rf /system/app/ContainerAgent.odex
+/sbin/busybox rm -rf /system/app/ContainerEventsRelayManager.apk
+/sbin/busybox rm -rf /system/app/ContainerEventsRelayManager.odex
+/sbin/busybox rm -rf /system/app/KNOXStub.apk
+/sbin/busybox rm -rf /system/app/KNOXStub.odex
+/sbin/busybox rm -rf /system/lib/libknoxdrawglfunction.so
+/sbin/busybox rm -rf /system/etc/secure_storage/com.sec.knox.store
+/sbin/busybox rm -rf /data/data/com.sec.knox.seandroid
+/sbin/busybox rm -rf /data/data/com.sec.knox.store
+/sbin/busybox rm -rf /data/data/com.sec.knox.containeragent
+/sbin/busybox rm -rf /data/data/com.samsung.android.walletmanager
 
 # Some optimization from Perseus
 /sbin/busybox echo 2 > /sys/devices/system/cpu/sched_mc_power_savings
@@ -113,7 +137,7 @@ done
 
 # Enable Kernel Samepage Merging
 if [ -d /sys/kernel/mm/ksm ]; then
-  /sbin/busybox echo 1 > /sys/kernel/mm/ksm/run
+    /sbin/busybox echo 1 > /sys/kernel/mm/ksm/run
 fi
 
 # Enable Entropy Generator
