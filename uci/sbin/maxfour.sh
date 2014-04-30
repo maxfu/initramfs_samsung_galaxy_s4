@@ -132,8 +132,6 @@ for i in /sys/block/*/queue/add_random; do
     /sbin/busybox echo 0 > $i
 done
 /sbin/busybox echo 0 > /proc/sys/kernel/randomize_va_space
-/sbin/busybox echo 50 > /sys/class/devfreq/exynos5-busfreq-mif/polling_interval
-/sbin/busybox echo 70 > /sys/class/devfreq/exynos5-busfreq-mif/time_in_state/upthreshold
 
 # Enable Kernel Samepage Merging
 if [ -d /sys/kernel/mm/ksm ]; then
@@ -182,12 +180,6 @@ fi
 /system/bin/setprop pm.sleep_mode 1
 /system/bin/setprop ro.ril.disable.power.collapse 0
 /system/bin/setprop ro.telephony.call_ring.delay 1000
-
-# Workaround on siop currents which by default is too high
-if `/sbin/busybox uname -r | grep -q MaxFour`; then
-  /sbin/busybox echo 1200 > /sys/devices/platform/sec-battery/siop_input_limit
-  /sbin/busybox echo 1000 > /sys/devices/platform/sec-battery/siop_charge_limit
-fi
 
 # Apply fstrim on some partitions
 /sbin/fstrim -v /system
