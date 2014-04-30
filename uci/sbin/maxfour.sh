@@ -20,8 +20,8 @@ ch_con() {
 /sbin/busybox mount -t rootfs -o remount,rw rootfs
 
 # Set seLinux to Permissive before everything
-/sbin/busybox echo "0" /sys/fs/selinux/enforce
-
+/system/bin/toolbox setenforce Permissive
+ 
 # Auto-Root, only install when /system/xbin/su is missing
 if [ ! -f /system/xbin/su ] && [ -d /res/supersu/ ]; then
 # Disabling OTA survival
@@ -184,7 +184,7 @@ fi
 /system/bin/setprop ro.telephony.call_ring.delay 1000
 
 # Workaround on siop currents which by default is too high
-if [ `/sbin/busybox uname -r | /sbin/busybox sed 's/MaxFour//g'` != `/sbin/busybox uname -r`]; then
+if `/sbin/busybox uname -r | grep -q MaxFour`; then
   /sbin/busybox echo 1200 > /sys/devices/platform/sec-battery/siop_input_limit
   /sbin/busybox echo 1000 > /sys/devices/platform/sec-battery/siop_charge_limit
 fi
@@ -227,7 +227,7 @@ fi
 
 # Process runtime_dependency flag
 if [ -f /proc/sys/kernel/runtime_dependency ]; then
-  if [ `/sbin/busybox echo $REL | /sbin/busybox sed 's/aosp/touchwiz/g'` == `/sbin/busybox uname -r` ]; then
+  if `/sbin/busybox uname -r | grep -q touchwiz`; then
     /sbin/busybox echo "0 0" > /proc/sys/kernel/runtime_dependency
   else
     /sbin/busybox echo "2 0" > /proc/sys/kernel/runtime_dependency

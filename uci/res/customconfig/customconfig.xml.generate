@@ -234,7 +234,7 @@ echo '    </settingsTab>' >> $XML
 fi
 
 # settingsTab: start: Battery
-if [ `/sbin/busybox uname -r | /sbin/busybox sed 's/MaxFour//g'` != `/sbin/busybox uname -r`]; then
+if `/sbin/busybox uname -r | grep -q MaxFour`; then
 AC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/ac_input_curr`
 AC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/ac_chrg_curr`
 SDP_INPUT_CURR=`cat /sys/devices/platform/sec-battery/sdp_input_curr`
