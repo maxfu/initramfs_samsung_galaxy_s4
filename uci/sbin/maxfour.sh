@@ -231,6 +231,7 @@ sync
 
 # init.d support
 if [ -d /system/etc/init.d ]; then
+  /sbin/busybox chmod -R 0755 /system/etc/init.d
   /sbin/busybox run-parts /system/etc/init.d
 fi
 
