@@ -176,55 +176,10 @@ fi
 /sbin/busybox rm /data/.maxfour/customconfig.xml
 /sbin/busybox rm /data/.maxfour/action.cache
 
-# Some build.prop optimizations
-/system/bin/setprop pm.sleep_mode 1
-/system/bin/setprop ro.ril.disable.power.collapse 0
-/system/bin/setprop ro.telephony.call_ring.delay 1000
-
 # Apply fstrim on some partitions
 /sbin/fstrim -v /system
 /sbin/fstrim -v /data
 /sbin/fstrim -v /cache
-
-# Apply normal usage oom settings
-/sbin/busybox echo "1024,2048,4096,8192,12288,16384" > /sys/module/lowmemorykiller/parameters/minfree
-
-# Apply sysctl optimizations (testing)
-/sbin/busybox sysctl -w fs.file-max=524288
-/sbin/busybox sysctl -w fs.inotify.max_queued_events=32000
-/sbin/busybox sysctl -w fs.inotify.max_user_instances=256
-/sbin/busybox sysctl -w fs.inotify.max_user_watches=10240
-/sbin/busybox sysctl -w fs.lease-break-time=10
-/sbin/busybox sysctl -w kernel.msgmax=65536
-/sbin/busybox sysctl -w kernel.msgmni=2048
-/sbin/busybox sysctl -w kernel.panic=10
-/sbin/busybox sysctl -w kernel.sched_latency_ns=18000000
-/sbin/busybox sysctl -w kernel.sched_min_granularity_ns=1500000
-/sbin/busybox sysctl -w kernel.sched_wakeup_granularity_ns=3000000
-/sbin/busybox sysctl -w kernel.sem='500 512000 64 2048'
-/sbin/busybox sysctl -w kernel.shmmax=268435456
-/sbin/busybox sysctl -w kernel.threads-max=524288
-/sbin/busybox sysctl -w net.core.rmem_max=524288
-/sbin/busybox sysctl -w net.core.wmem_max=524288
-/sbin/busybox sysctl -w net.ipv4.tcp_rmem='6144 87380 524288'
-/sbin/busybox sysctl -w net.ipv4.tcp_tw_recycle=1
-/sbin/busybox sysctl -w net.ipv4.tcp_wmem='6144 87380 524288'
-/sbin/busybox sysctl -w vm.dirty_background_ratio=70
-/sbin/busybox sysctl -w vm.dirty_expire_centisecs=250
-/sbin/busybox sysctl -w vm.dirty_ratio=90
-/sbin/busybox sysctl -w vm.drop_caches=3
-/sbin/busybox sysctl -w vm.min_free_kbytes=4096
-/sbin/busybox sysctl -w vm.page-cluster=3
-/sbin/busybox sysctl -w vm.vfs_cache_pressure=10
-
-# Process runtime_dependency flag
-if [ -f /proc/sys/kernel/runtime_dependency ]; then
-  if `/sbin/busybox uname -r | grep -q touchwiz`; then
-    /sbin/busybox echo "0 0" > /proc/sys/kernel/runtime_dependency
-  else
-    /sbin/busybox echo "2 0" > /proc/sys/kernel/runtime_dependency
-  fi
-fi
 
 # Sync
 sync
