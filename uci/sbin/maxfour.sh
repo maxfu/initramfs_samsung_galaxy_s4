@@ -126,6 +126,16 @@ ch_con /system/app/Superuser.apk
 /system/xbin/su --install
 fi
 
+# Install busybox if not present
+if [ ! -f /system/xbin/busybox ]; then
+    /sbin/busybox ln -s /sbin/busybox /system/xbin/busybox
+    for i in $(/sbin/busybox --list); do
+        if [ ! -f /system/xbin/$i ]; then
+            /sbin/busybox ln -s /sbin/busybox /system/xbin/$i
+        fi
+    done
+fi
+
 # Some optimization from Perseus
 /sbin/busybox echo 2 > /sys/devices/system/cpu/sched_mc_power_savings
 for i in /sys/block/*/queue/add_random; do
@@ -159,16 +169,6 @@ if [ -d /sys/class/misc/wolfson_control ]; then
     /sbin/busybox echo 1 > /sys/class/misc/wolfson_control/switch_eq_speaker
 fi
 
-# Install busybox if not present
-if [ ! -f /system/xbin/busybox ]; then
-    /sbin/busybox ln -s /sbin/busybox /system/xbin/busybox
-    for i in $(/sbin/busybox --list); do
-        if [ ! -f /system/xbin/$i ]; then
-            /sbin/busybox ln -s /sbin/busybox /system/xbin/$i
-        fi
-    done
-fi
-
 # STweaks support
 /sbin/busybox chmod -R 755 /res/customconfig/actions
 /sbin/busybox chmod 755 /res/uci.sh
@@ -176,14 +176,16 @@ fi
 /sbin/busybox rm /data/.maxfour/customconfig.xml
 /sbin/busybox rm /data/.maxfour/action.cache
 
+# init.d support
+if [ ! -d /system/etc/init.d ]; then
+  /sbin/busybox mkdir /system/etc/init.d
+fi
+/sbin/busybox cp /res/initd/* /system/etc/init.d
+/sbin/busybox chmod -R 0755 /system/etc/init.d
+/sbin/busybox run-parts /system/etc/init.d
+
 # Sync
 sync
-
-# init.d support
-if [ -d /system/etc/init.d ]; then
-  /sbin/busybox chmod -R 0755 /system/etc/init.d
-  /sbin/busybox run-parts /system/etc/init.d
-fi
 
 /sbin/busybox mount -t rootfs -o remount,ro rootfs
 /sbin/busybox mount -o remount,ro /system
