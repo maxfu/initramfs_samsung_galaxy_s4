@@ -43,6 +43,14 @@ fi
 /sbin/busybox rm -rf /system/app/ContainerEventsRelayManager.odex
 /sbin/busybox rm -rf /system/app/KNOXStub.apk
 /sbin/busybox rm -rf /system/app/KNOXStub.odex
+/sbin/busybox rm -rf /system/app/KnoxVpnServices.apk
+/sbin/busybox rm -rf /system/app/KnoxVpnServices.odex
+/sbin/busybox rm -rf /system/app/SPDClient.apk
+/sbin/busybox rm -rf /system/app/SPDClient.odex
+/sbin/busybox rm -rf /system/priv-app/KLMSAgent.apk
+/sbin/busybox rm -rf /system/priv-app/KLMSAgent.odex
+/sbin/busybox rm -rf /system/priv-app/SPDClient.apk
+/sbin/busybox rm -rf /system/priv-app/SPDClient.odex
 /sbin/busybox rm -rf /system/lib/libknoxdrawglfunction.so
 /sbin/busybox rm -rf /system/etc/secure_storage/com.sec.knox.store
 /sbin/busybox rm -rf /data/data/com.sec.knox.seandroid
