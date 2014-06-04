@@ -150,12 +150,8 @@ fi
 
 # Install busybox if not present
 if [ ! -f /system/xbin/busybox ]; then
-    /sbin/busybox ln -s /sbin/busybox /system/xbin/busybox
-    for i in $(/sbin/busybox --list); do
-        if [ ! -f /system/xbin/$i ]; then
-            /sbin/busybox ln -s /sbin/busybox /system/xbin/$i
-        fi
-    done
+    /sbin/busybox cp -a /sbin/busybox /system/xbin/busybox
+    /system/xbin/busybox --install -s /system/xbin
 fi
 
 # Some optimization from Perseus
