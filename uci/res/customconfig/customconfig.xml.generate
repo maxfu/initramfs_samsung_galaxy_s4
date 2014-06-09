@@ -101,6 +101,19 @@ echo '        </settingsPane>' >> $XML
 fi
 echo '    </settingsTab>' >> $XML
 
+# settingsTab: start: KSM
+if [ -d /sys/kernel/mm/ksm ]; then
+echo '    <settingsTab name="'$STN_KSM'">' >> $XML
+echo '        <settingsPane description="'$SPD_KSM_CS'" name="'$SPN_KSM_CS'">' >> $XML
+echo '            <checkbox description="'$CSD_KSM'" name="'$CSN_KSM'" action="controlswitch KSM" label="'$CSL_KSM'"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '        <settingsPane description="'$SPD_KSM'" name="'$SPN_KSM'">' >> $XML
+echo '            <checkbox description="'$CBD_KSM'" name="'$CBN_KSM'" action="ksmgeneric01 /sys/kernel/mm/ksm/run" label="'$CBL_KSM'"/>' >> $XML
+echo '            <seekBar description="'$SBD_KSM_SLEEP'" name="'$SBN_KSM_SLEEP'" action="ksmgeneric /sys/kernel/mm/ksm/sleep_millisecs" unit="millisecs" min="10" reversed="false" step="10" max="500"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
+fi
+
 # settingsTab: start: INT
 # echo '    <settingsTab name="'$STN_INT'">' >> $XML
 # echo '        <settingsPane description="'$SPD_INT'" name="'$SPN_INT'">' >> $XML

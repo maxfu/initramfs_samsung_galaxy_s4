@@ -161,11 +161,6 @@ for i in /sys/block/*/queue/add_random; do
 done
 /sbin/busybox echo 0 > /proc/sys/kernel/randomize_va_space
 
-# Enable Kernel Samepage Merging
-if [ -d /sys/kernel/mm/ksm ]; then
-    /sbin/busybox echo 1 > /sys/kernel/mm/ksm/run
-fi
-
 # Enable Entropy Generator
 /sbin/rngd -P -T 1 -s 1024 -t 0.25 -W 90
 /sbin/busybox echo -16 > /proc/$(/sbin/busybox pgrep rngd)/oom_adj
