@@ -1,0 +1,15 @@
+ui_print("Welcome to MaxFour kernel...");
+assert(package_extract_file("boot.img", "/tmp/boot.img"),
+       ui_print("Installing boot image...");
+       write_raw_image("/tmp/boot.img", "/dev/block/mmcblk0p9"),
+       delete("/tmp/boot.img"));
+ui_print("Wiping old uci settings...");
+mount("/data");
+delete_recursive("/data/.maxfour");
+delete_recursive("/data/.adamkernel");
+unmount("/data");
+assert(package_extract_file("recovery.img", "/tmp/recovery.img"),
+       ui_print("Installing recovery image...");
+       write_raw_image("/tmp/recovery.img", "/dev/block/mmcblk0p10"),
+       delete("/tmp/recovery.img"));
+ui_print("Finished...");
