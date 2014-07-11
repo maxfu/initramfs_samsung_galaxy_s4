@@ -19,6 +19,9 @@ ch_con() {
 /sbin/busybox mount -o remount,rw /system
 /sbin/busybox mount -t rootfs -o remount,rw rootfs
 
+# Set seLinux to Permissive
+setenforce 0
+ 
 # Remove knox stuff before everything
 if /sbin/busybox grep -q ro.config.tima=1 /system/build.prop; then
     /sbin/busybox sed -i "s/ro.config.tima=1/ro.config.tima=0/g" /system/build.prop
@@ -72,9 +75,6 @@ fi
 /sbin/busybox rm -rf /data/data/com.sec.knox.containeragent
 /sbin/busybox rm -rf /data/data/com.samsung.android.walletmanager
 
-# Set seLinux to Permissive
-setenforce 0
- 
 # Auto-Root, only install when /system/xbin/su is missing
 if [ ! -f /system/xbin/su ] && [ -d /res/supersu/ ]; then
 # Disabling OTA survival
