@@ -155,21 +155,21 @@ if [ ! -f /system/xbin/busybox ]; then
 fi
 
 # Some optimization from Perseus
-/sbin/busybox echo 2 > /sys/devices/system/cpu/sched_mc_power_savings
-for i in /sys/block/*/queue/add_random; do
-    /sbin/busybox echo 0 > $i
-done
-/sbin/busybox echo 0 > /proc/sys/kernel/randomize_va_space
+# /sbin/busybox echo 2 > /sys/devices/system/cpu/sched_mc_power_savings
+# for i in /sys/block/*/queue/add_random; do
+#     /sbin/busybox echo 0 > $i
+# done
+# /sbin/busybox echo 0 > /proc/sys/kernel/randomize_va_space
 
 # Enable Entropy Generator
-/sbin/rngd -P -T 1 -s 1024 -t 0.25 -W 90
-/sbin/busybox echo -16 > /proc/$(/sbin/busybox pgrep rngd)/oom_adj
-/sbin/busybox renice 5 $(/sbin/busybox pgrep rngd)
+# /sbin/rngd -P -T 1 -s 1024 -t 0.25 -W 90
+# /sbin/busybox echo -16 > /proc/$(/sbin/busybox pgrep rngd)/oom_adj
+# /sbin/busybox renice 5 $(/sbin/busybox pgrep rngd)
 
 # Enable I/O Queue Extension
-/sbin/busybox echo 1000 > /proc/sys/vm/dirty_expire_centisecs
-/sbin/busybox echo 500 > /proc/sys/vm/dirty_writeback_centisecs
-for node in $(/sbin/busybox find /sys -name nr_requests | /sbin/busybox grep mmcblk); do /sbin/busybox echo 1024 > $node; done
+# /sbin/busybox echo 1000 > /proc/sys/vm/dirty_expire_centisecs
+# /sbin/busybox echo 500 > /proc/sys/vm/dirty_writeback_centisecs
+# for node in $(/sbin/busybox find /sys -name nr_requests | /sbin/busybox grep mmcblk); do /sbin/busybox echo 1024 > $node; done
 
 # Pre-config wolfson sound control if on GT-I9500
 if [ -d /sys/class/misc/wolfson_control ]; then
