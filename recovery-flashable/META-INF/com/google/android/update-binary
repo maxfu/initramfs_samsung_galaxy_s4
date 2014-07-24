@@ -4,21 +4,21 @@
 # communicate with it using the recovery api.
 # arg 3 is the zip file
 
-echo -n -e 'ui_print Welcome to MaxFour kernel...\n' > /proc/self/fd/$2
-echo -n -e 'ui_print\n' > /proc/self/fd/$2
+ui_print() {
+	echo -n -e "ui_print $1\n" > /proc/self/fd/$OUTFD
+	echo -n -e "ui_print\n" > /proc/self/fd/$OUTFD
+}
 
-echo -n -e 'ui_print Preparing files...\n' > /proc/self/fd/$2
-echo -n -e 'ui_print\n' > /proc/self/fd/$2
+ui_print 'Welcome to MaxFour kernel...'
+ui_print 'Preparing files...'
 
 cd /tmp
 unzip -o "$3"
 
 if [ -f boot.img ]; then
-  echo -n -e 'ui_print Installing boot image...\n' > /proc/self/fd/$2
-  echo -n -e 'ui_print\n' > /proc/self/fd/$2
+  ui_print 'Installing boot image...'
   dd if=boot.img of=/dev/block/mmcblk0p9
-  echo -n -e 'ui_print Wiping old uci settings...\n' > /proc/self/fd/$2
-  echo -n -e 'ui_print\n' > /proc/self/fd/$2
+  ui_print 'Wiping old uci settings...'
   mount /data
   mount -o rw,remount /data
   rm -rf /data/.maxfour
@@ -27,10 +27,8 @@ if [ -f boot.img ]; then
 fi
 
 if [ -f recovery.img ]; then
-  echo -n -e 'ui_print Installing recovery image...\n' > /proc/self/fd/$2
-  echo -n -e 'ui_print\n' > /proc/self/fd/$2
+  ui_print 'Installing recovery image...'
   dd if=recovery.img of=/dev/block/mmcblk0p10
 fi
 
-echo -n -e 'ui_print Finished...\n' > /proc/self/fd/$2
-echo -n -e 'ui_print\n' > /proc/self/fd/$2
+ui_print 'Finished...'
