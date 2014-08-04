@@ -1,0 +1,6 @@
+
+service rngd /sbin/rngd.sh
+    class core
+    user root
+    oneshot
+

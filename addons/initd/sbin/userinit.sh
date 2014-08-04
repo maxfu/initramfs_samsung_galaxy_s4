@@ -1,4 +1,4 @@
-#!/sbin/busybox sh
+#!/system/bin/sh
 
 if [ -d /system/etc/init.d ]; then
   for i in /system/etc/init.d/*; do

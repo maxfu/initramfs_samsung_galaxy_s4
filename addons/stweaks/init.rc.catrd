@@ -1,0 +1,6 @@
+
+service uciinit /sbin/uci.sh
+    class core
+    user root
+    oneshot
+

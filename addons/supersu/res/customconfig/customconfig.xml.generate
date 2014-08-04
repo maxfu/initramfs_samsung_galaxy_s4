@@ -1,0 +1,359 @@
+#!/sbin/busybox sh
+
+XML=$CONFIG_XML
+LANG=`getprop persist.sys.language`
+
+MAXFREQ=`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq`
+MINFREQ=`cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq`
+
+USBMODE=`getprop persist.sys.usb.config | sed 's/,adb//g' | sed 's/mass_storage/ums/g'`
+
+chmod 777 /res/customconfig/lang.en
+source /res/customconfig/lang.en
+if [ -f /res/customconfig/lang.$LANG ]; then
+chmod 777 /res/customconfig/lang.$LANG
+source /res/customconfig/lang.$LANG
+fi
+
+if [ "$USBMODE" == "ums" ]; then
+USBMODE='MTP'
+elif [ "$USBMODE" == "mtp" ]; then
+USBMODE='UMS'
+fi
+
+echo "" > $XML
+echo '<settingsRoot>' >> $XML
+
+# settingsTab: start: CPU
+echo '    <settingsTab name="'$STN_CPU'">' >> $XML
+echo '        <settingsPane description="'$SPD_CPU_CS'" name="'$SPN_CPU_CS'">' >> $XML
+echo '            <checkbox description="'$CSD_CPU'" name="'$CSN_CPU'" action="controlswitch CPU" label="'$CSL_CPU'"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '        <settingsPane description="'$SPD_CPU_SCAL'" name="'$SPN_CPU_SCAL'">' >> $XML
+echo '            <spinner name="'$SLN_CPU_GOV'" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor">' >> $XML
+for CPUGOV in `cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors`; do
+echo '                <spinnerItem name="'$CPUGOV'" value="'$CPUGOV'"/>' >> $XML
+done
+echo '            </spinner>' >> $XML
+echo '            <seekbar description="'$SBD_CPU_CORE_MAX'" name="'$SBN_CPU_CORE_MAX'" action="cpugeneric /sys/power/cpucore_max_num_limit" unit="'$SBU_CPU_CORE_MAX'" reversed="false" step="1" min="1" max="4" />' >> $XML
+echo '            <seekbar description="'$SBD_CPU_CORE_MIN'" name="'$SBN_CPU_CORE_MIN'" action="cpugeneric /sys/power/cpucore_min_num_limit" unit="'$SBU_CPU_CORE_MIN'" reversed="false" step="1" min="1" max="4" />' >> $XML
+echo '            <spinner name="'$SLN_CPU_FREQ_MAX' '$(expr $MAXFREQ / 1000)' MHz" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq">' >> $XML
+while read IDLEFREQ IDLETIME; do
+FREQ=`/sbin/busybox expr $IDLEFREQ / 1000`
+echo '                <spinnerItem name="'$FREQ' MHz" value="'$IDLEFREQ'"/>' >> $XML
+done < /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state
+echo '            </spinner>' >> $XML
+echo '            <spinner name="'$SLN_CPU_FREQ_MIN' '$(expr $MINFREQ / 1000)' MHz" action="cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq">' >> $XML
+while read IDLEFREQ IDLETIME; do
+FREQ=`/sbin/busybox expr $IDLEFREQ / 1000`
+echo '                <spinnerItem name="'$FREQ' MHz" value="'$IDLEFREQ'"/>' >> $XML
+done < /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state
+echo '            </spinner>' >> $XML
+echo '        </settingsPane>' >> $XML
+if [ -f '/sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table' ]; then
+echo '        <settingsPane description="'$SPD_CPU_VOLT'" name="'$SPN_CPU_VOLT'">' >> $XML
+echo '            <settingsPane description="" name="'$SPN_CPU_VOLT_BIG'">' >> $XML
+while read FREQ UVOLT; do
+if [ "$MAXFREQ" == "2000000" ]; then
+if [ "$FREQ" == "650" ]; then
+echo '            </settingsPane>' >> $XML
+echo '            <settingsPane description="'$SPD_CPU_VOLT_LITTLE'" name="'$SPN_CPU_VOLT_LITTLE'">' >> $XML
+fi
+else
+if [ "$FREQ" == "600" ]; then
+echo '            </settingsPane>' >> $XML
+echo '            <settingsPane description="'$SPD_CPU_VOLT_LITTLE'" name="'$SPN_CPU_VOLT_LITTLE'">' >> $XML
+fi
+fi
+echo '                <seekBar description="'$SBD_CPU_VOLT' '$UVOLT' µV" name="'$FREQ' '$SBN_CPU_VOLT'" action="cpuvolt '$FREQ'" unit="µV" min="600000" reversed="false" step="6250" max="1350000"/>' >> $XML
+done < /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table
+echo '            </settingsPane>' >> $XML
+echo '        </settingsPane>' >> $XML
+fi
+echo '    </settingsTab>' >> $XML
+
+# settingsTab: start: GPU
+echo '    <settingsTab name="'$STN_GPU'">' >> $XML
+echo '        <settingsPane description="'$SPD_GPU_CS'" name="'$SPN_GPU_CS'">' >> $XML
+echo '            <checkbox description="'$CSD_GPU'" name="'$CSN_GPU'" action="controlswitch GPU" label="'$CSL_GPU'"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '        <settingsPane description="'$SPD_GPU_SCAL'" name="'$SPN_GPU_SCAL'">' >> $XML
+echo '            <spinner name="'$SLN_GPU_FREQ_MAX'" action="gpugeneric /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_max_lock">' >> $XML
+for SGXFREQ in `cat /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_table`; do
+echo '                <spinnerItem name="'$SGXFREQ' MHz" value="'$SGXFREQ'"/>' >> $XML
+done
+echo '                <spinnerItem name="'$SIN_GPU_FREQ_UNLIMITED'" value="0"/>' >> $XML
+echo '            </spinner>' >> $XML
+echo '            <spinner name="'$SLN_GPU_FREQ_MIN'" action="gpugeneric /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_min_lock">' >> $XML
+for SGXFREQ in `cat /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_table`; do
+echo '                <spinnerItem name="'$SGXFREQ' MHz" value="'$SGXFREQ'"/>' >> $XML
+done
+echo '                <spinnerItem name="'$SIN_GPU_FREQ_UNLIMITED'" value="0"/>' >> $XML
+echo '            </spinner>' >> $XML
+echo '            <checkbox description="'$CBD_GPU_WAKE'" name="'$CBN_GPU_WAKE'" action="gpugeneric01 /sys/module/pvrsrvkm/parameters/sec_wakeup_lock_state" label="'$CBL_GPU_WAKE'"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+if [ -f '/sys/devices/platform/pvrsrvkm.0/sgx_dvfs_volt_table' ]; then
+echo '        <settingsPane description="'$SPD_GPU_VOLT'" name="'$SPN_GPU_VOLT'">' >> $XML
+while read GFREQ GUVOLT; do
+echo '            <seekBar description="'$SBD_GPU_VOLT' '$GUVOLT' µV" name="'$GFREQ' MHz step" action="gpuvolt '$GFREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1150000"/>' >> $XML
+done < /sys/devices/platform/pvrsrvkm.0/sgx_dvfs_volt_table
+echo '        </settingsPane>' >> $XML
+fi
+echo '    </settingsTab>' >> $XML
+
+# settingsTab: start: KSM
+if [ -d /sys/kernel/mm/ksm ]; then
+echo '    <settingsTab name="'$STN_KSM'">' >> $XML
+echo '        <settingsPane description="'$SPD_KSM_CS'" name="'$SPN_KSM_CS'">' >> $XML
+echo '            <checkbox description="'$CSD_KSM'" name="'$CSN_KSM'" action="controlswitch KSM" label="'$CSL_KSM'"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '        <settingsPane description="'$SPD_KSM'" name="'$SPN_KSM'">' >> $XML
+echo '            <checkbox description="'$CBD_KSM'" name="'$CBN_KSM'" action="ksmgeneric01 /sys/kernel/mm/ksm/run" label="'$CBL_KSM'"/>' >> $XML
+echo '            <seekBar description="'$SBD_KSM_SLEEP'" name="'$SBN_KSM_SLEEP'" action="ksmgeneric /sys/kernel/mm/ksm/sleep_millisecs" unit="millisecs" min="10" reversed="false" step="10" max="500"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
+fi
+
+# settingsTab: start: INT
+# echo '    <settingsTab name="'$STN_INT'">' >> $XML
+# echo '        <settingsPane description="'$SPD_INT'" name="'$SPN_INT'">' >> $XML
+# echo '            <checkbox description="'$CBD_INT'" name="'$CBN_INT'" action="controlswitch INT" label="'$CBL_INT'"/>' >> $XML
+# echo '            <spinner name="'$SLN_INT_FREQ_MAX'" action="intgeneric /sys/devices/platform/exynos5-busfreq-int/devfreq/exynos5-busfreq-int/max_freq">' >> $XML
+# for INTFREQ in `cat /sys/class/devfreq/exynos5-busfreq-int/freq_table`; do
+# echo '                <spinnerItem name="'$(expr $INTFREQ / 1000)' MHz" value="'$INTFREQ'"/>' >> $XML
+# done
+# echo '                <spinnerItem name="'$SIN_INT_FREQ_UNLIMITED'" value="0"/>' >> $XML
+# echo '            </spinner>' >> $XML
+# echo '            <spinner name="'$SLN_INT_FREQ_MIN'" action="intgeneric /sys/devices/platform/exynos5-busfreq-int/devfreq/exynos5-busfreq-int/min_freq">' >> $XML
+# for INTFREQ in `cat /sys/class/devfreq/exynos5-busfreq-int/freq_table`; do
+# echo '                <spinnerItem name="'$(expr $INTFREQ / 1000)' MHz" value="'$INTFREQ'"/>' >> $XML
+# done
+# echo '                <spinnerItem name="'$SIN_INT_FREQ_UNLIMITED'" value="0"/>' >> $XML
+# echo '            </spinner>' >> $XML
+# if [ -f '/sys/devices/platform/exynos5-busfreq-int/devfreq/exynos5-busfreq-int/volt_table' ]; then
+# while read IFREQ IUVOLT; do
+# echo '            <seekBar description="'$SBD_INT' '$IUVOLT' µV" name="'$(expr $IFREQ / 1000)' '$SBN_INT'" action="intvolt '$IFREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1100000"/>' >> $XML
+# done < /sys/devices/platform/exynos5-busfreq-int/devfreq/exynos5-busfreq-int/volt_table
+# fi
+# echo '        </settingsPane>' >> $XML
+# echo '    </settingsTab>' >> $XML
+
+# settingsTab: start: MIF
+# echo '    <settingsTab name="'$STN_MIF'">' >> $XML
+# echo '        <settingsPane description="'$SPD_MIF'" name="'$SPN_MIF'">' >> $XML
+# echo '            <checkbox description="'$CBD_MIF'" name="'$CBN_MIF'" action="controlswitch MIF" label="'$CBL_MIF'"/>' >> $XML
+# echo '            <spinner name="'$SLN_MIF_FREQ_MAX'" action="mifgeneric /sys/devices/platform/exynos5-busfreq-mif/devfreq/exynos5-busfreq-mif/max_freq">' >> $XML
+# for MIFFREQ in `cat /sys/class/devfreq/exynos5-busfreq-mif/freq_table`; do
+# echo '                <spinnerItem name="'$(expr $MIFFREQ / 1000)' MHz" value="'$MIFFREQ'"/>' >> $XML
+# done
+# echo '                <spinnerItem name="'$SIN_MIF_FREQ_UNLIMITED'" value="0"/>' >> $XML
+# echo '            </spinner>' >> $XML
+# echo '            <spinner name="'$SLN_MIF_FREQ_MIN'" action="mifgeneric /sys/devices/platform/exynos5-busfreq-mif/devfreq/exynos5-busfreq-mif/min_freq">' >> $XML
+# for MIFFREQ in `cat /sys/class/devfreq/exynos5-busfreq-mif/freq_table`; do
+# echo '                <spinnerItem name="'$(expr $MIFFREQ / 1000)' MHz" value="'$MIFFREQ'"/>' >> $XML
+# done
+# echo '                <spinnerItem name="'$SIN_MIF_FREQ_UNLIMITED'" value="0"/>' >> $XML
+# echo '            </spinner>' >> $XML
+# if [ -f '/sys/devices/platform/exynos5-busfreq-mif/devfreq/exynos5-busfreq-mif/volt_table' ]; then
+# while read IFREQ IUVOLT; do
+# echo '            <seekBar description="'$SBD_MIF' '$IUVOLT' µV" name="'$(expr $IFREQ / 1000)' '$SBN_MIF'" action="mifvolt '$IFREQ'" unit="µV" min="700000" reversed="false" step="6250" max="1100000"/>' >> $XML
+# done < /sys/devices/platform/exynos5-busfreq-mif/devfreq/exynos5-busfreq-mif/volt_table
+# fi
+# echo '        </settingsPane>' >> $XML
+# echo '    </settingsTab>' >> $XML
+
+# settingsTab: start: MEMIO
+# if [ -f '/sys/devices/platform/exynos5-busfreq-mif/devfreq/exynos5-busfreq-mif/memio_volt_table' ]; then
+# echo '    <settingsTab name="'$STN_MEMIO'">' >> $XML
+# echo '        <settingsPane description="'$SPD_MEMIO'" name="'$SPN_MEMIO'">' >> $XML
+# echo '            <checkbox description="'$CBD_MEMIO'" name="'$CBN_MEMIO'" action="controlswitch MEMIO" label="'$CBL_MEMIO'"/>' >> $XML
+# while read IFREQ IUVOLT; do
+# echo '            <seekBar description="'$SBD_MEMIO' '$IUVOLT' µV" name="'$(expr $IFREQ / 1000)' '$SBN_MEMIO'" action="memiovolt '$IFREQ'" unit="µV" min="900000" reversed="false" step="6250" max="1250000"/>' >> $XML
+# done < /sys/devices/platform/exynos5-busfreq-mif/devfreq/exynos5-busfreq-mif/memio_volt_table
+# echo '        </settingsPane>' >> $XML
+# echo '    </settingsTab>' >> $XML
+# fi
+
+# settingsTab: start: Audio
+if [ -d '/sys/class/misc/wolfson_control/' ]; then
+echo '    <settingsTab name="'$STN_AUDIO'">' >> $XML
+echo '        <settingsPane description="'$SPD_AUDIO_SPKAMP'" name="'$SPN_AUDIO_SPKAMP'">' >> $XML
+echo '            <seekBar description="'$SBD_AUDIO_SPKAMP_MAIN'" name="'$SBN_AUDIO_SPKAMP_MAIN'" action="digital-volume /sys/class/misc/wolfson_control/speaker_volume" unit="dB" min="-8" reversed="false" step="1" max="16"/>' >> $XML
+echo '            <seekBar description="'$SBD_AUDIO_SPKAMP_EAR'" name="'$SBN_AUDIO_SPKAMP_EAR'" action="digital-volume /sys/class/misc/wolfson_control/earpiece_volume" unit="dB" min="-8" reversed="false" step="1" max="16"/>' >> $XML
+echo '            <checkbox description="'$CBD_AUDIO_SPKAMP_PRIVACY'" name="'$CBN_AUDIO_SPKAMP_PRIVACY'" action="generic01 /sys/class/misc/wolfson_control/switch_sp_privacy" label="'$CBL_AUDIO_SPKAMP_PRIVACY'"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '        <settingsPane description="'$SPD_AUDIO_SPKTUN'" name="'$SPN_AUDIO_SPKTUN'">' >> $XML
+echo '            <checkbox description="'$CBD_AUDIO_SPKTUN'" name="'$CBN_AUDIO_SPKTUN'" action="generic01 /sys/class/misc/wolfson_control/switch_eq_speaker" label="'$CBL_AUDIO_SPKTUN'"/>' >> $XML
+echo '            <seekBar description="'$SBD_AUDIO_SPKTUN_ONE'" name="'$SBN_AUDIO_SPKTUN_ONE'" action="generic /sys/class/misc/wolfson_control/eq_sp_gain_1" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="'$SBD_AUDIO_SPKTUN_TWO'" name="'$SBN_AUDIO_SPKTUN_TWO'" action="generic /sys/class/misc/wolfson_control/eq_sp_gain_2" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="'$SBD_AUDIO_SPKTUN_THREE'" name="'$SBN_AUDIO_SPKTUN_THREE'" action="generic /sys/class/misc/wolfson_control/eq_sp_gain_3" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="'$SBD_AUDIO_SPKTUN_FOUR'" name="'$SBN_AUDIO_SPKTUN_FOUR'" action="generic /sys/class/misc/wolfson_control/eq_sp_gain_4" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="'$SBD_AUDIO_SPKTUN_FIVE'" name="'$SBN_AUDIO_SPKTUN_FIVE'" action="generic /sys/class/misc/wolfson_control/eq_sp_gain_5" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '        <settingsPane description="'$SPD_AUDIO_HEADAMP'" name="'$SPN_AUDIO_HEADAMP'">' >> $XML
+echo '            <seekBar description="'$SBD_AUDIO_HEADAMP_LEFT'" name="'$SBN_AUDIO_HEADAMP_LEFT'" action="digital-volume-abs /sys/class/misc/wolfson_control/headphone_left" unit="dB" min="-8" reversed="false" step="1" max="22"/>' >> $XML
+echo '            <seekBar description="'$SBD_AUDIO_HEADAMP_RIGHT'" name="'$SBN_AUDIO_HEADAMP_RIGHT'" action="digital-volume-abs /sys/class/misc/wolfson_control/headphone_right" unit="dB" min="-8" reversed="false" step="1" max="22"/>' >> $XML
+echo '            <checkbox description="'$CBD_AUDIO_HEADAMP_MONO'" name="'$CBN_AUDIO_HEADAMP_MONO'" action="generic01 /sys/class/misc/wolfson_control/switch_hp_mono" label="'$CBL_AUDIO_HEADAMP_MONO'"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '        <settingsPane description="'$SPD_AUDIO_HEADTUN'" name="'$SPN_AUDIO_HEADTUN'">' >> $XML
+echo '            <checkbox description="'$CBD_AUDIO_HEADTUN'" name="'$CBN_AUDIO_HEADTUN'" action="generic01 /sys/class/misc/wolfson_control/switch_eq_headphone" label="'$CBL_AUDIO_HEADTUN'"/>' >> $XML
+echo '            <seekBar description="'$SBD_AUDIO_HEADTUN_ONE'" name="'$SBN_AUDIO_HEADTUN_ONE'" action="generic /sys/class/misc/wolfson_control/eq_hp_gain_1" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="'$SBD_AUDIO_HEADTUN_TWO'" name="'$SBN_AUDIO_HEADTUN_TWO'" action="generic /sys/class/misc/wolfson_control/eq_hp_gain_2" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="'$SBD_AUDIO_HEADTUN_THREE'" name="'$SBN_AUDIO_HEADTUN_THREE'" action="generic /sys/class/misc/wolfson_control/eq_hp_gain_3" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="'$SBD_AUDIO_HEADTUN_FOUR'" name="'$SBN_AUDIO_HEADTUN_FOUR'" action="generic /sys/class/misc/wolfson_control/eq_hp_gain_4" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '            <seekBar description="'$SBD_AUDIO_HEADTUN_FIVE'" name="'$SBN_AUDIO_HEADTUN_FIVE'" action="generic /sys/class/misc/wolfson_control/eq_hp_gain_5" unit="dB" min="-12" reversed="false" step="1" max="12"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
+fi
+
+# settingsTab: start: Screen
+if [ -d '/sys/devices/virtual/misc/mdnie/' ]; then
+echo '    <settingsTab name="'$STN_SCREEN'">' >> $XML
+echo '        <settingsPane description="'$SPD_SCREEN_GLOBAL'" name="'$SPN_SCREEN_GLOBAL'">' >> $XML
+echo '            <checkbox description="'$CBD_SCREEN_REGISTER'" name="'$CBN_SCREEN_REGISTER'" action="generic01 /sys/devices/virtual/misc/mdnie/hook_intercept" label="'$CBL_SCREEN_REGISTER'"/>' >> $XML
+echo '            <checkbox description="'$CBD_SCREEN_MASTER'" name="'$CBN_SCREEN_MASTER'" action="generic01 /sys/devices/virtual/misc/mdnie/sequence_intercept" label="'$CBL_SCREEN_MASTER'"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '        <settingsPane description="'$SPD_SCREEN_SMEARING'" name="'$SPN_SCREEN_SMEARING'">' >> $XML
+echo '            <seekBar description="'$SBD_SCREEN_SMEARING_BLACK'" name="'$SBN_SCREEN_SMEARING_BLACK'" action="generic /sys/devices/virtual/misc/mdnie/black_increase_value" unit="" min="0" reversed="false" step="1" max="5"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '        <settingsPane description="'$SPD_SCREEN_BRIGHTNESS'" name="'$SPN_SCREEN_BRIGHTNESS'">' >> $XML
+echo '            <seekBar description="'$SBD_SCREEN_BRIGHTNESS_REDUCTION'" name="'$SBN_SCREEN_BRIGHTNESS_REDUCTION'" action="generic /sys/devices/virtual/misc/mdnie/brightness_reduction" unit="" min="0" reversed="false" step="1" max="128"/>' >> $XML
+echo '            <seekBar description="'$SBD_SCREEN_BRIGHTNESS_TAKEOVER'" name="'$SBN_SCREEN_BRIGHTNESS_TAKEOVER'" action="generic /sys/devices/virtual/misc/mdnie/brightness_takeover_point" unit="" min="0" reversed="false" step="1" max="64"/>' >> $XML
+echo '            <seekBar description="'$SBD_SCREEN_BRIGHTNESS_AUTO'" name="'$SBN_SCREEN_BRIGHTNESS_AUTO'" action="generic /sys/devices/virtual/misc/mdnie/brightness_input_delta" unit="" min="0" reversed="false" step="1" max="64"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '        <settingsPane description="" name="'$SPN_SCREEN_EDGE'">' >> $XML
+echo '            <checkbox description="" name="'$CBN_SCREEN_EDGE'" action="generic01 /sys/devices/virtual/misc/mdnie/hook_control/s_edge_enhancement" label="'$CBL_SCREEN_EDGE'"/>' >> $XML
+echo '            <seekBar description="" name="'$SBN_SCREEN_EDGE_AMOUNT'" action="generic /sys/devices/virtual/misc/mdnie/hook_control/de_positive_e" unit="" min="-128" reversed="false" step="1" max="128"/>' >> $XML
+echo '            <seekBar description="" name="'$SBN_SCREEN_EDGE_RADIUS'" action="generic /sys/devices/virtual/misc/mdnie/hook_control/de_positive_f" unit="" min="-128" reversed="false" step="1" max="128"/>' >> $XML
+echo '            <seekBar description="" name="'$SBN_SCREEN_EDGE_THRESHOLD'" action="generic /sys/devices/virtual/misc/mdnie/hook_control/de_positive_b" unit="" min="-128" reversed="false" step="1" max="128"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '        <settingsPane description="'$SPD_SCREEN_CHROMA'" name="'$SPN_SCREEN_CHROMA'">' >> $XML
+echo '            <seekBar description="'$SBD_SCREEN_CHROMA_WEIGHT'" name="'$SBN_SCREEN_CHROMA_WEIGHT'" action="generic /sys/devices/virtual/misc/mdnie/hook_control/cs_weight" unit="" min="-20" reversed="false" step="1" max="20"/>' >> $XML
+echo '            <seekBar description="" name="'$SBN_SCREEN_CHROMA_RED'" action="generic /sys/devices/virtual/misc/mdnie/hook_control/cs_red" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
+echo '            <seekBar description="" name="'$SBN_SCREEN_CHROMA_GREEN'" action="generic /sys/devices/virtual/misc/mdnie/hook_control/cs_green" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
+echo '            <seekBar description="" name="'$SBN_SCREEN_CHROMA_BLUE'" action="generic /sys/devices/virtual/misc/mdnie/hook_control/cs_blue" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
+echo '            <seekBar description="" name="'$SBN_SCREEN_CHROMA_YELLOW'" action="generic /sys/devices/virtual/misc/mdnie/hook_control/cs_yellow" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
+echo '            <seekBar description="" name="'$SBN_SCREEN_CHROMA_CYAN'" action="generic /sys/devices/virtual/misc/mdnie/hook_control/cs_cyan" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
+echo '            <seekBar description="" name="'$SBN_SCREEN_CHROMA_MAGENTA'" action="generic /sys/devices/virtual/misc/mdnie/hook_control/cs_magenta" unit="" min="-8" reversed="false" step="1" max="8"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '        <settingsPane description="'$SPD_SCREEN_BALANCE'" name="'$SPN_SCREEN_BALANCE'">' >> $XML
+echo '            <seekBar description="'$SBD_SCREEN_BALANCE_RED'" name="'$SBN_SCREEN_BALANCE_RED'" action="generic /sys/devices/virtual/misc/mdnie/hook_control/scr_white_red" unit="" min="-16" reversed="false" step="1" max="16"/>' >> $XML
+echo '            <seekBar description="'$SBD_SCREEN_BALANCE_GREEN'" name="'$SBN_SCREEN_BALANCE_GREEN'" action="generic /sys/devices/virtual/misc/mdnie/hook_control/scr_white_green" unit="" min="-16" reversed="false" step="1" max="16"/>' >> $XML
+echo '            <seekBar description="'$SBD_SCREEN_BALANCE_BLUE'" name="'$SBN_SCREEN_BALANCE_BLUE'" action="generic /sys/devices/virtual/misc/mdnie/hook_control/scr_white_blue" unit="" min="-16" reversed="false" step="1" max="16"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
+fi
+
+# settingsTab: start: Battery
+if `/sbin/busybox uname -r | grep -q MaxFour`; then
+AC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/ac_input_curr`
+AC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/ac_chrg_curr`
+SDP_INPUT_CURR=`cat /sys/devices/platform/sec-battery/sdp_input_curr`
+SDP_CHRG_CURR=`cat /sys/devices/platform/sec-battery/sdp_chrg_curr` 
+DCP_INPUT_CURR=`cat /sys/devices/platform/sec-battery/dcp_input_curr`
+DCP_CHRG_CURR=`cat /sys/devices/platform/sec-battery/dcp_chrg_curr`
+CDP_INPUT_CURR=`cat /sys/devices/platform/sec-battery/cdp_input_curr`
+CDP_CHRG_CURR=`cat /sys/devices/platform/sec-battery/cdp_chrg_curr`
+ACA_INPUT_CURR=`cat /sys/devices/platform/sec-battery/aca_input_curr`
+ACA_CHRG_CURR=`cat /sys/devices/platform/sec-battery/aca_chrg_curr`
+MISC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/misc_input_curr`
+MISC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/misc_chrg_curr`
+WPC_INPUT_CURR=`cat /sys/devices/platform/sec-battery/wpc_input_curr`
+WPC_CHRG_CURR=`cat /sys/devices/platform/sec-battery/wpc_chrg_curr`
+MHL_500_CURR=`cat /sys/devices/platform/sec-battery/mhl_500_curr`
+MHL_900_CURR=`cat /sys/devices/platform/sec-battery/mhl_900_curr`
+MHL_1K5_CURR=`cat /sys/devices/platform/sec-battery/mhl_1500_curr`
+MHL_USB_CURR=`cat /sys/devices/platform/sec-battery/mhl_usb_curr`
+echo '    <settingsTab name="'$STN_BATTERY'">' >> $XML
+# settingsPane: start: Charging currents
+echo '        <settingsPane description="'$SPD_BATTERY_CURRENT'" name="'$SPN_BATTERY_CURRENT'">' >> $XML
+echo '            <button description="'$BTD_BATTERY_SOURCE'" name="" action="charge-source" label="'$BTL_BATTERY_SOURCE'"/>' >> $XML
+echo '            <button description="'$BTD_BATTERY_CURRENT'" name="" action="charge-current" label="'$BTL_BATTERY_CURRENT'"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_AC_INPUT' '$AC_INPUT_CURR' mA" name="'$SBN_BATTERY_AC_INPUT'" action="generic /sys/devices/platform/sec-battery/ac_input_curr" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_AC_CHRG' '$AC_CHRG_CURR' mA" name="'$SBN_BATTERY_AC_CHRG'" action="generic /sys/devices/platform/sec-battery/ac_chrg_curr" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_SIOP_INPUT' 1200mA" name="'$SBN_BATTERY_SIOP_INPUT'" action="generic /sys/devices/platform/sec-battery/siop_input_limit" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_SIOP_CHRG' 1000mA" name="'$SBN_BATTERY_SIOP_CHRG'" action="generic /sys/devices/platform/sec-battery/siop_charge_limit" unit="mA" min="400" reversed="false" step="50" max="3000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_SDP_INPUT' '$SDP_INPUT_CURR' mA" name="'$SBN_BATTERY_SDP_INPUT'" action="generic /sys/devices/platform/sec-battery/sdp_input_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_SDP_CHRG' '$SDP_CHRG_CURR' mA" name="'$SBN_BATTERY_SDP_CHRG'" action="generic /sys/devices/platform/sec-battery/sdp_chrg_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_DCP_INPUT' '$DCP_INPUT_CURR' mA" name="'$SBN_BATTERY_DCP_INPUT'" action="generic /sys/devices/platform/sec-battery/dcp_input_curr" unit="mA" min="400" reversed="false" step="50" max="2000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_DCP_CHRG' '$DCP_CHRG_CURR' mA" name="'$SBN_BATTERY_DCP_CHRG'" action="generic /sys/devices/platform/sec-battery/dcp_chrg_curr" unit="mA" min="400" reversed="false" step="50" max="2000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_CDP_INPUT' '$CDP_INPUT_CURR' mA" name="'$SBN_BATTERY_CDP_INPUT'" action="generic /sys/devices/platform/sec-battery/cdp_input_curr" unit="mA" min="400" reversed="false" step="50" max="1500"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_CDP_CHRG' '$CDP_CHRG_CURR' mA" name="'$SBN_BATTERY_CDP_CHRG'" action="generic /sys/devices/platform/sec-battery/cdp_chrg_curr" unit="mA" min="400" reversed="false" step="50" max="1500"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_ACA_INPUT' '$ACA_INPUT_CURR' mA" name="'$SBN_BATTERY_ACA_INPUT'" action="generic /sys/devices/platform/sec-battery/aca_input_curr" unit="mA" min="100" reversed="false" step="25" max="1000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_ACA_CHRG' '$ACA_CHRG_CURR' mA" name="'$SBN_BATTERY_ACA_CHRG'" action="generic /sys/devices/platform/sec-battery/aca_chrg_curr" unit="mA" min="100" reversed="false" step="25" max="1000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_MISC_INPUT' '$MISC_INPUT_CURR' mA" name="'$SBN_BATTERY_MISC_INPUT'" action="generic /sys/devices/platform/sec-battery/misc_input_curr" unit="mA" min="100" reversed="false" step="50" max="2000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_MISC_CHRG' '$MISC_CHRG_CURR' mA" name="'$SBN_BATTERY_MISC_CHRG'" action="generic /sys/devices/platform/sec-battery/misc_chrg_curr" unit="mA" min="100" reversed="false" step="50" max="2000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_WPC_INPUT' '$WPC_INPUT_CURR' mA" name="'$SBN_BATTERY_WPC_INPUT'" action="generic /sys/devices/platform/sec-battery/wpc_input_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_WPC_CHRG' '$WPC_CHRG_CURR' mA" name="'$SBN_BATTERY_WPC_CHRG'" action="generic /sys/devices/platform/sec-battery/wpc_chrg_curr" unit="mA" min="400" reversed="false" step="25" max="1500"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+# settingsPane: start: MHL power
+echo '        <settingsPane description="'$SPD_BATTERY_MHL'" name="'$SPN_BATTERY_MHL'">' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_MHL_500' '$MHL_500_CURR' mA" name="'$SBN_BATTERY_MHL_500'" action="generic /sys/devices/platform/sec-battery/mhl_500_curr" unit="mA" min="300" reversed="false" step="50" max="1000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_MHL_900' '$MHL_900_CURR' mA" name="'$SBN_BATTERY_MHL_900'" action="generic /sys/devices/platform/sec-battery/mhl_900_curr" unit="mA" min="300" reversed="false" step="50" max="1500"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_MHL_1K5' '$MHL_1K5_CURR' mA" name="'$SBN_BATTERY_MHL_1K5'" action="generic /sys/devices/platform/sec-battery/mhl_1500_curr" unit="mA" min="300" reversed="false" step="50" max="2000"/>' >> $XML
+echo '            <seekBar description="'$SBD_BATTERY_MHL_USB' '$MHL_USB_CURR' mA" name="'$SBN_BATTERY_MHL_USB'" action="generic /sys/devices/platform/sec-battery/mhl_usb_curr" unit="mA" min="300" reversed="false" step="50" max="2000"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
+fi
+
+# settingsTab: start: I/O
+echo '    <settingsTab name="'$STN_IO'">' >> $XML
+echo '        <settingsPane description="'$SPD_IO_CS'" name="'$SPN_IO_CS'">' >> $XML
+echo '            <checkbox description="'$CSD_IO'" name="'$CSN_IO'" action="controlswitch IOSCHED" label="'$CSL_IO'"/>' >> $XML
+echo '            <spinner name="'$SLN_IO_SCHED_INTERNAL'" action="iosched internal /sys/block/mmcblk0/queue/scheduler">' >> $XML
+for IOSCHED in `cat /sys/block/mmcblk0/queue/scheduler | sed -e 's/\]//;s/\[//'`; do
+echo '                <spinnerItem name="'$IOSCHED'" value="'$IOSCHED'"/>' >> $XML
+done
+echo '            </spinner>' >> $XML
+echo '            <spinner name="'$SLN_IO_SCHED_SDCARD'" action="iosched sd /sys/block/mmcblk1/queue/scheduler">' >> $XML
+for IOSCHED in `cat /sys/block/mmcblk1/queue/scheduler | sed -e 's/\]//;s/\[//'`; do
+echo '                <spinnerItem name="'$IOSCHED'" value="'$IOSCHED'"/>' >> $XML
+done
+echo '            </spinner>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '        <settingsPane description="'$SPD_IO_READAHEAD'" name="'$SPN_IO_READAHEAD'">' >> $XML
+echo '            <seekBar description="'$SBD_IO_READAHEAD_INTERNAL'" name="'$SBN_IO_READAHEAD_INTERNAL'" action="generictagforce internal /sys/block/mmcblk0/queue/read_ahead_kb" unit="kB" min="128" reversed="false" step="128" max="2048"/>' >> $XML
+echo '            <seekBar description="'$SBD_IO_READAHEAD_SDCARD'" name="'$SBN_IO_READAHEAD_SDCARD'" action="generictagforce sd /sys/block/mmcblk1/queue/read_ahead_kb" unit="kB" min="128" reversed="false" step="128" max="2048"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
+
+# settingsTab: start: Misc
+echo '    <settingsTab name="'$STN_MISC'">' >> $XML
+if [ -f '/sys/devices/system/cpu/cpufreq/ondemand/boost_mode' ] || [ -f '/sys/devices/virtual/thermal/thermal_zone0/boost_mode' ]; then
+echo '        <settingsPane description="'$SPD_MISC_BOOSTMODE'" name="'$SPN_MISC_BOOSTMODE'">' >> $XML
+echo '            <button description="'$BTD_MISC_BOOSTMODE_CHECK'" name="" action="boostmode check" label="'$BTL_MISC_BOOSTMODE_CHECK'"/>' >> $XML
+echo '            <button description="'$BTD_MISC_BOOSTMODE_SWITCH'" name="" action="boostmode switch" label="'$BTL_MISC_BOOSTMODE_SWITCH'"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+else
+echo '        <settingsPane description="'$SPD_MISC_BOOSTMODE_MISSING'" name="'$SPN_MISC_BOOSTMODE'">' >> $XML
+echo '        </settingsPane>' >> $XML
+fi
+echo '        <settingsPane description="'$SPD_MISC_USBMODE'" name="'$SPN_MISC_USBMODE'">' >> $XML
+echo '            <button description="'$BTD_MISC_USBMODE_CHECK'" name="" action="usbmode check" label="'$BTL_MISC_USBMODE_CHECK'"/>' >> $XML
+echo '            <button description="'$BTD_MISC_USBMODE_SWITCH'" name="" action="usbmode switch" label="'$BTL_MISC_USBMODE_SWITCH'"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+if [ -f '/lib/modules/logger.ko' ]; then
+echo '        <settingsPane description="'$SPD_MISC_LOGGER'" name="'$SPN_MISC_LOGGER'">' >> $XML
+echo '            <button description="'$BTD_MISC_LOGGER_CHECK'" name="" action="logger check" label="'$BTL_MISC_LOGGER_CHECK'"/>' >> $XML
+echo '            <button description="'$BTD_MISC_LOGGER_SWITCH'" name="" action="logger switch" label="'$BTL_MISC_LOGGER_SWITCH'"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+elif [ -f '/sys/kernel/logger_mode/logger_mode' ]; then
+echo '        <settingsPane description="'$SPD_MISC_LOGGER'" name="'$SPN_MISC_LOGGER'">' >> $XML
+echo '            <button description="'$BTD_MISC_LOGGER_CHECK'" name="" action="logger check" label="'$BTL_MISC_LOGGER_CHECK'"/>' >> $XML
+echo '            <button description="'$BTD_MISC_LOGGER_SWITCH'" name="" action="logger switch" label="'$BTL_MISC_LOGGER_SWITCH'"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+else
+echo '        <settingsPane description="'$SPN_MISC_LOGGER_MISSING'" name="'$SPN_MISC_LOGGER'">' >> $XML
+echo '        </settingsPane>' >> $XML
+fi
+echo '        <settingsPane description="'$SPD_MISC_REBOOT_OPTIONS'" name="'$SPN_MISC_REBOOT_OPTIONS'">' >> $XML
+echo '            <button description="'$BTD_MISC_REBOOT_NORMAL'" name="" action="poweroff reboot" label="'$BTL_MISC_REBOOT_NORMAL'"/>' >> $XML
+echo '            <button description="'$BTD_MISC_REBOOT_RECOVERY'" name="" action="poweroff recovery" label="'$BTL_MISC_REBOOT_RECOVERY'"/>' >> $XML
+echo '            <button description="'$BTD_MISC_REBOOT_DOWNLOAD'" name="" action="poweroff download" label="'$BTL_MISC_REBOOT_DOWNLOAD'"/>' >> $XML
+echo '            <button description="'$BTD_MISC_REBOOT_SHUTDOWN'" name="" action="poweroff normal" label="'$BTL_MISC_REBOOT_SHUTDOWN'"/>' >> $XML
+echo '        </settingsPane>' >> $XML
+echo '    </settingsTab>' >> $XML
+
+echo '</settingsRoot>' >> $XML
+
+chmod 777 $XML
