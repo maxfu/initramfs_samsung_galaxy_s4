@@ -1,0 +1,6 @@
+
+service maxfourinit /sbin/wolfsoncontrol.sh
+    class core
+    user root
+    oneshot
+

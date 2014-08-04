@@ -1,3 +1,0 @@
-#!/sbin/busybox sh
-
-cat /sys/devices/platform/sec-battery/power_supply/battery/current_now

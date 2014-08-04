@@ -1,0 +1,6 @@
+
+service maxfourinit /sbin/tweaks.sh
+    class core
+    user root
+    oneshot
+

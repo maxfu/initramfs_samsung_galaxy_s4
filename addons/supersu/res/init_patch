@@ -1,6 +1,0 @@
-
-# init MaxFour Kernel
-service maxfourinit /sbin/maxfour.sh
-    class core
-    user root
-    oneshot
