@@ -1,0 +1,6 @@
+
+service userinit /sbin/userinit.sh
+    class core
+    user root
+    oneshot
+
