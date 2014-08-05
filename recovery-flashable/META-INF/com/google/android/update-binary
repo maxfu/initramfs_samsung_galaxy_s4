@@ -4,6 +4,9 @@
 # communicate with it using the recovery api.
 # arg 3 is the zip file
 
+OUTFD=$2
+ZIP=$3
+
 ui_print() {
 	echo -n -e "ui_print $1\n" > /proc/self/fd/$OUTFD
 	echo -n -e "ui_print\n" > /proc/self/fd/$OUTFD
@@ -13,7 +16,7 @@ ui_print 'Welcome to MaxFour kernel...'
 ui_print 'Preparing files...'
 
 cd /tmp
-unzip -o "$3"
+unzip -o "$ZIP"
 
 if [ -f boot.img ]; then
   ui_print 'Installing boot image...'
@@ -32,3 +35,4 @@ if [ -f recovery.img ]; then
 fi
 
 ui_print 'Finished...'
+
